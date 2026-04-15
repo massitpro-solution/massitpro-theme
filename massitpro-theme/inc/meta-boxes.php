@@ -22,16 +22,16 @@ function massitpro_get_native_section_registry() {
 				'hero'                    => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
 				'trust_strip'             => ['label' => __('Trust Strip', 'massitpro'), 'type' => 'trust_strip', 'rows' => 6],
 				'stats_section'           => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
-				'core_services_section'   => ['label' => __('Core Services', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
-				'services_carousel_section' => ['label' => __('Services Carousel', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
+				'core_services_section'   => ['label' => __('Core Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
+				'services_carousel_section' => ['label' => __('Services Carousel', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
 				'why_choose_section'      => ['label' => __('Why Choose Us', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body'], 'has_eyebrow' => true],
-				'industries_section'      => ['label' => __('Industries', 'massitpro'), 'type' => 'relationship', 'source' => 'industries', 'items_key' => 'industries'],
-				'locations_section'       => ['label' => __('Locations', 'massitpro'), 'type' => 'relationship', 'source' => 'locations', 'items_key' => 'locations'],
-				'projects_section'        => ['label' => __('Projects', 'massitpro'), 'type' => 'relationship', 'source' => 'projects', 'items_key' => 'projects'],
-				'testimonials_section'    => ['label' => __('Testimonials', 'massitpro'), 'type' => 'relationship', 'source' => 'testimonials', 'items_key' => 'testimonials'],
+				'industries_section'      => ['label' => __('Industries', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_url']],
+				'locations_section'       => ['label' => __('Locations', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['title', 'link_url']],
+				'projects_section'        => ['label' => __('Projects', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'category', 'description', 'image', 'link_url']],
+				'testimonials_section'    => ['label' => __('Testimonials', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['quote', 'name', 'role', 'company', 'industry_tag']],
 				'secondary_services_section' => ['label' => __('Secondary Services', 'massitpro'), 'type' => 'cards', 'rows' => 4, 'fields' => ['title', 'body', 'image', 'link'], 'has_eyebrow' => true],
 				'blog_section'            => ['label' => __('Blog', 'massitpro'), 'type' => 'blog'],
-				'faq_section'             => ['label' => __('FAQs', 'massitpro'), 'type' => 'relationship', 'source' => 'faqs', 'items_key' => 'faqs'],
+				'faq_section'             => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
 				'cta_block'               => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
@@ -44,10 +44,10 @@ function massitpro_get_native_section_registry() {
 				'capabilities_section'       => ['label' => __('Capabilities', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
 				'process_section'            => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 6],
 				'ideal_for_section'          => ['label' => __('Ideal For', 'massitpro'), 'type' => 'simple_list'],
-				'related_services_section'   => ['label' => __('Related Services', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
-				'related_projects_section'   => ['label' => __('Related Projects', 'massitpro'), 'type' => 'relationship', 'source' => 'projects', 'items_key' => 'projects'],
-				'related_testimonials_section' => ['label' => __('Related Testimonials', 'massitpro'), 'type' => 'relationship', 'source' => 'testimonials', 'items_key' => 'testimonials'],
-				'faq_section'                => ['label' => __('FAQs', 'massitpro'), 'type' => 'relationship', 'source' => 'faqs', 'items_key' => 'faqs'],
+				'related_services_section'   => ['label' => __('Related Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
+				'related_projects_section'   => ['label' => __('Related Projects', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'category', 'description', 'image', 'link_url']],
+				'related_testimonials_section' => ['label' => __('Related Testimonials', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['quote', 'name', 'role', 'company', 'industry_tag']],
+				'faq_section'                => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
 				'cta_block'                  => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
@@ -57,11 +57,11 @@ function massitpro_get_native_section_registry() {
 				'hero'                        => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
 				'overview_section'            => ['label' => __('Overview', 'massitpro'), 'type' => 'intro'],
 				'pain_points_section'         => ['label' => __('Pain Points', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
-				'recommended_services_section'=> ['label' => __('Recommended Services', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
+				'recommended_services_section'=> ['label' => __('Recommended Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
 				'sub_clusters_section'        => ['label' => __('Sub-Clusters', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
 				'compliance_section'          => ['label' => __('Compliance', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'featured_project_section'    => ['label' => __('Featured Project', 'massitpro'), 'type' => 'featured_project'],
-				'faq_section'                 => ['label' => __('FAQs', 'massitpro'), 'type' => 'relationship', 'source' => 'faqs', 'items_key' => 'faqs'],
+				'faq_section'                 => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
 				'related_links_section'       => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
 				'cta_block'                   => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
@@ -72,10 +72,10 @@ function massitpro_get_native_section_registry() {
 				'hero'                     => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
 				'overview_section'         => ['label' => __('Overview', 'massitpro'), 'type' => 'intro'],
 				'why_local_section'        => ['label' => __('Why Local', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
-				'available_services_section' => ['label' => __('Available Services', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
-				'served_industries_section'  => ['label' => __('Served Industries', 'massitpro'), 'type' => 'relationship', 'source' => 'industries', 'items_key' => 'industries'],
+				'available_services_section' => ['label' => __('Available Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
+				'served_industries_section'  => ['label' => __('Served Industries', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_url']],
 				'trust_cards_section'      => ['label' => __('Trust Cards', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
-				'faq_section'              => ['label' => __('FAQs', 'massitpro'), 'type' => 'relationship', 'source' => 'faqs', 'items_key' => 'faqs'],
+				'faq_section'              => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
 				'related_links_section'    => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
 				'cta_block'                => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
@@ -84,9 +84,9 @@ function massitpro_get_native_section_registry() {
 			'title'    => __('Mass IT Pro Services Hub Fields', 'massitpro'),
 			'sections' => [
 				'hero'                       => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'business_services_section'  => ['label' => __('Business Services', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
+				'business_services_section'  => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
 				'why_choose_section'         => ['label' => __('Why Choose Us', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body'], 'has_eyebrow' => true],
-				'residential_services_section' => ['label' => __('Residential Services', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
+				'residential_services_section' => ['label' => __('Residential Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
 				'web_design_spotlight'       => ['label' => __('Web Design Spotlight', 'massitpro'), 'type' => 'spotlight'],
 				'process_section'            => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
 				'cta_block'                  => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
@@ -97,10 +97,10 @@ function massitpro_get_native_section_registry() {
 			'sections' => [
 				'hero'             => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
 				'intro_section'    => ['label' => __('Intro', 'massitpro'), 'type' => 'intro'],
-				'services_section' => ['label' => __('Services', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
+				'services_section' => ['label' => __('Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
 				'benefits_section' => ['label' => __('Benefits', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'process_section'  => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
-				'faq_section'      => ['label' => __('FAQs', 'massitpro'), 'type' => 'relationship', 'source' => 'faqs', 'items_key' => 'faqs'],
+				'faq_section'      => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
 				'cta_block'        => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
@@ -109,10 +109,10 @@ function massitpro_get_native_section_registry() {
 			'sections' => [
 				'hero'             => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
 				'intro_section'    => ['label' => __('Intro', 'massitpro'), 'type' => 'intro'],
-				'services_section' => ['label' => __('Services', 'massitpro'), 'type' => 'relationship', 'source' => 'services', 'items_key' => 'services'],
+				'services_section' => ['label' => __('Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
 				'benefits_section' => ['label' => __('Benefits', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'process_section'  => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
-				'faq_section'      => ['label' => __('FAQs', 'massitpro'), 'type' => 'relationship', 'source' => 'faqs', 'items_key' => 'faqs'],
+				'faq_section'      => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
 				'cta_block'        => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
@@ -121,7 +121,7 @@ function massitpro_get_native_section_registry() {
 			'sections' => [
 				'hero'                      => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
 				'intro_section'             => ['label' => __('Intro', 'massitpro'), 'type' => 'intro'],
-				'featured_industries_section' => ['label' => __('Featured Industries', 'massitpro'), 'type' => 'relationship', 'source' => 'industries', 'items_key' => 'industries'],
+				'featured_industries_section' => ['label' => __('Featured Industries', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_url']],
 				'value_cards_section'       => ['label' => __('Value Cards', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'compliance_cards_section'  => ['label' => __('Compliance Cards', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'featured_project_section'  => ['label' => __('Featured Project', 'massitpro'), 'type' => 'featured_project'],
@@ -133,7 +133,7 @@ function massitpro_get_native_section_registry() {
 			'sections' => [
 				'hero'                     => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
 				'intro_section'            => ['label' => __('Intro', 'massitpro'), 'type' => 'intro'],
-				'featured_locations_section' => ['label' => __('Featured Locations', 'massitpro'), 'type' => 'relationship', 'source' => 'locations', 'items_key' => 'locations'],
+				'featured_locations_section' => ['label' => __('Featured Locations', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['title', 'link_url']],
 				'service_highlights_section' => ['label' => __('Service Highlights', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'local_advantage_section'  => ['label' => __('Local Advantage', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
 				'cta_block'                => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
@@ -142,13 +142,26 @@ function massitpro_get_native_section_registry() {
 		'about' => [
 			'title'    => __('Mass IT Pro About Page Fields', 'massitpro'),
 			'sections' => [
-				'hero'               => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'intro_section'      => ['label' => __('Mission Intro', 'massitpro'), 'type' => 'intro'],
-				'stats_section'      => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
-				'value_cards_section'=> ['label' => __('Values', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
-				'process_section'    => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
-				'focus_section'      => ['label' => __('Massachusetts Focus', 'massitpro'), 'type' => 'spotlight'],
-				'cta_block'          => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+				'hero'                    => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'intro_section'           => ['label' => __('Mission Intro', 'massitpro'), 'type' => 'intro'],
+				'stats_section'           => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
+				'value_cards_section'     => ['label' => __('Values', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
+				'process_section'         => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
+				'team_highlights_section' => ['label' => __('Team Highlights', 'massitpro'), 'type' => 'cards', 'rows' => 3, 'fields' => ['icon', 'title', 'body'], 'has_eyebrow' => true, 'has_image' => true],
+				'certifications_section'  => ['label' => __('Certifications', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['title'], 'has_eyebrow' => true],
+				'focus_section'           => ['label' => __('Massachusetts Focus', 'massitpro'), 'type' => 'spotlight'],
+				'cta_block'               => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+			],
+		],
+		'testimonials' => [
+			'title'    => __('Mass IT Pro Testimonials Page Fields', 'massitpro'),
+			'sections' => [
+				'hero'                         => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'featured_testimonial'         => ['label' => __('Featured Testimonial', 'massitpro'), 'type' => 'featured_testimonial'],
+				'testimonials_section'         => ['label' => __('Testimonials', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['quote', 'name', 'role', 'company', 'industry_tag']],
+				'stats_section'                => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
+				'community_spotlight_section'  => ['label' => __('Community Spotlight', 'massitpro'), 'type' => 'spotlight'],
+				'cta_block'                    => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
 		'contact' => [
@@ -453,6 +466,9 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 		case 'featured_project':
 			massitpro_render_native_featured_project_editor($section_key, $value);
 			return;
+		case 'featured_testimonial':
+			massitpro_render_native_featured_testimonial_editor($section_key, $value);
+			return;
 		case 'related_links':
 			massitpro_render_native_related_links_editor($section_key, $definition, $value);
 			return;
@@ -654,6 +670,10 @@ function massitpro_render_native_cards_editor($section, $definition, $value) {
 	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
 	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
 
+	if (! empty($definition['has_image'])) {
+		massitpro_render_native_image_field($section, 'image', __('Section Image', 'massitpro'), (int) ($value['image'] ?? 0));
+	}
+
 	for ($index = 0; $index < $rows; $index++) {
 		$row = (array) (($value['items'][$index] ?? []));
 		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Item %d', 'massitpro'), $index + 1)) . '</h4>';
@@ -690,6 +710,46 @@ function massitpro_render_native_cards_editor($section, $definition, $value) {
 			$link = (array) ($row['link'] ?? []);
 			massitpro_render_native_text_input($section, 'items][' . $index . '][link][title', __('Link Label', 'massitpro'), (string) ($link['title'] ?? ($link['label'] ?? '')));
 			massitpro_render_native_text_input($section, 'items][' . $index . '][link][url', __('Link URL', 'massitpro'), (string) ($link['url'] ?? ''));
+		}
+
+		if (in_array('link_label', $fields, true)) {
+			massitpro_render_native_text_input($section, 'items][' . $index . '][link_label', __('Link Label', 'massitpro'), (string) ($row['link_label'] ?? ''));
+		}
+
+		if (in_array('link_url', $fields, true)) {
+			massitpro_render_native_text_input($section, 'items][' . $index . '][link_url', __('Link URL', 'massitpro'), (string) ($row['link_url'] ?? ''));
+		}
+
+		if (in_array('category', $fields, true)) {
+			massitpro_render_native_text_input($section, 'items][' . $index . '][category', __('Category', 'massitpro'), (string) ($row['category'] ?? ''));
+		}
+
+		if (in_array('quote', $fields, true)) {
+			massitpro_render_native_textarea($section, 'items][' . $index . '][quote', __('Quote', 'massitpro'), (string) ($row['quote'] ?? ''), 4);
+		}
+
+		if (in_array('name', $fields, true)) {
+			massitpro_render_native_text_input($section, 'items][' . $index . '][name', __('Name', 'massitpro'), (string) ($row['name'] ?? ''));
+		}
+
+		if (in_array('role', $fields, true)) {
+			massitpro_render_native_text_input($section, 'items][' . $index . '][role', __('Role', 'massitpro'), (string) ($row['role'] ?? ''));
+		}
+
+		if (in_array('company', $fields, true)) {
+			massitpro_render_native_text_input($section, 'items][' . $index . '][company', __('Company', 'massitpro'), (string) ($row['company'] ?? ''));
+		}
+
+		if (in_array('industry_tag', $fields, true)) {
+			massitpro_render_native_text_input($section, 'items][' . $index . '][industry_tag', __('Industry Tag', 'massitpro'), (string) ($row['industry_tag'] ?? ''));
+		}
+
+		if (in_array('question', $fields, true)) {
+			massitpro_render_native_text_input($section, 'items][' . $index . '][question', __('Question', 'massitpro'), (string) ($row['question'] ?? ''));
+		}
+
+		if (in_array('answer', $fields, true)) {
+			massitpro_render_native_textarea($section, 'items][' . $index . '][answer', __('Answer', 'massitpro'), (string) ($row['answer'] ?? ''), 4);
 		}
 
 		echo '</div>';
@@ -845,6 +905,21 @@ function massitpro_render_native_featured_project_editor($section, $value) {
 }
 
 /**
+ * Render a featured-testimonial editor.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_featured_testimonial_editor($section, $value) {
+	massitpro_render_native_textarea($section, 'featured_quote', __('Featured Quote', 'massitpro'), (string) ($value['featured_quote'] ?? ''), 5);
+	massitpro_render_native_text_input($section, 'featured_name', __('Name', 'massitpro'), (string) ($value['featured_name'] ?? ''));
+	massitpro_render_native_text_input($section, 'featured_role', __('Role', 'massitpro'), (string) ($value['featured_role'] ?? ''));
+	massitpro_render_native_text_input($section, 'featured_company', __('Company', 'massitpro'), (string) ($value['featured_company'] ?? ''));
+	massitpro_render_native_text_input($section, 'featured_industry', __('Industry Tag', 'massitpro'), (string) ($value['featured_industry'] ?? ''));
+	massitpro_render_native_image_field($section, 'featured_image', __('Featured Image', 'massitpro'), (int) ($value['featured_image'] ?? 0));
+}
+
+/**
  * Render a spotlight editor.
  *
  * @param string              $section Section key.
@@ -980,6 +1055,15 @@ function massitpro_sanitize_native_section($definition, $input) {
 				'body'    => wp_kses_post((string) ($input['body'] ?? '')),
 				'project' => absint($input['project'] ?? 0),
 			];
+		case 'featured_testimonial':
+			return [
+				'featured_quote'    => sanitize_textarea_field((string) ($input['featured_quote'] ?? '')),
+				'featured_name'     => sanitize_text_field((string) ($input['featured_name'] ?? '')),
+				'featured_role'     => sanitize_text_field((string) ($input['featured_role'] ?? '')),
+				'featured_company'  => sanitize_text_field((string) ($input['featured_company'] ?? '')),
+				'featured_industry' => sanitize_text_field((string) ($input['featured_industry'] ?? '')),
+				'featured_image'    => absint($input['featured_image'] ?? 0),
+			];
 		case 'spotlight':
 			return [
 				'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
@@ -1106,6 +1190,10 @@ function massitpro_sanitize_native_cards_section($definition, $input) {
 		$section['eyebrow'] = sanitize_text_field((string) ($input['eyebrow'] ?? ''));
 	}
 
+	if (! empty($definition['has_image'])) {
+		$section['image'] = absint($input['image'] ?? 0);
+	}
+
 	foreach ((array) ($input['items'] ?? []) as $row) {
 		$row  = is_array($row) ? $row : [];
 		$item = [];
@@ -1149,6 +1237,46 @@ function massitpro_sanitize_native_cards_section($definition, $input) {
 					'target' => '',
 				];
 			}
+		}
+
+		if (in_array('link_label', $fields, true)) {
+			$item['link_label'] = sanitize_text_field((string) ($row['link_label'] ?? ''));
+		}
+
+		if (in_array('link_url', $fields, true)) {
+			$item['link_url'] = esc_url_raw((string) ($row['link_url'] ?? ''));
+		}
+
+		if (in_array('category', $fields, true)) {
+			$item['category'] = sanitize_text_field((string) ($row['category'] ?? ''));
+		}
+
+		if (in_array('quote', $fields, true)) {
+			$item['quote'] = sanitize_textarea_field((string) ($row['quote'] ?? ''));
+		}
+
+		if (in_array('name', $fields, true)) {
+			$item['name'] = sanitize_text_field((string) ($row['name'] ?? ''));
+		}
+
+		if (in_array('role', $fields, true)) {
+			$item['role'] = sanitize_text_field((string) ($row['role'] ?? ''));
+		}
+
+		if (in_array('company', $fields, true)) {
+			$item['company'] = sanitize_text_field((string) ($row['company'] ?? ''));
+		}
+
+		if (in_array('industry_tag', $fields, true)) {
+			$item['industry_tag'] = sanitize_text_field((string) ($row['industry_tag'] ?? ''));
+		}
+
+		if (in_array('question', $fields, true)) {
+			$item['question'] = sanitize_text_field((string) ($row['question'] ?? ''));
+		}
+
+		if (in_array('answer', $fields, true)) {
+			$item['answer'] = wp_kses_post((string) ($row['answer'] ?? ''));
 		}
 
 		if (! massitpro_is_empty_value($item)) {

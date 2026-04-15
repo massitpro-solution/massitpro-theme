@@ -178,4 +178,29 @@
 
 		syncSlides();
 	}
+
+	const filterButtons = document.querySelectorAll('.filter-btn');
+	if (filterButtons.length) {
+		filterButtons.forEach(function (button) {
+			button.addEventListener('click', function () {
+				const filter = button.getAttribute('data-filter') || 'all';
+
+				filterButtons.forEach(function (entry) {
+					entry.classList.toggle('is-active', entry === button);
+				});
+
+				document.querySelectorAll('.testimonial-card').forEach(function (card) {
+					const industry = card.getAttribute('data-industry') || '';
+
+					if ('all' === filter || industry === filter) {
+						card.hidden = false;
+						card.style.display = '';
+					} else {
+						card.hidden = true;
+						card.style.display = 'none';
+					}
+				});
+			});
+		});
+	}
 })();
