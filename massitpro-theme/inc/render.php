@@ -1755,18 +1755,8 @@ function massitpro_render_homepage() {
 		massitpro_render_stats_band_section('stats_section', $post_id, ['surface_class' => 'surface-sand']);
 	endif;
 
-	massitpro_render_relationship_cards_section(
-		'core_services_section',
-		'services',
-		static function ($item, $index) {
-			massitpro_render_page_card($item, $index, 'compact');
-		},
-		$post_id,
-		[
-			'surface_class' => 'surface-sand',
-		]
-	);
-	massitpro_render_relationship_feature_rows_section('services_carousel_section', 'services', $post_id);
+	massitpro_render_image_cards_section('core_services_section', $post_id);
+	massitpro_render_image_cards_section('services_carousel_section', $post_id, ['carousel' => true]);
 	massitpro_render_image_cards_section(
 		'why_choose_section',
 		$post_id,
@@ -1775,18 +1765,10 @@ function massitpro_render_homepage() {
 			'card_class'    => 'feature-grid-card--dark',
 		]
 	);
-	massitpro_render_relationship_cards_section('industries_section', 'industries', 'massitpro_render_page_card', $post_id);
-	massitpro_render_relationship_pills_section('locations_section', 'locations', $post_id);
-	massitpro_render_relationship_cards_section(
-		'projects_section',
-		'projects',
-		static function ($item, $index) {
-			massitpro_render_project_card($item, $index, 'dark');
-		},
-		$post_id,
-		['surface_class' => 'surface-navy']
-	);
-	massitpro_render_relationship_cards_section('testimonials_section', 'testimonials', 'massitpro_render_testimonial_card', $post_id);
+	massitpro_render_image_cards_section('industries_section', $post_id);
+	massitpro_render_link_cards_section('locations_section', $post_id);
+	massitpro_render_image_cards_section('projects_section', $post_id, ['surface_class' => 'surface-sand']);
+	massitpro_render_manual_testimonials_section('testimonials_section', $post_id);
 	massitpro_render_image_cards_section('secondary_services_section', $post_id);
 
 	$blog_section = (array) massitpro_get_section_meta('blog_section', $post_id, []);
@@ -1849,9 +1831,9 @@ function massitpro_render_about_page_body($post_id = 0) {
  */
 function massitpro_render_services_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_relationship_feature_rows_section('business_services_section', 'services', $post_id);
+	massitpro_render_image_cards_section('business_services_section', $post_id);
 	massitpro_render_icon_cards_section('why_choose_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_relationship_cards_section('residential_services_section', 'services', 'massitpro_render_page_card', $post_id, ['surface_class' => 'surface-sand']);
+	massitpro_render_image_cards_section('residential_services_section', $post_id, ['surface_class' => 'surface-sand']);
 	massitpro_render_spotlight_section('web_design_spotlight', $post_id);
 	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand']);
 	massitpro_render_cta_block($post_id);
