@@ -310,3 +310,142 @@ function massitpro_query_posts($args) {
 
 	return $query->posts;
 }
+
+/**
+ * Get structured testimonial data from a CPT post.
+ *
+ * @param int|WP_Post $post Post object or ID.
+ * @return array<string,mixed>
+ */
+function massitpro_get_testimonial_data($post) {
+	$post = get_post($post);
+
+	if (! $post instanceof WP_Post) {
+		return [
+			'quote'    => '',
+			'name'     => '',
+			'role'     => '',
+			'company'  => '',
+			'industry' => '',
+			'image'    => null,
+		];
+	}
+
+	$terms    = get_the_terms($post->ID, 'testimonial_industry');
+	$industry = '';
+
+	if (! is_wp_error($terms) && ! empty($terms)) {
+		$industry = (string) $terms[0]->name;
+	}
+
+	return [
+		'quote'    => trim(wp_strip_all_tags((string) $post->post_content)),
+		'name'     => get_the_title($post),
+		'role'     => (string) get_post_meta($post->ID, '_testimonial_role', true),
+		'company'  => (string) get_post_meta($post->ID, '_testimonial_company', true),
+		'industry' => $industry,
+		'image'    => has_post_thumbnail($post->ID) ? get_post_thumbnail_id($post->ID) : null,
+	];
+}
+
+/**
+ * Get structured project data from a CPT post.
+ *
+ * @param int|WP_Post $post Post object or ID.
+ * @return array<string,mixed>
+ */
+function massitpro_get_project_data($post) {
+	$post = get_post($post);
+
+	if (! $post instanceof WP_Post) {
+		return [
+			'title'    => '',
+			'subtitle' => '',
+			'category' => '',
+			'desc'     => '',
+			'image'    => null,
+			'link'     => '',
+		];
+	}
+
+	$terms    = get_the_terms($post->ID, 'project_category');
+	$category = '';
+
+	if (! is_wp_error($terms) && ! empty($terms)) {
+		$category = (string) $terms[0]->name;
+	}
+
+	$excerpt = trim(wp_strip_all_tags((string) $post->post_excerpt));
+
+	if (! $excerpt) {
+		$content = trim(wp_strip_all_tags((string) $post->post_content));
+		$excerpt = $content ? wp_trim_words($content, 20, '...') : '';
+	}
+
+	return [
+		'title'    => get_the_title($post),
+		'subtitle' => (string) get_post_meta($post->ID, '_project_subtitle', true),
+		'category' => $category,
+		'desc'     => $excerpt,
+		'image'    => has_post_thumbnail($post->ID) ? get_post_thumbnail_id($post->ID) : null,
+		'link'     => get_permalink($post),
+	];
+}
+
+/**
+ * Get structured FAQ data from a CPT post.
+ *
+ * @param int|WP_Post $post Post object or ID.
+ * @return array<string,mixed>
+ */
+function massitpro_get_faq_data($post) {
+	$post = get_post($post);
+
+	if (! $post instanceof WP_Post) {
+		return [
+			'question' => '',
+			'answer'   => '',
+			'group'    => '',
+		];
+	}
+
+	$terms = get_the_terms($post->ID, 'faq_category');
+	$group = '';
+
+	if (! is_wp_error($terms) && ! empty($terms)) {
+		$group = (string) $terms[0]->name;
+	}
+
+	$answer = trim((string) apply_filters('the_content', $post->post_content));
+
+	if (! $answer) {
+		$answer = wpautop(wp_kses_post((string) $post->post_excerpt));
+	}
+
+	return [
+		'question' => get_the_title($post),
+		'answer'   => $answer,
+		'group'    => $group,
+	];
+}
+
+/**
+ * Query published posts in random order.
+ *
+ * @param string $post_type Post type slug.
+ * @param int    $count     Maximum number of posts.
+ * @return array<int,WP_Post>
+ */
+function massitpro_query_random_posts($post_type, $count) {
+	$query = new WP_Query(
+		[
+			'post_type'      => sanitize_key((string) $post_type),
+			'post_status'    => 'publish',
+			'posts_per_page' => max(1, (int) $count),
+			'orderby'        => 'rand',
+			'ignore_sticky_posts' => true,
+		]
+	);
+
+	return $query->posts;
+}

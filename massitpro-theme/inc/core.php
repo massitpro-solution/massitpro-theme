@@ -137,8 +137,194 @@ function massitpro_register_post_types() {
 			'rewrite'      => ['slug' => 'faq'],
 		]
 	);
+
+	register_taxonomy(
+		'testimonial_industry',
+		'testimonial',
+		[
+			'labels'             => [
+				'name'          => __('Industries', 'massitpro'),
+				'singular_name' => __('Industry', 'massitpro'),
+				'add_new_item'  => __('Add New Industry', 'massitpro'),
+				'menu_name'     => __('Industries', 'massitpro'),
+			],
+			'hierarchical'       => false,
+			'show_in_rest'       => true,
+			'show_admin_column'  => true,
+			'rewrite'            => ['slug' => 'testimonial-industry'],
+		]
+	);
+
+	register_taxonomy(
+		'faq_category',
+		'faq_item',
+		[
+			'labels'             => [
+				'name'          => __('FAQ Categories', 'massitpro'),
+				'singular_name' => __('FAQ Category', 'massitpro'),
+				'add_new_item'  => __('Add New FAQ Category', 'massitpro'),
+				'menu_name'     => __('Categories', 'massitpro'),
+			],
+			'hierarchical'       => true,
+			'show_in_rest'       => true,
+			'show_admin_column'  => true,
+			'rewrite'            => ['slug' => 'faq-category'],
+		]
+	);
+
+	register_taxonomy(
+		'project_category',
+		'project',
+		[
+			'labels'             => [
+				'name'          => __('Project Categories', 'massitpro'),
+				'singular_name' => __('Project Category', 'massitpro'),
+				'add_new_item'  => __('Add New Project Category', 'massitpro'),
+				'menu_name'     => __('Categories', 'massitpro'),
+			],
+			'hierarchical'       => true,
+			'show_in_rest'       => true,
+			'show_admin_column'  => true,
+			'rewrite'            => ['slug' => 'project-category'],
+		]
+	);
 }
 add_action('init', 'massitpro_register_post_types');
+
+/**
+ * Register CPT post meta fields.
+ */
+function massitpro_register_cpt_meta() {
+	foreach (['_testimonial_role', '_testimonial_company'] as $key) {
+		register_post_meta(
+			'testimonial',
+			$key,
+			[
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			]
+		);
+	}
+
+	register_post_meta(
+		'project',
+		'_project_subtitle',
+		[
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+		]
+	);
+}
+add_action('init', 'massitpro_register_cpt_meta');
+
+/**
+ * Render the testimonial CPT meta box fields.
+ *
+ * @param WP_Post $post Current post object.
+ */
+function massitpro_render_testimonial_meta_box_callback($post) {
+	wp_nonce_field('massitpro_save_cpt_meta', 'massitpro_cpt_meta_nonce');
+	$role    = (string) get_post_meta($post->ID, '_testimonial_role', true);
+	$company = (string) get_post_meta($post->ID, '_testimonial_company', true);
+	?>
+	<p>
+		<label for="massitpro_testimonial_role"><?php esc_html_e('Role', 'massitpro'); ?></label><br>
+		<input type="text" id="massitpro_testimonial_role" name="_testimonial_role" value="<?php echo esc_attr($role); ?>" class="widefat">
+	</p>
+	<p>
+		<label for="massitpro_testimonial_company"><?php esc_html_e('Company', 'massitpro'); ?></label><br>
+		<input type="text" id="massitpro_testimonial_company" name="_testimonial_company" value="<?php echo esc_attr($company); ?>" class="widefat">
+	</p>
+	<p class="description"><?php esc_html_e('Industry is set using the Industries taxonomy in the right sidebar.', 'massitpro'); ?></p>
+	<?php
+}
+
+/**
+ * Render the project CPT meta box fields.
+ *
+ * @param WP_Post $post Current post object.
+ */
+function massitpro_render_project_meta_box_callback($post) {
+	wp_nonce_field('massitpro_save_cpt_meta', 'massitpro_cpt_meta_nonce');
+	$subtitle = (string) get_post_meta($post->ID, '_project_subtitle', true);
+	?>
+	<p>
+		<label for="massitpro_project_subtitle"><?php esc_html_e('Subtitle / Category Label', 'massitpro'); ?></label><br>
+		<input type="text" id="massitpro_project_subtitle" name="_project_subtitle" value="<?php echo esc_attr($subtitle); ?>" class="widefat">
+	</p>
+	<p class="description"><?php esc_html_e('Use featured image for the project image. Use the title for the project name.', 'massitpro'); ?></p>
+	<?php
+}
+
+/**
+ * Add CPT meta boxes for testimonial and project post types.
+ */
+function massitpro_render_cpt_meta_boxes() {
+	add_meta_box(
+		'massitpro_testimonial_details',
+		__('Testimonial Details', 'massitpro'),
+		'massitpro_render_testimonial_meta_box_callback',
+		'testimonial',
+		'normal',
+		'high'
+	);
+
+	add_meta_box(
+		'massitpro_project_details',
+		__('Project Details', 'massitpro'),
+		'massitpro_render_project_meta_box_callback',
+		'project',
+		'normal',
+		'high'
+	);
+}
+add_action('add_meta_boxes', 'massitpro_render_cpt_meta_boxes');
+
+/**
+ * Save CPT meta fields.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_save_cpt_meta($post_id) {
+	if (! isset($_POST['massitpro_cpt_meta_nonce'])) {
+		return;
+	}
+
+	if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['massitpro_cpt_meta_nonce'])), 'massitpro_save_cpt_meta')) {
+		return;
+	}
+
+	if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+		return;
+	}
+
+	if (! current_user_can('edit_post', $post_id)) {
+		return;
+	}
+
+	$post_type = get_post_type($post_id);
+
+	if ('testimonial' === $post_type) {
+		if (isset($_POST['_testimonial_role'])) {
+			update_post_meta($post_id, '_testimonial_role', sanitize_text_field(wp_unslash($_POST['_testimonial_role'])));
+		}
+
+		if (isset($_POST['_testimonial_company'])) {
+			update_post_meta($post_id, '_testimonial_company', sanitize_text_field(wp_unslash($_POST['_testimonial_company'])));
+		}
+	}
+
+	if ('project' === $post_type) {
+		if (isset($_POST['_project_subtitle'])) {
+			update_post_meta($post_id, '_project_subtitle', sanitize_text_field(wp_unslash($_POST['_project_subtitle'])));
+		}
+	}
+}
+add_action('save_post', 'massitpro_save_cpt_meta');
 
 /**
  * Read a shared contact setting.
