@@ -393,43 +393,6 @@ function massitpro_get_project_data($post) {
 }
 
 /**
- * Get structured FAQ data from a CPT post.
- *
- * @param int|WP_Post $post Post object or ID.
- * @return array<string,mixed>
- */
-function massitpro_get_faq_data($post) {
-	$post = get_post($post);
-
-	if (! $post instanceof WP_Post) {
-		return [
-			'question' => '',
-			'answer'   => '',
-			'group'    => '',
-		];
-	}
-
-	$terms = get_the_terms($post->ID, 'faq_category');
-	$group = '';
-
-	if (! is_wp_error($terms) && ! empty($terms)) {
-		$group = (string) $terms[0]->name;
-	}
-
-	$answer = trim((string) apply_filters('the_content', $post->post_content));
-
-	if (! $answer) {
-		$answer = wpautop(wp_kses_post((string) $post->post_excerpt));
-	}
-
-	return [
-		'question' => get_the_title($post),
-		'answer'   => $answer,
-		'group'    => $group,
-	];
-}
-
-/**
  * Query published posts in random order.
  *
  * @param string $post_type Post type slug.

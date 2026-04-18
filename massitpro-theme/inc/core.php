@@ -122,22 +122,6 @@ function massitpro_register_post_types() {
 		]
 	);
 
-	register_post_type(
-		'faq_item',
-		[
-			'labels'       => [
-				'name'          => __('FAQs', 'massitpro'),
-				'singular_name' => __('FAQ', 'massitpro'),
-			],
-			'public'       => true,
-			'show_in_rest' => true,
-			'menu_icon'    => 'dashicons-editor-help',
-			'supports'     => ['title', 'editor', 'excerpt', 'page-attributes'],
-			'has_archive'  => false,
-			'rewrite'      => ['slug' => 'faq'],
-		]
-	);
-
 	register_taxonomy(
 		'testimonial_industry',
 		'testimonial',
@@ -152,23 +136,6 @@ function massitpro_register_post_types() {
 			'show_in_rest'       => true,
 			'show_admin_column'  => true,
 			'rewrite'            => ['slug' => 'testimonial-industry'],
-		]
-	);
-
-	register_taxonomy(
-		'faq_category',
-		'faq_item',
-		[
-			'labels'             => [
-				'name'          => __('FAQ Categories', 'massitpro'),
-				'singular_name' => __('FAQ Category', 'massitpro'),
-				'add_new_item'  => __('Add New FAQ Category', 'massitpro'),
-				'menu_name'     => __('Categories', 'massitpro'),
-			],
-			'hierarchical'       => true,
-			'show_in_rest'       => true,
-			'show_admin_column'  => true,
-			'rewrite'            => ['slug' => 'faq-category'],
 		]
 	);
 

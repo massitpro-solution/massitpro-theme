@@ -2000,40 +2000,99 @@ function massitpro_render_cpt_blog_section($post_id = 0) {
 }
 
 /**
- * Render the FAQ page body from the faq_item CPT grouped by taxonomy.
+ * Render the FAQ "Quick Answers" split-feature section.
  *
- * @param int $post_id Current page post ID.
+ * @param string $meta_key Section meta key.
+ * @param int    $post_id  Post ID.
  */
-function massitpro_render_cpt_faq_page_body($post_id = 0) {
+function massitpro_render_faq_quick_answers($meta_key, $post_id) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	$posts   = massitpro_query_posts(
-		[
-			'post_type'      => 'faq_item',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'orderby'        => 'menu_order',
-			'order'          => 'ASC',
-		]
-	);
+	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$image   = $group['image'] ?? null;
+	$items   = [];
 
-	if (! $posts) {
-		return;
-	}
+	foreach ((array) ($group['items'] ?? []) as $row) {
+		$question = trim((string) ($row['question'] ?? ''));
+		$answer   = trim((string) ($row['answer'] ?? ''));
 
-	$groups = [];
-
-	foreach ($posts as $faq_post) {
-		$data = massitpro_get_faq_data($faq_post);
-
-		if (empty($data['question']) || empty($data['answer'])) {
+		if (! $question || ! $answer) {
 			continue;
 		}
 
-		$label = $data['group'] ?: __('General Questions', 'massitpro');
+		$items[] = [
+			'question' => $question,
+			'answer'   => $answer,
+		];
+
+		if (count($items) >= 4) {
+			break;
+		}
+	}
+
+	if (! $items && ! $heading && ! $eyebrow) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing">
+		<div class="site-shell">
+			<div class="split-feature<?php echo $image ? '' : ' split-feature--single'; ?>">
+				<div class="split-feature__copy" data-reveal>
+					<?php if ($eyebrow) : ?>
+						<p class="section-label"><?php echo esc_html($eyebrow); ?></p>
+					<?php endif; ?>
+					<?php if ($heading) : ?>
+						<h2><?php echo esc_html($heading); ?></h2>
+					<?php endif; ?>
+					<?php if ($items) : ?>
+						<div class="faq-quick-answers">
+							<?php $total = count($items); ?>
+							<?php foreach ($items as $qa_index => $item) : ?>
+								<div class="faq-quick-answer<?php echo ($qa_index === $total - 1) ? ' faq-quick-answer--last' : ''; ?>">
+									<h3><?php echo esc_html($item['question']); ?></h3>
+									<p><?php echo esc_html($item['answer']); ?></p>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+				</div>
+				<?php if ($image) : ?>
+					<div class="split-feature__media" data-reveal>
+						<?php massitpro_render_media(['image' => $image, 'aspect' => 'square', 'class' => 'rounded-3xl']); ?>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the full FAQ accordion section grouped by category.
+ *
+ * @param string $meta_key Section meta key.
+ * @param int    $post_id  Post ID.
+ */
+function massitpro_render_faq_accordion($meta_key, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
+	$groups  = [];
+
+	foreach ((array) ($group['items'] ?? []) as $row) {
+		$question = trim((string) ($row['question'] ?? ''));
+		$answer   = trim((string) ($row['answer'] ?? ''));
+
+		if (! $question || ! $answer) {
+			continue;
+		}
+
+		$category = trim((string) ($row['category'] ?? ''));
+		$label    = '' !== $category ? $category : __('General Questions', 'massitpro');
 
 		$groups[$label][] = [
-			'question' => $data['question'],
-			'answer'   => $data['answer'],
+			'question' => $question,
+			'answer'   => wpautop($answer),
 		];
 	}
 
@@ -2041,7 +2100,7 @@ function massitpro_render_cpt_faq_page_body($post_id = 0) {
 		return;
 	}
 	?>
-	<section class="section-padding section-spacing">
+	<section class="surface-sand section-padding section-spacing">
 		<div class="site-shell site-shell--faq">
 			<?php foreach ($groups as $label => $group_items) : ?>
 				<div class="faq-group" data-reveal>
@@ -2051,6 +2110,112 @@ function massitpro_render_cpt_faq_page_body($post_id = 0) {
 					</div>
 				</div>
 			<?php endforeach; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the FAQ "Still Have Questions" two-card grid.
+ *
+ * @param string $meta_key Section meta key.
+ * @param int    $post_id  Post ID.
+ */
+function massitpro_render_faq_still_have_questions($meta_key, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
+	$cards   = [];
+
+	foreach ((array) ($group['items'] ?? []) as $row) {
+		$title = trim((string) ($row['title'] ?? ''));
+		$body  = trim((string) ($row['body'] ?? ''));
+		$label = trim((string) ($row['link_label'] ?? ''));
+		$url   = trim((string) ($row['link_url'] ?? ''));
+
+		if (! $title && ! $body && ! $label) {
+			continue;
+		}
+
+		$cards[] = [
+			'title'      => $title,
+			'body'       => $body,
+			'link_label' => $label,
+			'link_url'   => $url,
+		];
+
+		if (count($cards) >= 2) {
+			break;
+		}
+	}
+
+	if (! $cards) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing">
+		<div class="site-shell">
+			<div class="cards-grid cards-grid--2">
+				<?php foreach ($cards as $card_index => $card) : ?>
+					<?php $variant = 0 === $card_index ? 'action' : 'outline'; ?>
+					<article class="content-card" data-reveal style="transition-delay: <?php echo esc_attr(number_format($card_index * 0.05, 2, '.', '')); ?>s;">
+						<?php if ($card['title']) : ?>
+							<h3><?php echo esc_html($card['title']); ?></h3>
+						<?php endif; ?>
+						<?php if ($card['body']) : ?>
+							<p><?php echo esc_html($card['body']); ?></p>
+						<?php endif; ?>
+						<?php if ($card['link_label'] && $card['link_url']) : ?>
+							<div class="button-row">
+								<?php massitpro_render_button([
+									'label'   => $card['link_label'],
+									'url'     => $card['link_url'],
+									'variant' => $variant,
+									'size'    => 'lg',
+								]); ?>
+							</div>
+						<?php endif; ?>
+					</article>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the FAQ "Related Resources" section — latest 3 blog posts.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_faq_related_resources($post_id = 0) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$posts   = massitpro_query_posts(
+		[
+			'post_type'           => 'post',
+			'post_status'         => 'publish',
+			'posts_per_page'      => 3,
+			'orderby'             => 'date',
+			'order'               => 'DESC',
+			'ignore_sticky_posts' => true,
+		]
+	);
+
+	if (! $posts) {
+		return;
+	}
+	?>
+	<section class="surface-sand section-padding section-spacing">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading([
+				'label' => __('Learn More', 'massitpro'),
+				'title' => __('Related Resources', 'massitpro'),
+				'align' => 'center',
+			]); ?>
+			<div class="cards-grid cards-grid--3">
+				<?php foreach ($posts as $index => $related_post) : ?>
+					<?php massitpro_render_post_card($related_post, $index); ?>
+				<?php endforeach; ?>
+			</div>
 		</div>
 	</section>
 	<?php
@@ -2324,7 +2489,12 @@ function massitpro_render_testimonials_page_body($post_id = 0) {
  */
 function massitpro_render_faq_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_cpt_faq_page_body($post_id);
+	massitpro_render_page_hero(massitpro_prepare_page_hero($post_id));
+	massitpro_render_faq_quick_answers('quick_answers_section', $post_id);
+	massitpro_render_faq_accordion('faq_accordion_section', $post_id);
+	massitpro_render_faq_still_have_questions('still_have_questions_section', $post_id);
+	massitpro_render_faq_related_resources($post_id);
+	massitpro_render_cta_block($post_id);
 }
 
 /**
