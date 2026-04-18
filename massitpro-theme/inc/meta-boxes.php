@@ -168,6 +168,37 @@ function massitpro_get_native_section_registry() {
 				'cta_block'           => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
+		'faq' => [
+			'title'    => __('Mass IT Pro FAQ Page Fields', 'massitpro'),
+			'sections' => [
+				'hero' => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+
+				'quick_answers_section' => [
+					'label'       => __('Quick Answers', 'massitpro'),
+					'type'        => 'cards',
+					'rows'        => 4,
+					'fields'      => ['question', 'answer'],
+					'has_eyebrow' => true,
+					'has_image'   => true,
+				],
+
+				'faq_accordion_section' => [
+					'label'  => __('FAQ Accordion', 'massitpro'),
+					'type'   => 'cards',
+					'rows'   => 30,
+					'fields' => ['category', 'question', 'answer'],
+				],
+
+				'still_have_questions_section' => [
+					'label'  => __('Still Have Questions', 'massitpro'),
+					'type'   => 'cards',
+					'rows'   => 2,
+					'fields' => ['title', 'body', 'link_label', 'link_url'],
+				],
+
+				'cta_block' => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+			],
+		],
 	];
 }
 
