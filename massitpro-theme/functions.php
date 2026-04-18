@@ -15,3 +15,4 @@ require_once get_template_directory() . '/inc/meta-helpers.php';
 require_once get_template_directory() . '/inc/meta-boxes.php';
 require_once get_template_directory() . '/inc/core.php';
 require_once get_template_directory() . '/inc/render.php';
+require_once get_template_directory() . '/inc/seo-integration.php';
