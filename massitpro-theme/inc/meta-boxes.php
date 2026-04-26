@@ -66,9 +66,9 @@ function massitpro_get_native_section_registry() {
 			'title'    => __('Mass IT Pro Location Detail Fields', 'massitpro'),
 			'sections' => [
 				'hero'                     => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'overview_section'         => ['label' => __('Overview', 'massitpro'), 'type' => 'intro'],
+				'overview_section'         => ['label' => __('Overview', 'massitpro'), 'type' => 'location_intro'],
 				'why_local_section'        => ['label' => __('Why Local', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
-				'available_services_section' => ['label' => __('Available Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
+				'available_services_section' => ['label' => __('Available Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
 				'served_industries_section'  => ['label' => __('Served Industries', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_url']],
 				'trust_cards_section'      => ['label' => __('Trust Cards', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'faq_section'              => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
@@ -467,6 +467,9 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 		case 'intro':
 			massitpro_render_native_intro_editor($section_key, $value);
 			return;
+		case 'location_intro':
+			massitpro_render_native_location_intro_editor($section_key, $value);
+			return;
 		case 'simple_list':
 			massitpro_render_native_simple_list_editor($section_key, $value);
 			return;
@@ -654,6 +657,22 @@ function massitpro_render_native_hero_editor($section, $value) {
 function massitpro_render_native_intro_editor($section, $value) {
 	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
 	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 5);
+	massitpro_render_native_image_field($section, 'image', __('Section Image', 'massitpro'), (int) ($value['image'] ?? 0));
+}
+
+/**
+ * Render the location-detail overview editor with extended fields.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_location_intro_editor($section, $value) {
+	massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow Label', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 5);
+	massitpro_render_native_text_input($section, 'location_city', __('Location / City Text', 'massitpro'), (string) ($value['location_city'] ?? ''));
+	massitpro_render_native_text_input($section, 'button_label', __('CTA Button Label', 'massitpro'), (string) ($value['button_label'] ?? ''));
+	massitpro_render_native_text_input($section, 'button_url', __('CTA Button URL', 'massitpro'), (string) ($value['button_url'] ?? ''));
 	massitpro_render_native_image_field($section, 'image', __('Section Image', 'massitpro'), (int) ($value['image'] ?? 0));
 }
 
@@ -1041,6 +1060,16 @@ function massitpro_sanitize_native_section($definition, $input) {
 				'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
 				'body'    => wp_kses_post((string) ($input['body'] ?? '')),
 				'image'   => absint($input['image'] ?? 0),
+			];
+		case 'location_intro':
+			return [
+				'eyebrow'       => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+				'heading'       => sanitize_text_field((string) ($input['heading'] ?? '')),
+				'body'          => wp_kses_post((string) ($input['body'] ?? '')),
+				'location_city' => sanitize_text_field((string) ($input['location_city'] ?? '')),
+				'button_label'  => sanitize_text_field((string) ($input['button_label'] ?? '')),
+				'button_url'    => esc_url_raw((string) ($input['button_url'] ?? '')),
+				'image'         => absint($input['image'] ?? 0),
 			];
 		case 'simple_list':
 			return [
