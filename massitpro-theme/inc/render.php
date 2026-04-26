@@ -2684,16 +2684,25 @@ function massitpro_render_location_intro_section( $field_name, $post_id, $args =
 			'section_class' => '',
 		]
 	);
-	$group     = (array) massitpro_get_section_meta( $field_name, massitpro_get_render_post_id( $post_id ), [] );
+	$pid       = massitpro_get_render_post_id( $post_id );
+	$group     = (array) massitpro_get_section_meta( $field_name, $pid, [] );
 	$eyebrow   = trim( (string) ( $group['eyebrow'] ?? '' ) );
 	$heading   = trim( (string) ( $group['heading'] ?? '' ) );
 	$body      = (string) ( $group['body'] ?? '' );
 	$city      = trim( (string) ( $group['location_city'] ?? '' ) );
 	$btn_label = trim( (string) ( $group['button_label'] ?? '' ) );
 	$btn_url   = trim( (string) ( $group['button_url'] ?? '' ) );
-	$image     = massitpro_resolve_image_value( $group['image'] ?? null ) ?: massitpro_get_post_display_image( massitpro_get_render_post_id( $post_id ) );
+	$image     = massitpro_resolve_image_value( $group['image'] ?? null ) ?: massitpro_get_post_display_image( $pid );
 
-	if ( ! massitpro_has_any_content( $eyebrow, $heading, $body ) ) {
+	if ( ! $body ) {
+		$body = massitpro_get_post_content_html( $pid );
+	}
+
+	if ( ! $heading ) {
+		$heading = get_the_title( $pid );
+	}
+
+	if ( ! massitpro_has_any_content( $heading, $body ) ) {
 		return;
 	}
 	?>
@@ -2813,7 +2822,7 @@ function massitpro_render_location_detail_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
 	massitpro_render_location_intro_section('overview_section', $post_id, ['surface_class' => 'surface-stone-alt']);
 	massitpro_render_image_cards_section('why_local_section', $post_id, ['surface_class' => 'surface-sand-warm']);
-	massitpro_render_services_split_section('available_services_section', $post_id, ['surface_class' => 'surface-stone-alt']);
+	massitpro_render_services_carousel_section('available_services_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'services']);
 	massitpro_render_related_links_split_section('related_links_section', $post_id, ['surface_class' => 'surface-sand-warm']);
 	massitpro_render_industries_flipcard_section('served_industries_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'industries']);
 	massitpro_render_faq_cards_section('faq_section', $post_id, ['surface_class' => 'surface-sand-warm']);
