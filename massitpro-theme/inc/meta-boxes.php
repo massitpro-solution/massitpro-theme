@@ -70,7 +70,6 @@ function massitpro_get_native_section_registry() {
 				'why_local_section'        => ['label' => __('Why Local', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
 				'available_services_section' => ['label' => __('Available Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
 				'served_industries_section'  => ['label' => __('Served Industries', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_url']],
-				'trust_cards_section'      => ['label' => __('Trust Cards', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'faq_section'              => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
 				'related_links_section'    => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
 				'cta_block'                => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
@@ -990,6 +989,7 @@ function massitpro_render_native_spotlight_editor($section, $value) {
 function massitpro_render_native_related_links_editor($section, $definition, $value) {
 	$rows = (int) ($definition['rows'] ?? 6);
 
+	massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow Label', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
 	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
 	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
 
@@ -997,6 +997,7 @@ function massitpro_render_native_related_links_editor($section, $definition, $va
 		$row = (array) ($value['items'][$index] ?? []);
 		$link = (array) ($row['link'] ?? []);
 		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Link %d', 'massitpro'), $index + 1)) . '</h4>';
+		massitpro_render_native_select($section, 'items][' . $index . '][icon', __('Icon', 'massitpro'), (string) ($row['icon'] ?? 'arrow-right'), massitpro_get_native_icon_choices());
 		massitpro_render_native_text_input($section, 'items][' . $index . '][link][title', __('Link Label', 'massitpro'), (string) ($link['title'] ?? ($link['label'] ?? '')));
 		massitpro_render_native_text_input($section, 'items][' . $index . '][link][url', __('Link URL', 'massitpro'), (string) ($link['url'] ?? ''));
 		massitpro_render_native_textarea($section, 'items][' . $index . '][description', __('Description', 'massitpro'), (string) ($row['description'] ?? ''), 3);
@@ -1407,6 +1408,7 @@ function massitpro_sanitize_native_stats_section($input) {
  */
 function massitpro_sanitize_native_related_links_section($input) {
 	$section = [
+		'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
 		'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
 		'body'    => wp_kses_post((string) ($input['body'] ?? '')),
 		'items'   => [],
@@ -1416,6 +1418,7 @@ function massitpro_sanitize_native_related_links_section($input) {
 		$title = sanitize_text_field((string) (($row['link']['title'] ?? '')));
 		$url   = esc_url_raw((string) (($row['link']['url'] ?? '')));
 		$item  = [
+			'icon'        => sanitize_key((string) ($row['icon'] ?? 'arrow-right')),
 			'link'        => $title && $url ? ['title' => $title, 'url' => $url, 'target' => ''] : [],
 			'description' => sanitize_textarea_field((string) ($row['description'] ?? '')),
 		];

@@ -2609,8 +2609,8 @@ function massitpro_render_industries_flipcard_section( $field_name, $post_id, $a
 }
 
 /**
- * Render the related links section as a split layout for location-detail pages.
- * Left: image placeholder. Right: heading, body, 2-column link list.
+ * Render the related links section as a full-width card grid for location-detail pages.
+ * Eyebrow + heading + body above, then a grid of cards with icon, label, description, arrow.
  *
  * @param string              $field_name Section field name.
  * @param int                 $post_id    Post ID.
@@ -2625,44 +2625,43 @@ function massitpro_render_related_links_split_section( $field_name, $post_id, $a
 		]
 	);
 	$group   = (array) massitpro_get_section_meta( $field_name, massitpro_get_render_post_id( $post_id ), [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
 	$heading = trim( (string) ( $group['heading'] ?? '' ) );
 	$body    = (string) ( $group['body'] ?? '' );
-	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'link', 'description' ] );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'link' ] );
 
-	if ( ! massitpro_has_any_content( $heading, $body, $items ) ) {
+	if ( ! massitpro_has_any_content( $eyebrow, $heading, $body, $items ) ) {
 		return;
 	}
 	?>
 	<section class="section-padding section-spacing <?php echo esc_attr( trim( (string) $args['surface_class'] . ' ' . (string) $args['section_class'] ) ); ?>">
 		<div class="site-shell">
-			<div class="location-split">
-				<div class="location-split__media" data-reveal>
-					<div class="location-image-placeholder" aria-hidden="true"></div>
+			<?php if ( $eyebrow || $heading || $body ) : ?>
+				<div data-reveal>
+					<?php massitpro_render_section_heading( [ 'label' => $eyebrow, 'title' => $heading, 'copy' => $body ] ); ?>
 				</div>
-				<div class="location-split__copy content-card entry-content" data-reveal>
-					<?php if ( $heading ) : ?>
-						<h2><?php echo esc_html( $heading ); ?></h2>
-					<?php endif; ?>
-					<?php if ( $body ) : ?>
-						<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
-					<?php endif; ?>
-					<?php if ( $items ) : ?>
-						<div class="location-split__links">
-							<?php foreach ( $items as $item ) :
-								$link = massitpro_normalize_link( $item['link'] ?? [] );
-								if ( ! $link['url'] || ! $link['label'] ) {
-									continue;
-								}
-							?>
-								<a href="<?php echo esc_url( $link['url'] ); ?>"<?php echo $link['target'] ? ' target="' . esc_attr( $link['target'] ) . '" rel="noopener noreferrer"' : ''; ?>>
-									<?php echo massitpro_svg_icon( 'arrow-right' ); ?>
-									<span><?php echo esc_html( $link['label'] ); ?></span>
-								</a>
-							<?php endforeach; ?>
-						</div>
-					<?php endif; ?>
+			<?php endif; ?>
+			<?php if ( $items ) : ?>
+				<div class="related-links-grid">
+					<?php foreach ( $items as $item ) :
+						$link = massitpro_normalize_link( $item['link'] ?? [] );
+						if ( ! $link['url'] || ! $link['label'] ) {
+							continue;
+						}
+						$icon = trim( (string) ( $item['icon'] ?? 'arrow-right' ) );
+						$desc = trim( (string) ( $item['description'] ?? '' ) );
+					?>
+						<a class="related-link-card" href="<?php echo esc_url( $link['url'] ); ?>"<?php echo $link['target'] ? ' target="' . esc_attr( $link['target'] ) . '" rel="noopener noreferrer"' : ''; ?> data-reveal>
+							<span class="related-link-card__icon" aria-hidden="true"><?php echo massitpro_svg_icon( $icon ); ?></span>
+							<span class="related-link-card__label"><?php echo esc_html( $link['label'] ); ?></span>
+							<?php if ( $desc ) : ?>
+								<p class="related-link-card__desc"><?php echo esc_html( $desc ); ?></p>
+							<?php endif; ?>
+							<span class="related-link-card__arrow" aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+						</a>
+					<?php endforeach; ?>
 				</div>
-			</div>
+			<?php endif; ?>
 		</div>
 	</section>
 	<?php
