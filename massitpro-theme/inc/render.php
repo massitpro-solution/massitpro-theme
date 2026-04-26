@@ -2418,20 +2418,263 @@ function massitpro_render_industry_detail_page_body($post_id = 0) {
 }
 
 /**
+ * Render a services carousel section for location-detail pages.
+ * Resolves featured images from each card's link_url.
+ *
+ * @param string              $field_name Section field name.
+ * @param int                 $post_id    Post ID.
+ * @param array<string,mixed> $args       Render arguments.
+ */
+function massitpro_render_services_carousel_section( $field_name, $post_id, $args = [] ) {
+	$args    = wp_parse_args(
+		(array) $args,
+		[
+			'surface_class' => '',
+			'section_class' => '',
+			'carousel_key'  => 'services',
+		]
+	);
+	$group   = (array) massitpro_get_section_meta( $field_name, massitpro_get_render_post_id( $post_id ), [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$body    = (string) ( $group['body'] ?? '' );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'title', 'body', 'link_label', 'link_url' ] );
+
+	if ( ! massitpro_has_any_content( $eyebrow, $heading, $body, $items ) ) {
+		return;
+	}
+
+	$key = esc_attr( (string) $args['carousel_key'] );
+	?>
+	<section class="section-padding section-spacing <?php echo esc_attr( trim( (string) $args['surface_class'] . ' ' . (string) $args['section_class'] ) ); ?>">
+		<div class="site-shell">
+			<div class="carousel-header">
+				<div class="section-header__copy">
+					<?php massitpro_render_section_heading( [ 'label' => $eyebrow, 'title' => $heading, 'copy' => $body ] ); ?>
+				</div>
+				<div class="carousel-header__controls">
+					<button class="icon-button" data-carousel-prev="<?php echo $key; ?>" aria-label="<?php esc_attr_e( 'Previous', 'massitpro' ); ?>">
+						<?php echo massitpro_svg_icon( 'arrow-left' ); ?>
+					</button>
+					<button class="icon-button" data-carousel-next="<?php echo $key; ?>" aria-label="<?php esc_attr_e( 'Next', 'massitpro' ); ?>">
+						<?php echo massitpro_svg_icon( 'arrow-right' ); ?>
+					</button>
+				</div>
+			</div>
+			<?php if ( $items ) : ?>
+				<div class="scroll-strip" data-carousel="<?php echo $key; ?>">
+					<?php foreach ( $items as $index => $item ) :
+						$title      = trim( (string) ( $item['title'] ?? '' ) );
+						$body_text  = trim( (string) ( $item['body'] ?? '' ) );
+						$link_label = trim( (string) ( $item['link_label'] ?? '' ) );
+						$link_url   = trim( (string) ( $item['link_url'] ?? '' ) );
+						$image_id   = $link_url ? get_post_thumbnail_id( url_to_postid( $link_url ) ) : 0;
+					?>
+						<article class="scroll-strip__item content-card media-card feature-grid-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
+							<?php if ( $image_id ) : ?>
+								<?php if ( $link_url ) : ?>
+									<a href="<?php echo esc_url( $link_url ); ?>">
+										<?php massitpro_render_media( [ 'image' => $image_id, 'aspect' => 'video' ] ); ?>
+									</a>
+								<?php else : ?>
+									<?php massitpro_render_media( [ 'image' => $image_id, 'aspect' => 'video' ] ); ?>
+								<?php endif; ?>
+							<?php else : ?>
+								<div class="location-image-placeholder" aria-hidden="true"></div>
+							<?php endif; ?>
+							<div class="media-card__body">
+								<?php if ( $title ) : ?>
+									<h3>
+										<?php if ( $link_url ) : ?>
+											<a href="<?php echo esc_url( $link_url ); ?>"><?php echo esc_html( $title ); ?></a>
+										<?php else : ?>
+											<?php echo esc_html( $title ); ?>
+										<?php endif; ?>
+									</h3>
+								<?php endif; ?>
+								<?php if ( $body_text ) : ?>
+									<p><?php echo esc_html( $body_text ); ?></p>
+								<?php endif; ?>
+								<?php if ( $link_url ) : ?>
+									<a class="section-link section-link--inline" href="<?php echo esc_url( $link_url ); ?>">
+										<span><?php echo $link_label ? esc_html( $link_label ) : esc_html__( 'Learn More', 'massitpro' ); ?></span>
+										<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+									</a>
+								<?php endif; ?>
+							</div>
+						</article>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render an industries flip-card carousel for location-detail pages.
+ * Card front: title and link. Card back: featured image of linked page.
+ *
+ * @param string              $field_name Section field name.
+ * @param int                 $post_id    Post ID.
+ * @param array<string,mixed> $args       Render arguments.
+ */
+function massitpro_render_industries_flipcard_section( $field_name, $post_id, $args = [] ) {
+	$args    = wp_parse_args(
+		(array) $args,
+		[
+			'surface_class' => '',
+			'section_class' => '',
+			'carousel_key'  => 'industries',
+		]
+	);
+	$group   = (array) massitpro_get_section_meta( $field_name, massitpro_get_render_post_id( $post_id ), [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$body    = (string) ( $group['body'] ?? '' );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'title', 'link_url' ] );
+
+	if ( ! massitpro_has_any_content( $eyebrow, $heading, $body, $items ) ) {
+		return;
+	}
+
+	$key = esc_attr( (string) $args['carousel_key'] );
+	?>
+	<section class="section-padding section-spacing <?php echo esc_attr( trim( (string) $args['surface_class'] . ' ' . (string) $args['section_class'] ) ); ?>">
+		<div class="site-shell">
+			<div class="carousel-header">
+				<div class="section-header__copy">
+					<?php massitpro_render_section_heading( [ 'label' => $eyebrow, 'title' => $heading, 'copy' => $body ] ); ?>
+				</div>
+				<div class="carousel-header__controls">
+					<button class="icon-button" data-carousel-prev="<?php echo $key; ?>" aria-label="<?php esc_attr_e( 'Previous', 'massitpro' ); ?>">
+						<?php echo massitpro_svg_icon( 'arrow-left' ); ?>
+					</button>
+					<button class="icon-button" data-carousel-next="<?php echo $key; ?>" aria-label="<?php esc_attr_e( 'Next', 'massitpro' ); ?>">
+						<?php echo massitpro_svg_icon( 'arrow-right' ); ?>
+					</button>
+				</div>
+			</div>
+			<?php if ( $items ) : ?>
+				<div class="scroll-strip" data-carousel="<?php echo $key; ?>">
+					<?php foreach ( $items as $index => $item ) :
+						$title    = trim( (string) ( $item['title'] ?? '' ) );
+						$link_url = trim( (string) ( $item['link_url'] ?? '' ) );
+						$image_id = $link_url ? get_post_thumbnail_id( url_to_postid( $link_url ) ) : 0;
+					?>
+						<div class="scroll-strip__item flip-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
+							<div class="flip-card__inner">
+								<div class="flip-card__front">
+									<?php if ( $title ) : ?>
+										<h3>
+											<?php if ( $link_url ) : ?>
+												<a href="<?php echo esc_url( $link_url ); ?>"><?php echo esc_html( $title ); ?></a>
+											<?php else : ?>
+												<?php echo esc_html( $title ); ?>
+											<?php endif; ?>
+										</h3>
+									<?php endif; ?>
+									<?php if ( $link_url ) : ?>
+										<a class="section-link section-link--inline" href="<?php echo esc_url( $link_url ); ?>">
+											<span><?php esc_html_e( 'Learn More', 'massitpro' ); ?></span>
+											<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+										</a>
+									<?php endif; ?>
+								</div>
+								<div class="flip-card__back">
+									<?php if ( $image_id ) :
+										$src = wp_get_attachment_image_url( $image_id, 'large' );
+										if ( $src ) : ?>
+											<img src="<?php echo esc_url( $src ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy">
+										<?php endif; ?>
+									<?php else : ?>
+										<div class="flip-card__back-placeholder" aria-hidden="true"></div>
+									<?php endif; ?>
+								</div>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the related links section as a split layout for location-detail pages.
+ * Left: image placeholder. Right: heading, body, 2-column link list.
+ *
+ * @param string              $field_name Section field name.
+ * @param int                 $post_id    Post ID.
+ * @param array<string,mixed> $args       Render arguments.
+ */
+function massitpro_render_related_links_split_section( $field_name, $post_id, $args = [] ) {
+	$args    = wp_parse_args(
+		(array) $args,
+		[
+			'surface_class' => '',
+			'section_class' => '',
+		]
+	);
+	$group   = (array) massitpro_get_section_meta( $field_name, massitpro_get_render_post_id( $post_id ), [] );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$body    = (string) ( $group['body'] ?? '' );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'link', 'description' ] );
+
+	if ( ! massitpro_has_any_content( $heading, $body, $items ) ) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing <?php echo esc_attr( trim( (string) $args['surface_class'] . ' ' . (string) $args['section_class'] ) ); ?>">
+		<div class="site-shell">
+			<div class="location-split">
+				<div class="location-split__media" data-reveal>
+					<div class="location-image-placeholder" aria-hidden="true"></div>
+				</div>
+				<div class="location-split__copy content-card entry-content" data-reveal>
+					<?php if ( $heading ) : ?>
+						<h2><?php echo esc_html( $heading ); ?></h2>
+					<?php endif; ?>
+					<?php if ( $body ) : ?>
+						<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
+					<?php endif; ?>
+					<?php if ( $items ) : ?>
+						<div class="location-split__links">
+							<?php foreach ( $items as $item ) :
+								$link = massitpro_normalize_link( $item['link'] ?? [] );
+								if ( ! $link['url'] || ! $link['label'] ) {
+									continue;
+								}
+							?>
+								<a href="<?php echo esc_url( $link['url'] ); ?>"<?php echo $link['target'] ? ' target="' . esc_attr( $link['target'] ) . '" rel="noopener noreferrer"' : ''; ?>>
+									<?php echo massitpro_svg_icon( 'arrow-right' ); ?>
+									<span><?php echo esc_html( $link['label'] ); ?></span>
+								</a>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+				</div>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
  * Render a location detail page body.
  *
  * @param int $post_id Post ID.
  */
 function massitpro_render_location_detail_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_intro_section('overview_section', $post_id);
-	massitpro_render_image_cards_section('why_local_section', $post_id);
-	massitpro_render_link_cards_section('available_services_section', $post_id);
-	massitpro_render_link_cards_section('served_industries_section', $post_id);
-	massitpro_render_icon_cards_section('trust_cards_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_faq_cards_section('faq_section', $post_id);
-	massitpro_render_related_links_section('related_links_section', $post_id);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_intro_section('overview_section', $post_id, ['surface_class' => 'surface-stone-alt']);
+	massitpro_render_image_cards_section('why_local_section', $post_id, ['surface_class' => 'surface-sand-warm']);
+	massitpro_render_services_carousel_section('available_services_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'services']);
+	massitpro_render_related_links_split_section('related_links_section', $post_id, ['surface_class' => 'surface-sand-warm']);
+	massitpro_render_industries_flipcard_section('served_industries_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'industries']);
+	massitpro_render_faq_cards_section('faq_section', $post_id, ['surface_class' => 'surface-sand-warm']);
+	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center']);
 }
 
 /**
