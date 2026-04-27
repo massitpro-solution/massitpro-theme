@@ -203,4 +203,27 @@
 			});
 		});
 	}
+
+	document.querySelectorAll('.hp-blog-card__expand').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			const excerpt = btn.closest('.hp-blog-card__excerpt');
+			if (! excerpt) {
+				return;
+			}
+			const rest = excerpt.querySelector('.hp-blog-card__excerpt-rest');
+			if (! rest) {
+				return;
+			}
+			const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+			if (isExpanded) {
+				rest.hidden = true;
+				btn.setAttribute('aria-expanded', 'false');
+				btn.textContent = '...';
+			} else {
+				rest.hidden = false;
+				btn.setAttribute('aria-expanded', 'true');
+				btn.textContent = ' ';
+			}
+		});
+	});
 })();
