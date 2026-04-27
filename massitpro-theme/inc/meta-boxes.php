@@ -992,6 +992,7 @@ function massitpro_render_native_related_links_editor($section, $definition, $va
 	massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow Label', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
 	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
 	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+	massitpro_render_native_image_field($section, 'image', __('Section Image (left side)', 'massitpro'), (int) ($value['image'] ?? 0));
 
 	for ($index = 0; $index < $rows; $index++) {
 		$row = (array) ($value['items'][$index] ?? []);
@@ -1411,6 +1412,7 @@ function massitpro_sanitize_native_related_links_section($input) {
 		'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
 		'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
 		'body'    => wp_kses_post((string) ($input['body'] ?? '')),
+		'image'   => absint($input['image'] ?? 0),
 		'items'   => [],
 	];
 
