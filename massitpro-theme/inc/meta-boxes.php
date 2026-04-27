@@ -67,8 +67,8 @@ function massitpro_get_native_section_registry() {
 			'sections' => [
 				'hero'                     => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
 				'overview_section'         => ['label' => __('Overview', 'massitpro'), 'type' => 'location_intro'],
-				'why_local_section'        => ['label' => __('Why Local', 'massitpro'), 'type' => 'cards', 'rows' => 3, 'fields' => ['icon', 'title', 'body', 'image']],
-				'available_services_section' => ['label' => __('Available Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['image', 'icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
+				'why_local_section'        => ['label' => __('Why Local', 'massitpro'), 'type' => 'cards', 'rows' => 3, 'fields' => ['icon', 'title', 'body']],
+				'available_services_section' => ['label' => __('Available Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
 				'served_industries_section'  => ['label' => __('Served Industries', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_url']],
 				'faq_section'              => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
 				'related_links_section'    => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
