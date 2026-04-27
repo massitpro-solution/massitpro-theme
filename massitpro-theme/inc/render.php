@@ -264,6 +264,43 @@ function massitpro_get_post_summary_text($post_id) {
 }
 
 /**
+ * Resolve a featured image attachment ID from a page URL.
+ *
+ * Tries url_to_postid() first, then prepends home_url() for relative paths,
+ * then falls back to get_page_by_path() — so service/industry cards auto-pull
+ * the featured image from the linked page without requiring a manual upload.
+ *
+ * @param string $url Page URL (absolute or relative).
+ * @return int Attachment ID, or 0 if not found.
+ */
+function massitpro_resolve_linked_page_image_id( $url ) {
+	if ( ! $url ) {
+		return 0;
+	}
+
+	// 1. Try direct lookup.
+	$post_id = url_to_postid( $url );
+
+	// 2. If URL is relative, prepend home_url and retry.
+	if ( ! $post_id && strpos( $url, 'http' ) !== 0 ) {
+		$post_id = url_to_postid( home_url( '/' . ltrim( $url, '/' ) ) );
+	}
+
+	// 3. Fall back to path-based lookup.
+	if ( ! $post_id ) {
+		$path = trim( (string) parse_url( $url, PHP_URL_PATH ), '/' );
+		if ( $path ) {
+			$page = get_page_by_path( $path );
+			if ( $page instanceof WP_Post ) {
+				$post_id = $page->ID;
+			}
+		}
+	}
+
+	return $post_id ? (int) get_post_thumbnail_id( $post_id ) : 0;
+}
+
+/**
  * Filter repeater rows by required keys.
  *
  * @param array<int,array<string,mixed>> $rows Row values.
@@ -2474,7 +2511,7 @@ function massitpro_render_services_carousel_section( $field_name, $post_id, $arg
 						$link_label   = trim( (string) ( $item['link_label'] ?? '' ) );
 						$link_url     = trim( (string) ( $item['link_url'] ?? '' ) );
 						$direct_image = massitpro_resolve_image_value( $item['image'] ?? null );
-						$fallback_id  = ( ! $direct_image && $link_url ) ? get_post_thumbnail_id( url_to_postid( $link_url ) ) : 0;
+						$fallback_id  = ( ! $direct_image && $link_url ) ? massitpro_resolve_linked_page_image_id( $link_url ) : 0;
 						$has_image    = $direct_image || $fallback_id;
 					?>
 						<article class="scroll-strip__item content-card media-card feature-grid-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
@@ -2568,7 +2605,7 @@ function massitpro_render_industries_flipcard_section( $field_name, $post_id, $a
 						$title     = trim( (string) ( $item['title'] ?? '' ) );
 						$body_text = trim( (string) ( $item['body'] ?? '' ) );
 						$link_url  = trim( (string) ( $item['link_url'] ?? '' ) );
-						$image_id  = $link_url ? get_post_thumbnail_id( url_to_postid( $link_url ) ) : 0;
+						$image_id  = $link_url ? massitpro_resolve_linked_page_image_id( $link_url ) : 0;
 						$delay     = esc_attr( number_format( $index * 0.05, 2, '.', '' ) );
 					?>
 						<?php if ( $link_url ) : ?>
@@ -2635,6 +2672,7 @@ function massitpro_render_related_links_split_section( $field_name, $post_id, $a
 	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
 	$heading = trim( (string) ( $group['heading'] ?? '' ) );
 	$body    = (string) ( $group['body'] ?? '' );
+	$image   = massitpro_resolve_image_value( $group['image'] ?? null );
 	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'link' ] );
 
 	if ( ! massitpro_has_any_content( $eyebrow, $heading, $body, $items ) ) {
@@ -2645,7 +2683,11 @@ function massitpro_render_related_links_split_section( $field_name, $post_id, $a
 		<div class="site-shell">
 			<div class="location-split">
 				<div class="location-split__media" data-reveal>
-					<div class="location-image-placeholder location-image-placeholder--tall" aria-hidden="true"></div>
+					<?php if ( $image ) : ?>
+						<?php massitpro_render_media( [ 'image' => $image, 'aspect' => 'square' ] ); ?>
+					<?php else : ?>
+						<div class="location-image-placeholder location-image-placeholder--tall" aria-hidden="true"></div>
+					<?php endif; ?>
 				</div>
 				<div class="location-split__copy" data-reveal>
 					<?php if ( $eyebrow || $heading || $body ) : ?>
