@@ -596,6 +596,7 @@ function massitpro_render_image_cards_section($field_name, $post_id, $args = [])
 			'card_class'    => '',
 			'cards_class'   => 'cards-grid cards-grid--3',
 			'heading_align' => 'left',
+			'icon_default'  => '',
 		]
 	);
 	$group   = (array) massitpro_get_section_meta($field_name, massitpro_get_render_post_id($post_id), []);
@@ -616,7 +617,7 @@ function massitpro_render_image_cards_section($field_name, $post_id, $args = [])
 					<?php foreach ($items as $index => $item) : ?>
 						<?php $link  = massitpro_normalize_link($item['link'] ?? []); ?>
 						<?php $image = massitpro_resolve_image_value($item['image'] ?? null); ?>
-						<?php $icon  = trim((string) ($item['icon'] ?? '')); ?>
+						<?php $icon  = trim((string) ($item['icon'] ?? '')) ?: (string) $args['icon_default']; ?>
 						<article class="content-card media-card feature-grid-card <?php echo esc_attr((string) $args['card_class']); ?><?php echo ($image || $icon) ? '' : ' feature-grid-card--text'; ?>" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.05, 2, '.', '')); ?>s;">
 							<?php if ($image) : ?>
 								<?php if ($link['url']) : ?>
@@ -2506,22 +2507,21 @@ function massitpro_render_services_carousel_section( $field_name, $post_id, $arg
 			<?php if ( $items ) : ?>
 				<div class="scroll-strip" data-carousel="<?php echo $key; ?>">
 					<?php foreach ( $items as $index => $item ) :
-						$title        = trim( (string) ( $item['title'] ?? '' ) );
-						$body_text    = trim( (string) ( $item['body'] ?? '' ) );
-						$link_label   = trim( (string) ( $item['link_label'] ?? '' ) );
-						$link_url     = trim( (string) ( $item['link_url'] ?? '' ) );
-						$direct_image = massitpro_resolve_image_value( $item['image'] ?? null );
-						$fallback_id  = ( ! $direct_image && $link_url ) ? massitpro_resolve_linked_page_image_id( $link_url ) : 0;
-						$has_image    = $direct_image || $fallback_id;
+						$title      = trim( (string) ( $item['title'] ?? '' ) );
+						$body_text  = trim( (string) ( $item['body'] ?? '' ) );
+						$link_label = trim( (string) ( $item['link_label'] ?? '' ) );
+						$link_url   = trim( (string) ( $item['link_url'] ?? '' ) );
+						$image_id   = $link_url ? massitpro_resolve_linked_page_image_id( $link_url ) : 0;
+						$img_src    = $image_id ? wp_get_attachment_image_url( $image_id, 'massitpro-card' ) : '';
 					?>
 						<article class="scroll-strip__item content-card media-card feature-grid-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
-							<?php if ( $has_image ) : ?>
+							<?php if ( $img_src ) : ?>
 								<?php if ( $link_url ) : ?>
 									<a href="<?php echo esc_url( $link_url ); ?>">
-										<?php massitpro_render_media( [ 'image' => $direct_image ?: $fallback_id, 'aspect' => 'video' ] ); ?>
+										<div class="media-block media-block--video"><img src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy"></div>
 									</a>
 								<?php else : ?>
-									<?php massitpro_render_media( [ 'image' => $direct_image ?: $fallback_id, 'aspect' => 'video' ] ); ?>
+									<div class="media-block media-block--video"><img src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy"></div>
 								<?php endif; ?>
 							<?php else : ?>
 								<div class="location-image-placeholder" aria-hidden="true"></div>
@@ -2884,7 +2884,7 @@ function massitpro_render_services_split_section( $field_name, $post_id, $args =
 function massitpro_render_location_detail_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
 	massitpro_render_location_intro_section('overview_section', $post_id, ['surface_class' => 'surface-stone-alt']);
-	massitpro_render_image_cards_section('why_local_section', $post_id, ['surface_class' => 'surface-sand-warm', 'heading_align' => 'center']);
+	massitpro_render_image_cards_section('why_local_section', $post_id, ['surface_class' => 'surface-sand-warm', 'heading_align' => 'center', 'icon_default' => 'check']);
 	massitpro_render_services_carousel_section('available_services_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'services']);
 	massitpro_render_related_links_split_section('related_links_section', $post_id, ['surface_class' => 'surface-sand-warm']);
 	massitpro_render_industries_flipcard_section('served_industries_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'industries']);
