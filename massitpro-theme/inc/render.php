@@ -2269,81 +2269,531 @@ function massitpro_render_faq_related_resources($post_id = 0) {
  */
 function massitpro_render_homepage() {
 	$post_id = massitpro_get_render_post_id();
-	$hero    = massitpro_prepare_page_hero($post_id);
-	$trust   = (array) massitpro_get_section_meta('trust_strip', $post_id, []);
-	$stats   = (array) massitpro_get_section_meta('stats_section', $post_id, []);
 
-	massitpro_render_page_hero($hero);
+	massitpro_render_page_hero( massitpro_prepare_page_hero( $post_id ) );
+	massitpro_render_homepage_trust_ticker( $post_id );
+	massitpro_render_image_cards_section( 'core_services_section', $post_id, [
+		'surface_class' => 'surface-stone-alt',
+		'heading_align' => 'center',
+	] );
+	massitpro_render_services_carousel_section( 'services_carousel_section', $post_id, [
+		'surface_class'  => 'surface-sand-warm',
+		'carousel_key'   => 'biz-services',
+		'view_all_label' => __( 'View Business Services', 'massitpro' ),
+		'view_all_url'   => massitpro_homepage_get_page_url( 'services' ),
+	] );
+	massitpro_render_homepage_other_services( $post_id );
+	massitpro_render_industries_flipcard_section( 'industries_section', $post_id, [
+		'surface_class' => 'surface-stone-alt',
+		'carousel_key'  => 'hp-industries',
+	] );
+	massitpro_render_homepage_locations_pills( $post_id );
+	massitpro_render_homepage_projects_section( $post_id );
+	massitpro_render_homepage_testimonial_slider( $post_id );
+	massitpro_render_homepage_blog_section( $post_id );
+	massitpro_render_cta_block( $post_id, [ 'section_class' => 'cta-shell--center' ] );
+}
 
-	if (! empty($trust['items'])) :
-		?>
-		<section class="section-padding section-spacing-small">
-			<div class="site-shell">
-				<?php massitpro_render_section_heading(['label' => $trust['eyebrow'] ?? '', 'title' => $trust['heading'] ?? '']); ?>
-				<div class="chips" data-reveal>
-					<?php foreach (massitpro_filter_rows((array) $trust['items'], ['label']) as $item) : ?>
-						<span class="chip"><?php echo esc_html((string) $item['label']); ?></span>
+/**
+ * Helper: resolve a canonical page URL by key.
+ *
+ * @param string $key Canonical page key.
+ * @return string
+ */
+function massitpro_homepage_get_page_url( $key ) {
+	$entry = massitpro_get_canonical_page( (string) $key );
+	return $entry ? massitpro_entry_url( $entry ) : '';
+}
+
+/**
+ * Render the Trusted Companies ticker section.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_homepage_trust_ticker( $post_id = 0 ) {
+	$post_id = massitpro_get_render_post_id( $post_id );
+	$group   = (array) massitpro_get_section_meta( 'trust_strip', $post_id, [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'label' ] );
+
+	$fallback_companies = [
+		'Dell', 'Microsoft', 'Comcast', 'Asus', 'Ring',
+		'Sophos', 'TP-Link', 'WordPress', 'Wix', 'Intel',
+		'Cisco', 'LastPass', 'Google', 'GoDaddy',
+	];
+
+	$labels = [];
+	foreach ( $items as $item ) {
+		$l = trim( (string) ( $item['label'] ?? '' ) );
+		if ( $l ) {
+			$labels[] = $l;
+		}
+	}
+	if ( ! $labels ) {
+		$labels = $fallback_companies;
+	}
+	?>
+	<section class="section-padding section-spacing-small surface-stone-alt hp-trust-ticker-section">
+		<div class="site-shell">
+			<?php if ( $eyebrow || $heading ) : ?>
+				<div class="hp-trust-ticker__header" data-reveal>
+					<?php if ( $eyebrow ) : ?>
+						<p class="section-label section-label--center"><?php echo esc_html( $eyebrow ); ?></p>
+					<?php endif; ?>
+					<?php if ( $heading ) : ?>
+						<h2 class="hp-trust-ticker__title"><?php echo esc_html( $heading ); ?></h2>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+		<div class="hp-trust-ticker" aria-hidden="true">
+			<div class="hp-trust-ticker__track">
+				<?php for ( $pass = 0; $pass < 2; $pass++ ) : ?>
+					<?php foreach ( $labels as $index => $label ) :
+						$slug     = sanitize_title( $label );
+						$img_path = get_template_directory_uri() . '/assets/images/partners/' . $slug . '.png';
+					?>
+						<div class="hp-trust-ticker__item">
+							<div class="hp-trust-ticker__logo">
+								<img
+									src="<?php echo esc_url( $img_path ); ?>"
+									alt="<?php echo esc_attr( $label ); ?>"
+									loading="lazy"
+									onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+								>
+								<span class="hp-trust-ticker__name" style="display:none;"><?php echo esc_html( $label ); ?></span>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				<?php endfor; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the Other Services two-card section.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_homepage_other_services( $post_id = 0 ) {
+	$post_id = massitpro_get_render_post_id( $post_id );
+	$group   = (array) massitpro_get_section_meta( 'secondary_services_section', $post_id, [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$body    = (string) ( $group['body'] ?? '' );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'title' ] );
+
+	if ( ! massitpro_has_any_content( $eyebrow, $heading, $body, $items ) ) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing surface-sand-warm">
+		<div class="site-shell">
+			<?php if ( $eyebrow || $heading || $body ) : ?>
+				<div class="section-header section-header--center" data-reveal>
+					<div class="section-header__copy">
+						<?php if ( $eyebrow ) : ?>
+							<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
+						<?php endif; ?>
+						<?php if ( $heading ) : ?>
+							<h2><?php echo esc_html( $heading ); ?></h2>
+						<?php endif; ?>
+						<?php if ( $body ) : ?>
+							<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
+						<?php endif; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+			<?php if ( $items ) : ?>
+				<div class="other-services-grid">
+					<?php foreach ( $items as $index => $item ) :
+						$title      = trim( (string) ( $item['title'] ?? '' ) );
+						$icon       = trim( (string) ( $item['icon'] ?? '' ) );
+						$body_text  = trim( (string) ( $item['body'] ?? '' ) );
+						$tags_raw   = trim( (string) ( $item['description'] ?? '' ) );
+						$link_label = trim( (string) ( $item['link_label'] ?? '' ) );
+						$link_url   = trim( (string) ( $item['link_url'] ?? '' ) );
+						$image_id   = ! empty( $item['image'] ) ? (int) $item['image'] : 0;
+						$img_src    = $image_id ? wp_get_attachment_image_url( $image_id, 'massitpro-card' ) : '';
+						$tags       = $tags_raw ? array_filter( array_map( 'trim', explode( ',', $tags_raw ) ) ) : [];
+					?>
+						<article class="other-services-card content-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.08, 2, '.', '' ) ); ?>s;">
+							<div class="other-services-card__media">
+								<?php if ( $img_src ) : ?>
+									<div class="media-block media-block--video">
+										<img src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy">
+									</div>
+								<?php else : ?>
+									<div class="other-services-card__placeholder" aria-hidden="true"></div>
+								<?php endif; ?>
+							</div>
+							<div class="other-services-card__body">
+								<?php if ( $icon ) : ?>
+									<span class="card-icon-chip" aria-hidden="true"><?php echo massitpro_svg_icon( $icon ); ?></span>
+								<?php endif; ?>
+								<?php if ( $title ) : ?>
+									<h4><?php echo esc_html( $title ); ?></h4>
+								<?php endif; ?>
+								<?php if ( $body_text ) : ?>
+									<p><?php echo esc_html( $body_text ); ?></p>
+								<?php endif; ?>
+								<?php if ( $tags ) : ?>
+									<div class="other-services-card__tags">
+										<?php foreach ( array_slice( $tags, 0, 4 ) as $tag ) : ?>
+											<span class="chip"><?php echo esc_html( $tag ); ?></span>
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+								<?php if ( $link_url ) : ?>
+									<a class="section-link section-link--inline" href="<?php echo esc_url( $link_url ); ?>">
+										<span><?php echo $link_label ? esc_html( $link_label ) : esc_html__( 'Learn More', 'massitpro' ); ?></span>
+										<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+									</a>
+								<?php endif; ?>
+							</div>
+						</article>
 					<?php endforeach; ?>
 				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the Service Coverage Areas section as white clickable pills.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_homepage_locations_pills( $post_id = 0 ) {
+	$post_id = massitpro_get_render_post_id( $post_id );
+	$group   = (array) massitpro_get_section_meta( 'locations_section', $post_id, [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$body    = (string) ( $group['body'] ?? '' );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'title' ] );
+
+	if ( ! massitpro_has_any_content( $eyebrow, $heading, $body, $items ) ) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing surface-sand-warm">
+		<div class="site-shell">
+			<div class="section-header section-header--center" data-reveal>
+				<div class="section-header__copy">
+					<?php if ( $eyebrow ) : ?>
+						<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
+					<?php endif; ?>
+					<?php if ( $heading ) : ?>
+						<h2><?php echo esc_html( $heading ); ?></h2>
+					<?php endif; ?>
+					<?php if ( $body ) : ?>
+						<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
+					<?php endif; ?>
+				</div>
 			</div>
-		</section>
-		<?php
-	endif;
+			<?php if ( $items ) : ?>
+				<div class="hp-location-pills" data-reveal>
+					<?php foreach ( $items as $item ) :
+						$name     = trim( (string) ( $item['title'] ?? '' ) );
+						$link_url = trim( (string) ( $item['link_url'] ?? '' ) );
+						if ( ! $name ) {
+							continue;
+						}
+					?>
+						<?php if ( $link_url ) : ?>
+							<a class="hp-location-pill" href="<?php echo esc_url( $link_url ); ?>">
+						<?php else : ?>
+							<span class="hp-location-pill">
+						<?php endif; ?>
+							<span class="hp-location-pill__icon" aria-hidden="true"><?php echo massitpro_svg_icon( 'map-pin' ); ?></span>
+							<span class="hp-location-pill__name"><?php echo esc_html( $name ); ?></span>
+						<?php if ( $link_url ) : ?>
+							</a>
+						<?php else : ?>
+							</span>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
 
-	if (! empty($stats['items'])) :
-		massitpro_render_stats_band_section('stats_section', $post_id, ['surface_class' => 'surface-sand']);
-	endif;
+/**
+ * Render the Featured Projects section with dark navy surface.
+ * Header: title/subtitle left, view-all link right. 3 projects.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_homepage_projects_section( $post_id = 0 ) {
+	$post_id = massitpro_get_render_post_id( $post_id );
+	$group   = (array) massitpro_get_section_meta( 'projects_section', $post_id, [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$body    = (string) ( $group['body'] ?? '' );
 
-	massitpro_render_image_cards_section('core_services_section', $post_id);
-	massitpro_render_image_cards_section('services_carousel_section', $post_id, ['carousel' => true]);
-	massitpro_render_image_cards_section(
-		'why_choose_section',
-		$post_id,
-		[
-			'surface_class' => 'surface-navy',
-			'card_class'    => 'feature-grid-card--dark',
-		]
-	);
-	massitpro_render_image_cards_section('industries_section', $post_id);
-	massitpro_render_link_cards_section('locations_section', $post_id);
-	massitpro_render_cpt_projects_section($post_id);
-	massitpro_render_cpt_testimonials_section($post_id);
-	massitpro_render_image_cards_section('secondary_services_section', $post_id);
+	$posts = massitpro_query_posts( [
+		'post_type'           => 'project',
+		'post_status'         => 'publish',
+		'posts_per_page'      => 3,
+		'orderby'             => [ 'menu_order' => 'ASC', 'date' => 'DESC' ],
+		'ignore_sticky_posts' => true,
+	] );
 
-	$blog_section = (array) massitpro_get_section_meta('blog_section', $post_id, []);
-	$posts        = massitpro_normalize_related_posts($blog_section['posts'] ?? []);
-
-	if (! $posts) {
-		$count = max(1, (int) ($blog_section['posts_count'] ?? 3));
-		$posts = massitpro_query_posts(
-			[
-				'post_type'           => 'post',
-				'post_status'         => 'publish',
-				'posts_per_page'      => min(6, $count),
-				'ignore_sticky_posts' => true,
-			]
-		);
+	if ( ! $posts ) {
+		return;
 	}
 
-	if (massitpro_has_any_content($blog_section['heading'] ?? '', $blog_section['body'] ?? '', $posts)) :
-		?>
-		<section class="section-padding section-spacing">
-			<div class="site-shell">
-				<?php massitpro_render_section_heading(['label' => $blog_section['eyebrow'] ?? '', 'title' => $blog_section['heading'] ?? '', 'copy' => $blog_section['body'] ?? '']); ?>
-				<?php if ($posts) : ?>
-					<div class="cards-grid cards-grid--3">
-						<?php foreach ($posts as $index => $post) : ?>
-							<?php massitpro_render_post_card($post, $index); ?>
-						<?php endforeach; ?>
-					</div>
+	$projects_url = massitpro_homepage_get_page_url( 'projects' );
+	?>
+	<section class="section-padding section-spacing surface-navy">
+		<div class="site-shell">
+			<div class="hp-projects-header" data-reveal>
+				<div class="hp-projects-header__copy">
+					<?php if ( $eyebrow ) : ?>
+						<p class="section-label section-label--dark"><?php echo esc_html( $eyebrow ); ?></p>
+					<?php endif; ?>
+					<?php if ( $heading ) : ?>
+						<h2><?php echo esc_html( $heading ); ?></h2>
+					<?php else : ?>
+						<h2><?php esc_html_e( 'Featured Projects', 'massitpro' ); ?></h2>
+					<?php endif; ?>
+					<?php if ( $body ) : ?>
+						<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
+					<?php endif; ?>
+				</div>
+				<?php if ( $projects_url ) : ?>
+					<a class="hp-view-all-link" href="<?php echo esc_url( $projects_url ); ?>">
+						<span><?php esc_html_e( 'View All Projects', 'massitpro' ); ?></span>
+						<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+					</a>
 				<?php endif; ?>
 			</div>
-		</section>
-		<?php
-	endif;
+			<div class="cards-grid cards-grid--3">
+				<?php foreach ( $posts as $index => $post ) :
+					$data     = massitpro_get_project_data( $post );
+					$title    = trim( (string) ( $data['title'] ?? '' ) );
+					$subtitle = trim( (string) ( $data['subtitle'] ?? '' ) );
+					$category = trim( (string) ( $data['category'] ?? '' ) );
+					$desc     = trim( (string) ( $data['desc'] ?? '' ) );
+					$image    = massitpro_resolve_image_value( $data['image'] ?? null );
+					$link     = trim( (string) ( $data['link'] ?? '' ) );
+				?>
+					<article class="content-card media-card feature-grid-card feature-grid-card--dark hp-project-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
+						<?php if ( $image ) : ?>
+							<a href="<?php echo esc_url( $link ); ?>">
+								<?php massitpro_render_media( [ 'image' => $image, 'aspect' => 'video' ] ); ?>
+							</a>
+						<?php else : ?>
+							<div class="location-image-placeholder" aria-hidden="true"></div>
+						<?php endif; ?>
+						<div class="media-card__body hp-project-card__body">
+							<?php if ( $category ) : ?>
+								<div class="meta-row">
+									<span class="chip chip--dark"><?php echo esc_html( $category ); ?></span>
+								</div>
+							<?php endif; ?>
+							<?php if ( $subtitle ) : ?>
+								<p class="section-label section-label--dark hp-project-card__eyebrow"><?php echo esc_html( $subtitle ); ?></p>
+							<?php endif; ?>
+							<?php if ( $title ) : ?>
+								<h2 class="hp-project-card__title">
+									<?php if ( $link ) : ?>
+										<a href="<?php echo esc_url( $link ); ?>"><?php echo esc_html( $title ); ?></a>
+									<?php else : ?>
+										<?php echo esc_html( $title ); ?>
+									<?php endif; ?>
+								</h2>
+							<?php endif; ?>
+							<?php if ( $desc ) : ?>
+								<div class="hp-project-card__detail">
+									<h3><?php esc_html_e( 'Overview', 'massitpro' ); ?></h3>
+									<p><?php echo esc_html( $desc ); ?></p>
+								</div>
+							<?php endif; ?>
+						</div>
+					</article>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
 
-	massitpro_render_faq_section('faq_section', 'faqs', $post_id);
-	massitpro_render_cta_block($post_id);
+/**
+ * Render the homepage testimonial slider: 1 at a time, 3 most recent.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_homepage_testimonial_slider( $post_id = 0 ) {
+	$posts = massitpro_query_posts( [
+		'post_type'           => 'testimonial',
+		'post_status'         => 'publish',
+		'posts_per_page'      => 3,
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'ignore_sticky_posts' => true,
+	] );
+
+	if ( ! $posts ) {
+		return;
+	}
+
+	$items = [];
+	foreach ( $posts as $p ) {
+		$items[] = massitpro_get_testimonial_data( $p );
+	}
+	?>
+	<section class="section-padding section-spacing surface-stone-alt">
+		<div class="site-shell">
+			<div class="testimonial-slider" data-testimonial-slider>
+				<?php foreach ( $items as $index => $item ) :
+					$quote   = trim( (string) ( $item['quote'] ?? '' ) );
+					$name    = trim( (string) ( $item['name'] ?? '' ) );
+					$role    = trim( (string) ( $item['role'] ?? '' ) );
+					$company = trim( (string) ( $item['company'] ?? '' ) );
+					if ( ! $quote ) {
+						continue;
+					}
+				?>
+					<div class="testimonial-slide" data-testimonial-slide>
+						<div class="testimonial-stars" aria-hidden="true">
+							<?php for ( $star = 0; $star < 5; $star++ ) : ?>
+								<?php echo massitpro_svg_icon( 'star' ); ?>
+							<?php endfor; ?>
+						</div>
+						<blockquote><?php echo esc_html( $quote ); ?></blockquote>
+						<div class="testimonial-meta">
+							<?php if ( $name ) : ?>
+								<span class="testimonial-meta__name"><?php echo esc_html( $name ); ?></span>
+							<?php endif; ?>
+							<?php if ( $role || $company ) : ?>
+								<span><?php echo esc_html( trim( $role . ( $role && $company ? ', ' : '' ) . $company ) ); ?></span>
+							<?php endif; ?>
+						</div>
+					</div>
+				<?php endforeach; ?>
+				<div class="testimonial-slider__controls">
+					<button class="icon-button" data-testimonial-prev aria-label="<?php esc_attr_e( 'Previous', 'massitpro' ); ?>">
+						<?php echo massitpro_svg_icon( 'arrow-left' ); ?>
+					</button>
+					<div class="testimonial-dots">
+						<?php foreach ( $items as $dot_index => $_ ) : ?>
+							<button class="testimonial-dot" data-testimonial-dot aria-label="<?php echo esc_attr( sprintf( __( 'Testimonial %d', 'massitpro' ), $dot_index + 1 ) ); ?>"></button>
+						<?php endforeach; ?>
+					</div>
+					<button class="icon-button" data-testimonial-next aria-label="<?php esc_attr_e( 'Next', 'massitpro' ); ?>">
+						<?php echo massitpro_svg_icon( 'arrow-right' ); ?>
+					</button>
+				</div>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the homepage blog section with truncated excerpts.
+ * Header: title/subtitle left, view-all link right. 3 articles.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_homepage_blog_section( $post_id = 0 ) {
+	$post_id      = massitpro_get_render_post_id( $post_id );
+	$group        = (array) massitpro_get_section_meta( 'blog_section', $post_id, [] );
+	$eyebrow      = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading      = trim( (string) ( $group['heading'] ?? '' ) );
+	$body         = (string) ( $group['body'] ?? '' );
+	$posts_count  = max( 1, min( 6, (int) ( $group['posts_count'] ?? 3 ) ) );
+	$pinned_posts = massitpro_normalize_related_posts( $group['posts'] ?? [] );
+
+	if ( ! $pinned_posts ) {
+		$pinned_posts = massitpro_query_posts( [
+			'post_type'           => 'post',
+			'post_status'         => 'publish',
+			'posts_per_page'      => $posts_count,
+			'orderby'             => 'date',
+			'order'               => 'DESC',
+			'ignore_sticky_posts' => true,
+		] );
+	}
+
+	if ( ! massitpro_has_any_content( $heading, $body, $pinned_posts ) ) {
+		return;
+	}
+
+	$blog_url = get_permalink( get_option( 'page_for_posts' ) ) ?: home_url( '/blog/' );
+	?>
+	<section class="section-padding section-spacing surface-sand-warm">
+		<div class="site-shell">
+			<div class="hp-section-top-bar" data-reveal>
+				<div class="hp-section-top-bar__copy">
+					<?php if ( $eyebrow ) : ?>
+						<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
+					<?php endif; ?>
+					<?php if ( $heading ) : ?>
+						<h2><?php echo esc_html( $heading ); ?></h2>
+					<?php endif; ?>
+					<?php if ( $body ) : ?>
+						<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
+					<?php endif; ?>
+				</div>
+				<?php if ( $blog_url ) : ?>
+					<a class="hp-view-all-link" href="<?php echo esc_url( $blog_url ); ?>">
+						<span><?php esc_html_e( 'View All Articles', 'massitpro' ); ?></span>
+						<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+					</a>
+				<?php endif; ?>
+			</div>
+			<?php if ( $pinned_posts ) : ?>
+				<div class="cards-grid cards-grid--3">
+					<?php foreach ( array_slice( $pinned_posts, 0, 3 ) as $index => $post ) :
+						$image    = massitpro_get_post_display_image( $post->ID );
+						$raw      = massitpro_get_post_summary_text( $post->ID );
+						$excerpt  = $raw ? ( mb_strlen( $raw ) > 120 ? mb_substr( $raw, 0, 120 ) : $raw ) : '';
+						$is_long  = $raw && mb_strlen( $raw ) > 120;
+						$rest     = $is_long ? mb_substr( $raw, 120 ) : '';
+						$category = get_the_category( $post->ID );
+					?>
+						<article class="content-card media-card feature-grid-card hp-blog-card<?php echo $image ? '' : ' feature-grid-card--text'; ?>" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
+							<?php if ( $image ) : ?>
+								<a href="<?php echo esc_url( get_permalink( $post ) ); ?>">
+									<?php massitpro_render_media( [ 'image' => $image, 'aspect' => 'video' ] ); ?>
+								</a>
+							<?php endif; ?>
+							<div class="media-card__body">
+								<div class="meta-row">
+									<?php if ( ! empty( $category[0] ) ) : ?>
+										<span class="chip chip--teal"><?php echo esc_html( $category[0]->name ); ?></span>
+									<?php endif; ?>
+									<span class="meta-date"><?php echo esc_html( get_the_date( '', $post ) ); ?></span>
+								</div>
+								<h3><a href="<?php echo esc_url( get_permalink( $post ) ); ?>"><?php echo esc_html( get_the_title( $post ) ); ?></a></h3>
+								<?php if ( $excerpt ) : ?>
+									<p class="hp-blog-card__excerpt">
+										<span class="hp-blog-card__excerpt-short"><?php echo esc_html( $excerpt ); ?><?php if ( $is_long ) : ?><button class="hp-blog-card__expand" aria-expanded="false" aria-label="<?php esc_attr_e( 'Read more', 'massitpro' ); ?>">...</button><?php endif; ?></span>
+										<?php if ( $is_long ) : ?>
+											<span class="hp-blog-card__excerpt-rest" hidden><?php echo esc_html( $rest ); ?></span>
+										<?php endif; ?>
+									</p>
+								<?php endif; ?>
+								<a class="section-link section-link--inline" href="<?php echo esc_url( get_permalink( $post ) ); ?>">
+									<span><?php esc_html_e( 'Read More', 'massitpro' ); ?></span>
+									<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+								</a>
+							</div>
+						</article>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
 }
 
 /**
@@ -2472,9 +2922,11 @@ function massitpro_render_services_carousel_section( $field_name, $post_id, $arg
 	$args    = wp_parse_args(
 		(array) $args,
 		[
-			'surface_class' => '',
-			'section_class' => '',
-			'carousel_key'  => 'services',
+			'surface_class'  => '',
+			'section_class'  => '',
+			'carousel_key'   => 'services',
+			'view_all_label' => '',
+			'view_all_url'   => '',
 		]
 	);
 	$group   = (array) massitpro_get_section_meta( $field_name, massitpro_get_render_post_id( $post_id ), [] );
@@ -2504,6 +2956,14 @@ function massitpro_render_services_carousel_section( $field_name, $post_id, $arg
 					</button>
 				</div>
 			</div>
+			<?php if ( ! empty( $args['view_all_label'] ) && ! empty( $args['view_all_url'] ) ) : ?>
+				<div class="carousel-view-all-row">
+					<a class="carousel-view-all-link" href="<?php echo esc_url( (string) $args['view_all_url'] ); ?>">
+						<span><?php echo esc_html( (string) $args['view_all_label'] ); ?></span>
+						<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+					</a>
+				</div>
+			<?php endif; ?>
 			<?php if ( $items ) : ?>
 				<div class="scroll-strip" data-carousel="<?php echo $key; ?>">
 					<?php foreach ( $items as $index => $item ) :
