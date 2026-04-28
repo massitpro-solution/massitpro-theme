@@ -22,20 +22,29 @@ $args = wp_parse_args(
 
 $has_image = ! empty($args['image']);
 ?>
-<section class="page-hero surface-navy">
-	<div class="page-hero__pattern" aria-hidden="true"></div>
-	<div class="page-hero__glow" aria-hidden="true"></div>
-	<div class="page-hero__tech-grid" aria-hidden="true"></div>
+<section class="page-hero surface-navy<?php echo $has_image ? '' : ' page-hero--centered'; ?>">
+	<div class="page-hero__leds" aria-hidden="true">
+		<span class="page-hero__led page-hero__led--1"></span>
+		<span class="page-hero__led page-hero__led--2"></span>
+		<span class="page-hero__led page-hero__led--3"></span>
+		<span class="page-hero__led page-hero__led--4"></span>
+		<span class="page-hero__led page-hero__led--5"></span>
+	</div>
+	<div class="page-hero__streaks" aria-hidden="true">
+		<span class="page-hero__streak page-hero__streak--1"></span>
+		<span class="page-hero__streak page-hero__streak--2"></span>
+		<span class="page-hero__streak page-hero__streak--3"></span>
+	</div>
 	<div class="page-hero__particles" aria-hidden="true">
-		<?php for ( $i = 0; $i < 12; $i++ ) : ?>
-			<span class="page-hero__particle" style="--p-x:<?php echo esc_attr( rand( 5, 95 ) ); ?>%;--p-y:<?php echo esc_attr( rand( 5, 95 ) ); ?>%;--p-d:<?php echo esc_attr( rand( 3, 8 ) ); ?>s;--p-s:<?php echo esc_attr( rand( 2, 5 ) ); ?>px;"></span>
+		<?php for ( $i = 0; $i < 18; $i++ ) : ?>
+			<span class="page-hero__particle" style="--p-x:<?php echo esc_attr( rand( 5, 95 ) ); ?>%;--p-y:<?php echo esc_attr( rand( 5, 95 ) ); ?>%;--p-d:<?php echo esc_attr( rand( 4, 10 ) ); ?>s;--p-s:<?php echo esc_attr( rand( 2, 5 ) ); ?>px;"></span>
 		<?php endfor; ?>
 	</div>
 	<div class="section-padding site-shell">
 		<?php if ($has_image) : ?>
 			<div class="home-hero__grid">
 		<?php endif; ?>
-		<div class="page-hero__inner page-hero__inner--center" data-reveal>
+		<div class="page-hero__inner<?php echo $has_image ? '' : ' page-hero__inner--center page-hero__inner--wide'; ?>" data-reveal>
 			<?php if ($args['label']) : ?>
 				<p class="section-label section-label--dark"><?php echo esc_html((string) $args['label']); ?></p>
 			<?php endif; ?>
