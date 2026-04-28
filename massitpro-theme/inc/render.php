@@ -2442,7 +2442,7 @@ function massitpro_render_homepage_other_services( $post_id = 0 ) {
 						$link_url   = trim( (string) ( $item['link_url'] ?? '' ) );
 						$image_id   = ! empty( $item['image'] ) ? (int) $item['image'] : 0;
 						$img_src    = $image_id ? wp_get_attachment_image_url( $image_id, 'massitpro-card' ) : '';
-						$tags       = $tags_raw ? array_filter( array_map( 'trim', explode( ',', $tags_raw ) ) ) : [];
+						$tags       = $tags_raw ? array_values( array_filter( array_map( 'trim', preg_split( '/[,\r\n]+/', $tags_raw ) ) ) ) : [];
 					?>
 						<article class="other-services-card content-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.08, 2, '.', '' ) ); ?>s;">
 							<div class="other-services-card__media">
