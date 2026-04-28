@@ -57,11 +57,11 @@ The particle animation is CSS-only and already live. If you want a more advanced
 
 **Navy overlay + hover true color** is handled entirely by CSS (`.hp-trust-ticker__logo` `filter` property). No extra work needed.
 
-### 3. Why Trust Us — Admin Fields
+### 3. Why Trust Us — Admin Fields (Stats section)
 In WP Admin → Pages → Home → **Why Trust Us** section:
-- Set **Eyebrow**, **Heading**, and **Body**
-- For each card: pick an **Icon**, fill **Title**, **Body**. Link Label + Link URL are optional.
-- The section heading/eyebrow/body will appear centered on the page automatically.
+- Set **Eyebrow**, **Heading**, and **Body** (centered automatically)
+- For each of the **4 stats cards**: pick an **Icon**, fill **Value** (e.g. `< 15 min`), **Label** (e.g. `Average Response`), and **Description** (short supporting line).
+- No URL/link fields — these are stats cards, not link cards.
 
 ### 4. Business Services — Admin Fields
 In WP Admin → Pages → Home → **Business Services** section:

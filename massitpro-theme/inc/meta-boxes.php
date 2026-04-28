@@ -19,15 +19,15 @@ function massitpro_get_native_section_registry() {
 		'front-page'      => [
 			'title'    => __('Mass IT Pro Homepage Fields', 'massitpro'),
 			'sections' => [
-				'hero'                      => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'trust_strip'               => ['label' => __('Trusted Companies', 'massitpro'), 'type' => 'trust_strip', 'rows' => 14],
-				'core_services_section'     => ['label' => __('Why Trust Us', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
-				'services_carousel_section' => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
-				'industries_section'        => ['label' => __('Industry Solutions', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_url'], 'has_eyebrow' => true],
-				'locations_section'         => ['label' => __('Service Coverage Areas', 'massitpro'), 'type' => 'cards', 'rows' => 14, 'fields' => ['title', 'link_url'], 'has_eyebrow' => true],
+				'hero'                       => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'trust_strip'                => ['label' => __('Trusted Companies', 'massitpro'), 'type' => 'trust_strip', 'rows' => 14],
+				'stats_section'              => ['label' => __('Why Trust Us', 'massitpro'), 'type' => 'stats', 'rows' => 4],
+				'services_carousel_section'  => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
 				'secondary_services_section' => ['label' => __('Other Services', 'massitpro'), 'type' => 'cards', 'rows' => 2, 'fields' => ['icon', 'title', 'body', 'description', 'image', 'link_label', 'link_url'], 'has_eyebrow' => true],
-				'blog_section'              => ['label' => __('Blog', 'massitpro'), 'type' => 'blog'],
-				'cta_block'                 => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+				'industries_section'         => ['label' => __('Industry Solutions', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_url'], 'has_eyebrow' => true],
+				'locations_section'          => ['label' => __('Service Coverage Areas', 'massitpro'), 'type' => 'cards', 'rows' => 11, 'fields' => ['title', 'link_url'], 'has_eyebrow' => true],
+				'blog_section'               => ['label' => __('Blog', 'massitpro'), 'type' => 'blog'],
+				'cta_block'                  => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
 		'service-detail'  => [

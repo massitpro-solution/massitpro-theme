@@ -90,6 +90,27 @@ function massitpro_render_media($args) {
 
 	$image = massitpro_resolve_image_value($args['image']);
 
+	// If we got an attachment ID (integer), convert it to a URL/alt array.
+	if (is_numeric($image)) {
+		$attachment_id = (int) $image;
+		$url           = wp_get_attachment_image_url($attachment_id, $args['size']);
+
+		if (! $url) {
+			$url = wp_get_attachment_image_url($attachment_id, 'large');
+		}
+
+		if (! $url) {
+			$url = wp_get_attachment_image_url($attachment_id, 'full');
+		}
+
+		$image = $url
+			? [
+				'url' => $url,
+				'alt' => (string) get_post_meta($attachment_id, '_wp_attachment_image_alt', true),
+			]
+			: null;
+	}
+
 	if (! $image || empty($image['url'])) {
 		return;
 	}
@@ -1296,6 +1317,7 @@ function massitpro_render_stats_band_section($field_name, $post_id, $args = []) 
 		[
 			'surface_class' => 'surface-sand',
 			'section_class' => '',
+			'heading_align' => 'center',
 		]
 	);
 	$group   = (array) massitpro_get_section_meta($field_name, massitpro_get_render_post_id($post_id), []);
@@ -1307,7 +1329,7 @@ function massitpro_render_stats_band_section($field_name, $post_id, $args = []) 
 	?>
 	<section class="section-padding section-spacing <?php echo esc_attr(trim((string) $args['surface_class'] . ' ' . (string) $args['section_class'])); ?>">
 		<div class="site-shell">
-			<?php massitpro_render_section_heading(['label' => $group['eyebrow'] ?? '', 'title' => $group['heading'] ?? '', 'copy' => $group['body'] ?? '']); ?>
+			<?php massitpro_render_section_heading(['label' => $group['eyebrow'] ?? '', 'title' => $group['heading'] ?? '', 'copy' => $group['body'] ?? '', 'align' => $args['heading_align']]); ?>
 			<?php if ($items) : ?>
 				<div class="stats-grid cards-grid--4">
 					<?php foreach ($items as $index => $item) : ?>
@@ -2268,16 +2290,15 @@ function massitpro_render_faq_related_resources($post_id = 0) {
  * Render the homepage.
  */
 function massitpro_render_homepage() {
-	$post_id   = massitpro_get_render_post_id();
-	$hero_args = massitpro_prepare_page_hero( $post_id );
+	$post_id            = massitpro_get_render_post_id();
+	$hero_args          = massitpro_prepare_page_hero( $post_id );
 	$hero_args['image'] = null;
 
 	massitpro_render_page_hero( $hero_args );
 	massitpro_render_homepage_trust_ticker( $post_id );
-	massitpro_render_image_cards_section( 'core_services_section', $post_id, [
+	massitpro_render_stats_band_section( 'stats_section', $post_id, [
 		'surface_class' => 'surface-stone-alt',
-		'heading_align' => 'center',
-		'cards_class'   => 'cards-grid cards-grid--4',
+		'section_class' => 'hp-why-trust',
 	] );
 	massitpro_render_services_carousel_section( 'services_carousel_section', $post_id, [
 		'surface_class'  => 'surface-sand-warm',
@@ -2757,14 +2778,12 @@ function massitpro_render_homepage_blog_section( $post_id = 0 ) {
 				<div class="cards-grid cards-grid--3">
 					<?php foreach ( array_slice( $pinned_posts, 0, 3 ) as $index => $post ) :
 						$image    = massitpro_get_post_display_image( $post->ID );
-						$raw      = massitpro_get_post_summary_text( $post->ID );
-						$excerpt  = $raw ? ( mb_strlen( $raw ) > 120 ? mb_substr( $raw, 0, 120 ) : $raw ) : '';
-						$is_long  = $raw && mb_strlen( $raw ) > 120;
-						$rest     = $is_long ? mb_substr( $raw, 120 ) : '';
+						$excerpt  = massitpro_get_post_summary_text( $post->ID );
 						$category = get_the_category( $post->ID );
+						$permalink = get_permalink( $post );
 					?>
 						<article class="content-card media-card feature-grid-card hp-blog-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
-							<a href="<?php echo esc_url( get_permalink( $post ) ); ?>">
+							<a class="hp-blog-card__media-link" href="<?php echo esc_url( $permalink ); ?>">
 								<?php if ( $image ) : ?>
 									<?php massitpro_render_media( [ 'image' => $image, 'aspect' => 'video' ] ); ?>
 								<?php else : ?>
@@ -2778,16 +2797,11 @@ function massitpro_render_homepage_blog_section( $post_id = 0 ) {
 									<?php endif; ?>
 									<span class="meta-date"><?php echo esc_html( get_the_date( '', $post ) ); ?></span>
 								</div>
-								<h3><a href="<?php echo esc_url( get_permalink( $post ) ); ?>"><?php echo esc_html( get_the_title( $post ) ); ?></a></h3>
+								<h3><a href="<?php echo esc_url( $permalink ); ?>"><?php echo esc_html( get_the_title( $post ) ); ?></a></h3>
 								<?php if ( $excerpt ) : ?>
-									<p class="hp-blog-card__excerpt">
-										<span class="hp-blog-card__excerpt-short"><?php echo esc_html( $excerpt ); ?><?php if ( $is_long ) : ?><button class="hp-blog-card__expand" aria-expanded="false" aria-label="<?php esc_attr_e( 'Read more', 'massitpro' ); ?>">...</button><?php endif; ?></span>
-										<?php if ( $is_long ) : ?>
-											<span class="hp-blog-card__excerpt-rest" hidden><?php echo esc_html( $rest ); ?></span>
-										<?php endif; ?>
-									</p>
+									<p class="hp-blog-card__excerpt"><?php echo esc_html( $excerpt ); ?></p>
 								<?php endif; ?>
-								<a class="section-link section-link--inline" href="<?php echo esc_url( get_permalink( $post ) ); ?>">
+								<a class="section-link section-link--inline" href="<?php echo esc_url( $permalink ); ?>">
 									<span><?php esc_html_e( 'Read More', 'massitpro' ); ?></span>
 									<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
 								</a>
@@ -2948,27 +2962,27 @@ function massitpro_render_services_carousel_section( $field_name, $post_id, $arg
 	?>
 	<section class="section-padding section-spacing <?php echo esc_attr( trim( (string) $args['surface_class'] . ' ' . (string) $args['section_class'] ) ); ?>">
 		<div class="site-shell">
-			<div class="carousel-header">
+			<div class="carousel-header carousel-header--stacked">
 				<div class="section-header__copy">
 					<?php massitpro_render_section_heading( [ 'label' => $eyebrow, 'title' => $heading, 'copy' => $body ] ); ?>
 				</div>
-				<div class="carousel-header__controls">
-					<button class="icon-button" data-carousel-prev="<?php echo $key; ?>" aria-label="<?php esc_attr_e( 'Previous', 'massitpro' ); ?>">
-						<?php echo massitpro_svg_icon( 'arrow-left' ); ?>
-					</button>
-					<button class="icon-button" data-carousel-next="<?php echo $key; ?>" aria-label="<?php esc_attr_e( 'Next', 'massitpro' ); ?>">
-						<?php echo massitpro_svg_icon( 'arrow-right' ); ?>
-					</button>
+				<div class="carousel-header__right">
+					<div class="carousel-header__controls">
+						<button class="icon-button" data-carousel-prev="<?php echo $key; ?>" aria-label="<?php esc_attr_e( 'Previous', 'massitpro' ); ?>">
+							<?php echo massitpro_svg_icon( 'arrow-left' ); ?>
+						</button>
+						<button class="icon-button" data-carousel-next="<?php echo $key; ?>" aria-label="<?php esc_attr_e( 'Next', 'massitpro' ); ?>">
+							<?php echo massitpro_svg_icon( 'arrow-right' ); ?>
+						</button>
+					</div>
+					<?php if ( ! empty( $args['view_all_label'] ) && ! empty( $args['view_all_url'] ) ) : ?>
+						<a class="carousel-view-all-link" href="<?php echo esc_url( (string) $args['view_all_url'] ); ?>">
+							<span><?php echo esc_html( (string) $args['view_all_label'] ); ?></span>
+							<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+						</a>
+					<?php endif; ?>
 				</div>
 			</div>
-			<?php if ( ! empty( $args['view_all_label'] ) && ! empty( $args['view_all_url'] ) ) : ?>
-				<div class="carousel-view-all-row">
-					<a class="carousel-view-all-link" href="<?php echo esc_url( (string) $args['view_all_url'] ); ?>">
-						<span><?php echo esc_html( (string) $args['view_all_label'] ); ?></span>
-						<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
-					</a>
-				</div>
-			<?php endif; ?>
 			<?php if ( $items ) : ?>
 				<div class="scroll-strip" data-carousel="<?php echo $key; ?>">
 					<?php foreach ( $items as $index => $item ) :
