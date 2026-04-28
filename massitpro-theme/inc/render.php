@@ -2268,19 +2268,22 @@ function massitpro_render_faq_related_resources($post_id = 0) {
  * Render the homepage.
  */
 function massitpro_render_homepage() {
-	$post_id = massitpro_get_render_post_id();
+	$post_id   = massitpro_get_render_post_id();
+	$hero_args = massitpro_prepare_page_hero( $post_id );
+	$hero_args['image'] = null;
 
-	massitpro_render_page_hero( massitpro_prepare_page_hero( $post_id ) );
+	massitpro_render_page_hero( $hero_args );
 	massitpro_render_homepage_trust_ticker( $post_id );
 	massitpro_render_image_cards_section( 'core_services_section', $post_id, [
 		'surface_class' => 'surface-stone-alt',
 		'heading_align' => 'center',
+		'cards_class'   => 'cards-grid cards-grid--4',
 	] );
 	massitpro_render_services_carousel_section( 'services_carousel_section', $post_id, [
 		'surface_class'  => 'surface-sand-warm',
 		'carousel_key'   => 'biz-services',
 		'view_all_label' => __( 'View Business Services', 'massitpro' ),
-		'view_all_url'   => massitpro_homepage_get_page_url( 'services' ),
+		'view_all_url'   => massitpro_homepage_get_page_url( 'services' ) ?: home_url( '/services/' ),
 	] );
 	massitpro_render_homepage_other_services( $post_id );
 	massitpro_render_industries_flipcard_section( 'industries_section', $post_id, [
@@ -2409,7 +2412,7 @@ function massitpro_render_homepage_other_services( $post_id = 0 ) {
 			<?php endif; ?>
 			<?php if ( $items ) : ?>
 				<div class="other-services-grid">
-					<?php foreach ( $items as $index => $item ) :
+					<?php foreach ( array_slice( $items, 0, 2 ) as $index => $item ) :
 						$title      = trim( (string) ( $item['title'] ?? '' ) );
 						$icon       = trim( (string) ( $item['icon'] ?? '' ) );
 						$body_text  = trim( (string) ( $item['body'] ?? '' ) );
@@ -2760,12 +2763,14 @@ function massitpro_render_homepage_blog_section( $post_id = 0 ) {
 						$rest     = $is_long ? mb_substr( $raw, 120 ) : '';
 						$category = get_the_category( $post->ID );
 					?>
-						<article class="content-card media-card feature-grid-card hp-blog-card<?php echo $image ? '' : ' feature-grid-card--text'; ?>" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
-							<?php if ( $image ) : ?>
-								<a href="<?php echo esc_url( get_permalink( $post ) ); ?>">
+						<article class="content-card media-card feature-grid-card hp-blog-card" data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.05, 2, '.', '' ) ); ?>s;">
+							<a href="<?php echo esc_url( get_permalink( $post ) ); ?>">
+								<?php if ( $image ) : ?>
 									<?php massitpro_render_media( [ 'image' => $image, 'aspect' => 'video' ] ); ?>
-								</a>
-							<?php endif; ?>
+								<?php else : ?>
+									<div class="location-image-placeholder" aria-hidden="true"></div>
+								<?php endif; ?>
+							</a>
 							<div class="media-card__body">
 								<div class="meta-row">
 									<?php if ( ! empty( $category[0] ) ) : ?>
