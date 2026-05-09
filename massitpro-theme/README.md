@@ -26,6 +26,8 @@ Shared-template WordPress theme for Mass IT Pro.
 - Service detail pages
 - Industry detail pages
 - Location detail pages
+- Blog page
+- Projects page
 
 ## Notes
 - Do not create one PHP file per page.

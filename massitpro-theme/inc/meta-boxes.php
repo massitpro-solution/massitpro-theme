@@ -195,6 +195,37 @@ function massitpro_get_native_section_registry() {
 				'cta_block' => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
+		'blog' => [
+			'title'    => __('Mass IT Pro Blog Page Fields', 'massitpro'),
+			'sections' => [
+				'hero'                    => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'featured_article_section'=> ['label' => __('Featured Article', 'massitpro'), 'type' => 'blog'],
+				'topics_section'          => [
+					'label'       => __('Browse by Topic', 'massitpro'),
+					'type'        => 'cards',
+					'rows'        => 6,
+					'fields'      => ['title', 'body', 'link_label', 'link_url'],
+					'has_eyebrow' => true,
+				],
+				'newsletter_section'      => ['label' => __('Newsletter CTA', 'massitpro'), 'type' => 'spotlight'],
+				'cta_block'               => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+			],
+		],
+		'projects' => [
+			'title'    => __('Mass IT Pro Projects Page Fields', 'massitpro'),
+			'sections' => [
+				'hero'              => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'process_section'   => ['label' => __('How We Deliver Results', 'massitpro'), 'type' => 'process', 'rows' => 6],
+				'industries_section'=> [
+					'label'       => __('Industries Served', 'massitpro'),
+					'type'        => 'cards',
+					'rows'        => 8,
+					'fields'      => ['icon', 'title', 'body', 'link_url'],
+					'has_eyebrow' => true,
+				],
+				'cta_block'         => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+			],
+		],
 	];
 }
 

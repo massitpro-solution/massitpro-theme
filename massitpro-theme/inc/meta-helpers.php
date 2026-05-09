@@ -359,12 +359,17 @@ function massitpro_get_project_data($post) {
 
 	if (! $post instanceof WP_Post) {
 		return [
-			'title'    => '',
-			'subtitle' => '',
-			'category' => '',
-			'desc'     => '',
-			'image'    => null,
-			'link'     => '',
+			'title'          => '',
+			'subtitle'       => '',
+			'category'       => '',
+			'desc'           => '',
+			'image'          => null,
+			'link'           => '',
+			'client_name'    => '',
+			'industry_label' => '',
+			'challenge'      => '',
+			'solution'       => '',
+			'results'        => [],
 		];
 	}
 
@@ -382,13 +387,31 @@ function massitpro_get_project_data($post) {
 		$excerpt = $content ? wp_trim_words($content, 20, '...') : '';
 	}
 
+	$results_raw = trim((string) get_post_meta($post->ID, '_project_results', true));
+	$results     = [];
+
+	if ($results_raw) {
+		foreach (preg_split('/\r\n|\r|\n/', $results_raw) as $line) {
+			$line = trim($line);
+
+			if ('' !== $line) {
+				$results[] = $line;
+			}
+		}
+	}
+
 	return [
-		'title'    => get_the_title($post),
-		'subtitle' => (string) get_post_meta($post->ID, '_project_subtitle', true),
-		'category' => $category,
-		'desc'     => $excerpt,
-		'image'    => has_post_thumbnail($post->ID) ? get_post_thumbnail_id($post->ID) : null,
-		'link'     => get_permalink($post),
+		'title'          => get_the_title($post),
+		'subtitle'       => (string) get_post_meta($post->ID, '_project_subtitle', true),
+		'category'       => $category,
+		'desc'           => $excerpt,
+		'image'          => has_post_thumbnail($post->ID) ? get_post_thumbnail_id($post->ID) : null,
+		'link'           => get_permalink($post),
+		'client_name'    => (string) get_post_meta($post->ID, '_project_client_name', true),
+		'industry_label' => (string) get_post_meta($post->ID, '_project_industry_label', true),
+		'challenge'      => (string) get_post_meta($post->ID, '_project_challenge', true),
+		'solution'       => (string) get_post_meta($post->ID, '_project_solution', true),
+		'results'        => $results,
 	];
 }
 

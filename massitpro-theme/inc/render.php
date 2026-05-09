@@ -3378,30 +3378,144 @@ function massitpro_render_location_detail_page_body($post_id = 0) {
  */
 function massitpro_render_projects_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	$items   = massitpro_query_posts(
-		[
-			'post_type'      => 'project',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'orderby'        => ['menu_order' => 'ASC', 'date' => 'DESC'],
-		]
-	);
 
-	massitpro_render_default_page_body($post_id);
+	massitpro_render_projects_filter_grid($post_id);
+	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand']);
+	massitpro_render_link_cards_section('industries_section', $post_id);
+	massitpro_render_cta_block($post_id);
+}
+
+/**
+ * Render the projects filter bar and alternating feature rows.
+ *
+ * @param int $post_id Projects page ID.
+ */
+function massitpro_render_projects_filter_grid($post_id) {
+	$items = massitpro_query_posts([
+		'post_type'      => 'project',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'orderby'        => ['menu_order' => 'ASC', 'date' => 'DESC'],
+	]);
 
 	if (! $items) {
 		return;
 	}
+
+	$terms = get_terms([
+		'taxonomy'   => 'project_category',
+		'hide_empty' => true,
+	]);
+
+	$has_terms = ! is_wp_error($terms) && ! empty($terms);
 	?>
 	<section class="section-padding section-spacing">
 		<div class="site-shell">
-			<div class="cards-grid cards-grid--3">
+			<?php if ($has_terms) : ?>
+				<div class="project-filters" data-reveal>
+					<span class="chip chip--teal project-filter-chip project-filter-chip--active"><?php esc_html_e('All', 'massitpro'); ?></span>
+					<?php foreach ($terms as $term) : ?>
+						<span class="chip project-filter-chip" data-category="<?php echo esc_attr($term->slug); ?>"><?php echo esc_html($term->name); ?></span>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+			<div class="project-feature-rows">
 				<?php foreach ($items as $index => $item) : ?>
-					<?php massitpro_render_project_card($item, $index); ?>
+					<?php massitpro_render_project_feature_row($item, $index); ?>
 				<?php endforeach; ?>
 			</div>
 		</div>
 	</section>
+	<?php
+}
+
+/**
+ * Render a single project as an alternating feature row.
+ *
+ * @param WP_Post $post  Project post.
+ * @param int     $index Row index.
+ */
+function massitpro_render_project_feature_row($post, $index = 0) {
+	$data      = massitpro_get_project_data($post);
+	$title     = trim((string) $data['title']);
+	$image     = massitpro_resolve_image_value($data['image'] ?? null);
+	$client    = trim((string) $data['client_name']);
+	$industry  = trim((string) $data['industry_label']);
+	$challenge = trim((string) $data['challenge']);
+	$solution  = trim((string) $data['solution']);
+	$results   = (array) $data['results'];
+	$category  = trim((string) $data['category']);
+	$link      = trim((string) $data['link']);
+	$label     = $industry ?: $category ?: trim((string) $data['subtitle']);
+	$reversed  = $index % 2 !== 0;
+
+	$terms = get_the_terms($post->ID, 'project_category');
+	$term_slugs = [];
+
+	if (! is_wp_error($terms) && ! empty($terms)) {
+		foreach ($terms as $term) {
+			$term_slugs[] = $term->slug;
+		}
+	}
+
+	if (! $title && ! $image && ! $challenge && ! $solution) {
+		return;
+	}
+	?>
+	<article class="project-feature-row<?php echo $reversed ? ' project-feature-row--reversed' : ''; ?>" data-reveal data-categories="<?php echo esc_attr(implode(',', $term_slugs)); ?>" style="transition-delay: <?php echo esc_attr(number_format($index * 0.05, 2, '.', '')); ?>s;">
+		<?php if ($image) : ?>
+			<div class="project-feature-row__media">
+				<?php if ($link) : ?>
+					<a href="<?php echo esc_url($link); ?>">
+						<?php massitpro_render_media(['image' => $image, 'aspect' => 'video']); ?>
+					</a>
+				<?php else : ?>
+					<?php massitpro_render_media(['image' => $image, 'aspect' => 'video']); ?>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
+		<div class="project-feature-row__content">
+			<div class="meta-row">
+				<?php if ($label) : ?>
+					<span class="chip chip--teal"><?php echo esc_html($label); ?></span>
+				<?php endif; ?>
+				<?php if ($client) : ?>
+					<span class="meta-date"><?php echo esc_html($client); ?></span>
+				<?php endif; ?>
+			</div>
+			<?php if ($title) : ?>
+				<h3>
+					<?php if ($link) : ?>
+						<a href="<?php echo esc_url($link); ?>"><?php echo esc_html($title); ?></a>
+					<?php else : ?>
+						<?php echo esc_html($title); ?>
+					<?php endif; ?>
+				</h3>
+			<?php endif; ?>
+			<?php if ($challenge) : ?>
+				<div class="project-feature-row__detail">
+					<strong><?php esc_html_e('Challenge:', 'massitpro'); ?></strong>
+					<p><?php echo esc_html($challenge); ?></p>
+				</div>
+			<?php endif; ?>
+			<?php if ($solution) : ?>
+				<div class="project-feature-row__detail">
+					<strong><?php esc_html_e('Solution:', 'massitpro'); ?></strong>
+					<p><?php echo esc_html($solution); ?></p>
+				</div>
+			<?php endif; ?>
+			<?php if ($results) : ?>
+				<div class="project-feature-row__results">
+					<strong><?php esc_html_e('Results:', 'massitpro'); ?></strong>
+					<ul>
+						<?php foreach ($results as $result) : ?>
+							<li><?php echo esc_html($result); ?></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+			<?php endif; ?>
+		</div>
+	</article>
 	<?php
 }
 
@@ -3502,51 +3616,155 @@ function massitpro_render_contact_page_body($post_id = 0) {
  */
 function massitpro_render_blog_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	$paged   = max(1, (int) get_query_var('paged'), (int) get_query_var('page'));
-	$query   = new WP_Query(
-		[
+
+	massitpro_render_blog_featured_article($post_id);
+	massitpro_render_blog_posts_grid($post_id);
+	massitpro_render_blog_topics_section($post_id);
+	massitpro_render_spotlight_section('newsletter_section', $post_id);
+	massitpro_render_cta_block($post_id);
+}
+
+/**
+ * Render the blog featured article section.
+ *
+ * @param int $post_id Blog page ID.
+ */
+function massitpro_render_blog_featured_article($post_id) {
+	$group    = (array) massitpro_get_section_meta('featured_article_section', $post_id, []);
+	$selected = array_map('intval', array_filter((array) ($group['posts'] ?? [])));
+	$featured = null;
+
+	if ($selected) {
+		$featured_query = massitpro_query_posts([
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'post__in'       => $selected,
+			'posts_per_page' => 1,
+			'orderby'        => 'post__in',
+		]);
+
+		if ($featured_query) {
+			$featured = $featured_query[0];
+		}
+	}
+
+	if (! $featured) {
+		$latest = massitpro_query_posts([
 			'post_type'           => 'post',
 			'post_status'         => 'publish',
-			'posts_per_page'      => 6,
-			'paged'               => $paged,
+			'posts_per_page'      => 1,
 			'ignore_sticky_posts' => true,
-		]
-	);
+		]);
 
-	if ($post_id) {
-		massitpro_render_default_page_body($post_id);
+		if ($latest) {
+			$featured = $latest[0];
+		}
 	}
+
+	if (! $featured) {
+		return;
+	}
+
+	$image    = massitpro_get_post_display_image($featured->ID);
+	$excerpt  = massitpro_get_post_summary_text($featured->ID);
+	$category = get_the_category($featured->ID);
 	?>
 	<section class="section-padding section-spacing">
 		<div class="site-shell">
-			<?php if ($query->have_posts()) : ?>
-				<div class="cards-grid cards-grid--3">
-					<?php $index = 0; ?>
-					<?php while ($query->have_posts()) : $query->the_post(); ?>
-						<?php massitpro_render_post_card(get_post(), $index); ?>
-						<?php $index++; ?>
-					<?php endwhile; ?>
-				</div>
-				<?php if ($query->max_num_pages > 1) : ?>
-					<div class="pagination-wrap">
-						<?php
-						echo wp_kses_post(
-							paginate_links(
-								[
-									'total'   => $query->max_num_pages,
-									'current' => $paged,
-									'type'    => 'list',
-								]
-							)
-						);
-						?>
+			<div class="blog-featured-article" data-reveal>
+				<?php if ($image) : ?>
+					<div class="blog-featured-article__media">
+						<a href="<?php echo esc_url(get_permalink($featured)); ?>">
+							<?php massitpro_render_media(['image' => $image, 'aspect' => 'video']); ?>
+						</a>
 					</div>
 				<?php endif; ?>
+				<div class="blog-featured-article__content">
+					<div class="meta-row">
+						<?php if (! empty($category[0])) : ?>
+							<span class="chip chip--teal"><?php echo esc_html($category[0]->name); ?></span>
+						<?php endif; ?>
+						<span class="meta-date"><?php echo esc_html(get_the_date('', $featured)); ?></span>
+					</div>
+					<h2><a href="<?php echo esc_url(get_permalink($featured)); ?>"><?php echo esc_html(get_the_title($featured)); ?></a></h2>
+					<?php if ($excerpt) : ?>
+						<p><?php echo esc_html($excerpt); ?></p>
+					<?php endif; ?>
+					<div class="button-row">
+						<?php massitpro_render_button(['label' => __('Read Article', 'massitpro'), 'url' => get_permalink($featured), 'variant' => 'action', 'size' => 'default']); ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the blog posts grid with category filters.
+ *
+ * @param int $post_id Blog page ID.
+ */
+function massitpro_render_blog_posts_grid($post_id) {
+	$paged = max(1, (int) get_query_var('paged'), (int) get_query_var('page'));
+	$query = new WP_Query([
+		'post_type'           => 'post',
+		'post_status'         => 'publish',
+		'posts_per_page'      => 9,
+		'paged'               => $paged,
+		'ignore_sticky_posts' => true,
+	]);
+
+	if (! $query->have_posts()) {
+		wp_reset_postdata();
+		return;
+	}
+
+	$categories = get_categories(['hide_empty' => true]);
+	?>
+	<section class="section-padding section-spacing">
+		<div class="site-shell">
+			<?php if ($categories) : ?>
+				<div class="blog-category-filters" data-reveal>
+					<span class="chip chip--teal blog-filter-chip blog-filter-chip--active"><?php esc_html_e('All', 'massitpro'); ?></span>
+					<?php foreach ($categories as $cat) : ?>
+						<span class="chip blog-filter-chip" data-category="<?php echo esc_attr($cat->slug); ?>"><?php echo esc_html($cat->name); ?></span>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+			<div class="cards-grid cards-grid--3">
+				<?php $index = 0; ?>
+				<?php while ($query->have_posts()) : $query->the_post(); ?>
+					<?php massitpro_render_post_card(get_post(), $index); ?>
+					<?php $index++; ?>
+				<?php endwhile; ?>
+			</div>
+			<?php if ($query->max_num_pages > 1) : ?>
+				<div class="pagination-wrap">
+					<?php
+					echo wp_kses_post(
+						paginate_links([
+							'total'   => $query->max_num_pages,
+							'current' => $paged,
+							'type'    => 'list',
+						])
+					);
+					?>
+				</div>
 			<?php endif; ?>
 		</div>
 	</section>
 	<?php
 	wp_reset_postdata();
+}
+
+/**
+ * Render the blog browse-by-topic section from native meta.
+ *
+ * @param int $post_id Blog page ID.
+ */
+function massitpro_render_blog_topics_section($post_id) {
+	massitpro_render_link_cards_section('topics_section', $post_id, ['surface_class' => 'surface-sand']);
 }
 
 /**
@@ -3621,14 +3839,7 @@ function massitpro_render_context_page($context, $payload = []) {
 			break;
 
 		case 'blog':
-			massitpro_render_page_hero(
-				massitpro_prepare_page_hero(
-					$post_id,
-					[
-						'title' => __('Blog', 'massitpro'),
-					]
-				)
-			);
+			massitpro_render_page_hero(massitpro_prepare_page_hero($post_id));
 			massitpro_render_blog_page_body($post_id);
 			break;
 
