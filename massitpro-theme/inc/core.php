@@ -175,14 +175,35 @@ function massitpro_register_cpt_meta() {
 		);
 	}
 
+	$project_text_fields = [
+		'_project_subtitle',
+		'_project_client_name',
+		'_project_industry_label',
+		'_project_challenge',
+		'_project_solution',
+	];
+
+	foreach ($project_text_fields as $key) {
+		register_post_meta(
+			'project',
+			$key,
+			[
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			]
+		);
+	}
+
 	register_post_meta(
 		'project',
-		'_project_subtitle',
+		'_project_results',
 		[
 			'show_in_rest'      => true,
 			'single'            => true,
 			'type'              => 'string',
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => 'sanitize_textarea_field',
 		]
 	);
 }
@@ -217,11 +238,36 @@ function massitpro_render_testimonial_meta_box_callback($post) {
  */
 function massitpro_render_project_meta_box_callback($post) {
 	wp_nonce_field('massitpro_save_cpt_meta', 'massitpro_cpt_meta_nonce');
-	$subtitle = (string) get_post_meta($post->ID, '_project_subtitle', true);
+	$subtitle       = (string) get_post_meta($post->ID, '_project_subtitle', true);
+	$client_name    = (string) get_post_meta($post->ID, '_project_client_name', true);
+	$industry_label = (string) get_post_meta($post->ID, '_project_industry_label', true);
+	$challenge      = (string) get_post_meta($post->ID, '_project_challenge', true);
+	$solution       = (string) get_post_meta($post->ID, '_project_solution', true);
+	$results        = (string) get_post_meta($post->ID, '_project_results', true);
 	?>
 	<p>
 		<label for="massitpro_project_subtitle"><?php esc_html_e('Subtitle / Category Label', 'massitpro'); ?></label><br>
 		<input type="text" id="massitpro_project_subtitle" name="_project_subtitle" value="<?php echo esc_attr($subtitle); ?>" class="widefat">
+	</p>
+	<p>
+		<label for="massitpro_project_client_name"><?php esc_html_e('Client Name', 'massitpro'); ?></label><br>
+		<input type="text" id="massitpro_project_client_name" name="_project_client_name" value="<?php echo esc_attr($client_name); ?>" class="widefat">
+	</p>
+	<p>
+		<label for="massitpro_project_industry_label"><?php esc_html_e('Industry Label', 'massitpro'); ?></label><br>
+		<input type="text" id="massitpro_project_industry_label" name="_project_industry_label" value="<?php echo esc_attr($industry_label); ?>" class="widefat">
+	</p>
+	<p>
+		<label for="massitpro_project_challenge"><?php esc_html_e('Challenge', 'massitpro'); ?></label><br>
+		<textarea id="massitpro_project_challenge" name="_project_challenge" class="widefat" rows="3"><?php echo esc_textarea($challenge); ?></textarea>
+	</p>
+	<p>
+		<label for="massitpro_project_solution"><?php esc_html_e('Solution', 'massitpro'); ?></label><br>
+		<textarea id="massitpro_project_solution" name="_project_solution" class="widefat" rows="3"><?php echo esc_textarea($solution); ?></textarea>
+	</p>
+	<p>
+		<label for="massitpro_project_results"><?php esc_html_e('Results (one per line)', 'massitpro'); ?></label><br>
+		<textarea id="massitpro_project_results" name="_project_results" class="widefat" rows="4"><?php echo esc_textarea($results); ?></textarea>
 	</p>
 	<p class="description"><?php esc_html_e('Use featured image for the project image. Use the title for the project name.', 'massitpro'); ?></p>
 	<?php
@@ -286,8 +332,16 @@ function massitpro_save_cpt_meta($post_id) {
 	}
 
 	if ('project' === $post_type) {
-		if (isset($_POST['_project_subtitle'])) {
-			update_post_meta($post_id, '_project_subtitle', sanitize_text_field(wp_unslash($_POST['_project_subtitle'])));
+		foreach (['_project_subtitle', '_project_client_name', '_project_industry_label'] as $field) {
+			if (isset($_POST[$field])) {
+				update_post_meta($post_id, $field, sanitize_text_field(wp_unslash($_POST[$field])));
+			}
+		}
+
+		foreach (['_project_challenge', '_project_solution', '_project_results'] as $field) {
+			if (isset($_POST[$field])) {
+				update_post_meta($post_id, $field, sanitize_textarea_field(wp_unslash($_POST[$field])));
+			}
 		}
 	}
 }

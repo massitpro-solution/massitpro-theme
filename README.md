@@ -1,5 +1,50 @@
 # Mass IT Pro Theme Refactor
 
+## Current Plug: Blog and Projects Meta Repair
+
+### Goal
+- Fix missing or broken native metafields for Blog and Projects pages.
+- Make Blog and Projects match the supplied screenshots and source-reference structure.
+- Keep all content editable from WP admin using native meta boxes only.
+
+### Scope
+- Blog page context (`blog`).
+- Projects page context (`projects`).
+- No unrelated templates.
+
+### Blog Checklist
+- [ ] Blog native meta box exists (context key `blog` in section registry).
+- [ ] Hero Title Override field exists and saves.
+- [ ] Hero Subtitle field exists and saves.
+- [ ] Blog hero pulls from native hero meta via `massitpro_prepare_page_hero()`.
+- [ ] Featured article section uses existing published posts only.
+- [ ] Post grid uses existing published posts with category filters.
+- [ ] Browse by Topic section supports admin-editable topic cards.
+- [ ] Newsletter/subscribe section renders safe editable copy only (no fake form action).
+- [ ] Related Blogs field: not added — no supported reference target in source-reference or current theme logic for a standalone related-blogs section on the Blog page itself.
+- [ ] Empty sections omit cleanly.
+
+### Projects Checklist
+- [ ] Projects native meta box exists (context key `projects` in section registry).
+- [ ] Hero Title Override field exists and saves.
+- [ ] Hero Subtitle field exists and saves.
+- [ ] Projects hero pulls from native hero meta via `massitpro_prepare_page_hero()`.
+- [ ] Project rows use existing `project` CPT posts only.
+- [ ] Project filters use existing `project_category` taxonomy terms.
+- [ ] Process section (How We Deliver Results) supports admin-editable steps.
+- [ ] Industries section supports admin-editable industry cards with links.
+- [ ] Related Blogs field: not added — no supported reference target in source-reference or current theme logic for a standalone related-blogs section on the Projects page itself.
+- [ ] Empty sections omit cleanly.
+
+### Validation Checklist
+- [ ] `php -l massitpro-theme/inc/meta-boxes.php` — no errors.
+- [ ] `php -l massitpro-theme/inc/render.php` — no errors.
+- [ ] `php -l massitpro-theme/inc/core.php` — no errors (if modified).
+- [ ] `git diff -- docs source-reference` shows no changes.
+- [ ] No demo source-reference titles, clients, or fake names copied into theme PHP.
+
+---
+
 ## Current Pass Summary
 - This pass continues the native WordPress refactor with a design-parity focus on the shared frontend renderers.
 - Shared sections now use more purpose-built layouts instead of defaulting to the same generic white card/grid pattern.
@@ -16,6 +61,8 @@
   - service detail pages
   - industry detail pages
   - location detail pages
+  - blog page
+  - projects page
 - Canonical routing remains driven by `docs/canonical-urls.md`.
 - Shared templates remain shared. No one-PHP-file-per-page approach was added.
 
@@ -63,6 +110,8 @@
   - `service-detail`
   - `industry-detail`
   - `location-detail`
+  - `blog`
+  - `projects`
 - The page context still comes from canonical routing helpers in `massitpro-theme/inc/canonical.php` and `massitpro-theme/page.php`.
 
 ## Section Keys Added This Pass
@@ -190,6 +239,23 @@
   - `trust_cards_section`
   - `process_section`
   - `coverage_section`
+  - `cta_block`
+
+### Blog Page Meta Box
+- Context key: `blog`
+- Section keys:
+  - `hero`
+  - `featured_article_section`
+  - `topics_section`
+  - `newsletter_section`
+  - `cta_block`
+
+### Projects Page Meta Box
+- Context key: `projects`
+- Section keys:
+  - `hero`
+  - `process_section`
+  - `industries_section`
   - `cta_block`
 
 ## Field Structure In This Pass
@@ -454,6 +520,21 @@
 - Related links
 - CTA block
 
+### Blog Page
+- Hero
+- Featured article (pinned post or latest)
+- Category filters and post grid
+- Browse by Topic cards
+- Newsletter CTA
+- CTA block
+
+### Projects Page
+- Hero
+- Project category filters and alternating feature rows
+- How We Deliver Results (process steps)
+- Industries Served cards
+- CTA block
+
 ## What Still Needs Manual Content Entry
 - All real production copy
 - All real production images
@@ -462,7 +543,10 @@
 - Service detail section content and relationships
 - Industry detail section content and relationships
 - Location detail section content and relationships
-- Real `project`, `testimonial`, and `faq_item` content
+- Blog page hero, browse-by-topic cards, newsletter CTA, and CTA block content
+- Projects page hero, process steps, industries-served cards, and CTA block content
+- Real `project` CPT content including client name, industry label, challenge, solution, and results
+- Real `testimonial` and `faq_item` content
 - Blog posts
 
 ## What Is Not Yet Native-Meta-Driven In This Pass
@@ -512,11 +596,14 @@
 12. Preview the site. Any empty native section stays hidden on purpose.
 
 ## Files Changed In This Pass
+- `AGENTS.md`
 - `README.md`
 - `massitpro-theme/README.md`
 - `massitpro-theme/assets/css/app.css`
-- `massitpro-theme/inc/render.php`
+- `massitpro-theme/inc/core.php`
+- `massitpro-theme/inc/meta-helpers.php`
 - `massitpro-theme/inc/meta-boxes.php`
+- `massitpro-theme/inc/render.php`
 
 ## Validation Commands Run
 - `Get-Content AGENTS.md`
