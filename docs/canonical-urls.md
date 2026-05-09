@@ -24,6 +24,8 @@ Cybersecurity and Endpoint -> /services/cybersecurity-endpoint-protection/
 Business Network Solution -> /services/networking-solutions/
 Microsoft 365 and cloud solutions -> /services/microsoft-365-cloud-solutions/
 Backup and Disaster Recovery -> /services/backup-disaster-recovery/
+Remote Support -> /services/residential-remote-services/
+
 Remote Support -> /services/remote-it-support-services/
 Websites -> /services/web-design-massachusetts/
 PC and Mac Repair -> /services/pc-and-mac-repair/
@@ -48,3 +50,4 @@ Newton -> /it-support-across-massachusetts-service-areas/newton/
 
 Contact -> /contactus/
 Blog -> /blog/
+
