@@ -3471,3 +3471,234 @@ a.hp-location-pill:hover .hp-location-pill__icon {
 	color: var(--color-primary);
 	font-weight: 700;
 }
+
+/* ============================================================
+   ABOUT PAGE — Mission Section
+   ============================================================ */
+
+.about-mission__grid {
+	display: grid;
+	gap: 24px;
+}
+
+.about-mission__copy {
+	display: grid;
+	align-content: center;
+	gap: 16px;
+}
+
+.about-mission__copy h2 {
+	margin-bottom: 8px;
+}
+
+.about-mission__media .media-block {
+	height: 100%;
+	min-height: 280px;
+}
+
+@media (min-width: 1024px) {
+	.about-mission__grid {
+		grid-template-columns: 1fr 48%;
+		gap: 48px;
+		align-items: stretch;
+	}
+
+	.about-mission__media .media-block {
+		height: 100%;
+	}
+}
+
+/* ============================================================
+   ABOUT PAGE — Process Section (alternating image/text cards)
+   ============================================================ */
+
+.about-process__steps {
+	display: grid;
+	gap: 24px;
+	margin-top: 40px;
+}
+
+.about-process__card {
+	display: grid;
+	gap: 0;
+	overflow: hidden;
+	max-width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.about-process__card-copy {
+	display: grid;
+	align-content: center;
+	gap: 12px;
+	padding: 32px;
+}
+
+.about-process__card-copy h3 {
+	margin-bottom: 4px;
+}
+
+.about-process__card-copy p {
+	font-size: 0.9375rem;
+}
+
+.about-process__card-media .media-block {
+	height: 100%;
+	min-height: 200px;
+}
+
+@media (min-width: 1024px) {
+	.about-process__card {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.about-process__card--reverse .about-process__card-copy {
+		order: 2;
+	}
+
+	.about-process__card--reverse .about-process__card-media {
+		order: 1;
+	}
+
+	.about-process__card-media .media-block {
+		min-height: 260px;
+	}
+}
+
+/* ============================================================
+   ABOUT PAGE — Team Section (image left, text + cards right)
+   ============================================================ */
+
+.about-team__grid {
+	display: grid;
+	gap: 24px;
+}
+
+.about-team__media .media-block {
+	height: 100%;
+	min-height: 280px;
+}
+
+.about-team__content {
+	display: grid;
+	gap: 16px;
+	align-content: start;
+}
+
+.about-team__intro h2 {
+	margin-bottom: 12px;
+}
+
+.about-team__card {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+}
+
+.about-team__card-icon {
+	flex-shrink: 0;
+}
+
+.about-team__card-icon .soft-icon {
+	width: 44px;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 12px;
+	background: rgba(64, 126, 140, 0.1);
+}
+
+.about-team__card-icon .soft-icon svg {
+	width: 20px;
+	height: 20px;
+	color: var(--color-teal);
+}
+
+.about-team__card-copy h3 {
+	margin-bottom: 4px;
+}
+
+.about-team__card-copy p {
+	font-size: 0.9375rem;
+}
+
+@media (min-width: 1024px) {
+	.about-team__grid {
+		grid-template-columns: 48% 1fr;
+		gap: 48px;
+		align-items: stretch;
+	}
+
+	.about-team__media .media-block {
+		height: 100%;
+	}
+}
+
+/* ============================================================
+   ABOUT PAGE — Certifications pill grid
+   ============================================================ */
+
+.about-certifications__grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 40px;
+}
+
+.about-certifications__pill {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 18px;
+	transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.about-certifications__pill:hover {
+	box-shadow: var(--shadow-subtle);
+	transform: translateY(-1px);
+}
+
+.about-certifications__pill .soft-icon {
+	flex-shrink: 0;
+	color: var(--color-teal);
+}
+
+.about-certifications__pill .soft-icon svg {
+	width: 18px;
+	height: 18px;
+}
+
+.about-certifications__pill span:last-child {
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+@media (min-width: 768px) {
+	.about-certifications__grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+
+/* ============================================================
+   ABOUT PAGE — CTA (centered, no container)
+   ============================================================ */
+
+.about-cta__inner {
+	max-width: 640px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.about-cta__inner h2 {
+	margin-bottom: 16px;
+}
+
+.about-cta__inner .section-copy {
+	margin-bottom: 24px;
+}
+
+.about-cta__inner .button-row {
+	justify-content: center;
+}

@@ -1651,6 +1651,307 @@ function massitpro_render_certifications_section($meta_key, $post_id) {
 }
 
 /**
+ * Render the About page mission section (2-column: text left, image right).
+ *
+ * @param string $meta_key Section key.
+ * @param int    $post_id  Post ID.
+ */
+function massitpro_render_about_mission_section($meta_key, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$image   = massitpro_resolve_image_value($group['image'] ?? null) ?: massitpro_get_post_display_image($post_id);
+
+	if (! $body) {
+		$body = massitpro_get_post_content_html($post_id);
+	}
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body)) {
+		return;
+	}
+	?>
+	<section class="about-mission section-padding section-spacing">
+		<div class="site-shell">
+			<div class="about-mission__grid">
+				<div class="about-mission__copy" data-reveal>
+					<?php if ($eyebrow) : ?>
+						<p class="section-label"><?php echo esc_html($eyebrow); ?></p>
+					<?php endif; ?>
+					<?php if ($heading) : ?>
+						<h2><?php echo esc_html($heading); ?></h2>
+					<?php endif; ?>
+					<?php if ($body) : ?>
+						<div class="section-copy section-copy--rich"><?php echo wp_kses_post($body); ?></div>
+					<?php endif; ?>
+				</div>
+				<?php if ($image) : ?>
+					<div class="about-mission__media" data-reveal>
+						<?php massitpro_render_media(['image' => $image, 'aspect' => 'square']); ?>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the About page process section with alternating image/text cards.
+ *
+ * @param string $meta_key Section key.
+ * @param int    $post_id  Post ID.
+ */
+function massitpro_render_about_process_section($meta_key, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$steps   = massitpro_filter_rows((array) ($group['steps'] ?? []), ['step_label', 'title', 'body']);
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $steps)) {
+		return;
+	}
+	?>
+	<section class="about-process section-padding section-spacing surface-sand">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
+			<?php if ($steps) : ?>
+				<div class="about-process__steps">
+					<?php foreach ($steps as $index => $step) : ?>
+						<?php $image = massitpro_resolve_image_value($step['image'] ?? null); ?>
+						<?php $reverse = ($index % 2 === 1); ?>
+						<article class="about-process__card content-card<?php echo $reverse ? ' about-process__card--reverse' : ''; ?>" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.05, 2, '.', '')); ?>s;">
+							<div class="about-process__card-copy">
+								<?php if (! empty($step['step_label'])) : ?>
+									<p class="process-card__step"><?php echo esc_html((string) $step['step_label']); ?></p>
+								<?php endif; ?>
+								<?php if (! empty($step['title'])) : ?>
+									<h3><?php echo esc_html((string) $step['title']); ?></h3>
+								<?php endif; ?>
+								<?php if (! empty($step['body'])) : ?>
+									<p><?php echo esc_html((string) $step['body']); ?></p>
+								<?php endif; ?>
+							</div>
+							<?php if ($image) : ?>
+								<div class="about-process__card-media">
+									<?php massitpro_render_media(['image' => $image, 'aspect' => 'video']); ?>
+								</div>
+							<?php endif; ?>
+						</article>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the About page team section (2-column: image left, text+cards right).
+ *
+ * @param string $meta_key Section key.
+ * @param int    $post_id  Post ID.
+ */
+function massitpro_render_about_team_section($meta_key, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$items   = array_slice(massitpro_filter_rows((array) ($group['items'] ?? []), ['title', 'body']), 0, 3);
+	$image   = massitpro_resolve_image_value($group['image'] ?? null);
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $items)) {
+		return;
+	}
+	?>
+	<section class="about-team section-padding section-spacing">
+		<div class="site-shell">
+			<div class="about-team__grid">
+				<?php if ($image) : ?>
+					<div class="about-team__media" data-reveal>
+						<?php massitpro_render_media(['image' => $image, 'aspect' => 'tall']); ?>
+					</div>
+				<?php endif; ?>
+				<div class="about-team__content" data-reveal>
+					<?php if ($eyebrow || $heading || $body) : ?>
+						<div class="about-team__intro">
+							<?php if ($eyebrow) : ?>
+								<p class="section-label"><?php echo esc_html($eyebrow); ?></p>
+							<?php endif; ?>
+							<?php if ($heading) : ?>
+								<h2><?php echo esc_html($heading); ?></h2>
+							<?php endif; ?>
+							<?php if ($body) : ?>
+								<div class="section-copy section-copy--rich"><?php echo wp_kses_post($body); ?></div>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+					<?php foreach ($items as $index => $item) : ?>
+						<article class="about-team__card content-card" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.08, 2, '.', '')); ?>s;">
+							<div class="about-team__card-icon" aria-hidden="true">
+								<div class="soft-icon"><?php echo massitpro_svg_icon((string) ($item['icon'] ?? 'check')); ?></div>
+							</div>
+							<div class="about-team__card-copy">
+								<?php if (! empty($item['title'])) : ?>
+									<h3><?php echo esc_html((string) $item['title']); ?></h3>
+								<?php endif; ?>
+								<?php if (! empty($item['body'])) : ?>
+									<p><?php echo esc_html((string) $item['body']); ?></p>
+								<?php endif; ?>
+							</div>
+						</article>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the About page certifications pill section with icon per pill.
+ *
+ * @param string $meta_key Section key.
+ * @param int    $post_id  Post ID.
+ */
+function massitpro_render_about_certifications_section($meta_key, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$items   = (array) ($group['items'] ?? []);
+
+	$valid_items = [];
+	foreach ($items as $item) {
+		$label = trim((string) ($item['label'] ?? ''));
+		if ($label) {
+			$valid_items[] = $item;
+		}
+	}
+
+	if (! $valid_items) {
+		return;
+	}
+	?>
+	<section class="about-certifications section-padding section-spacing surface-sand">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
+			<div class="about-certifications__grid" data-reveal>
+				<?php foreach ($valid_items as $item) : ?>
+					<span class="about-certifications__pill content-card">
+						<span class="soft-icon" aria-hidden="true"><?php echo massitpro_svg_icon((string) ($item['icon'] ?? 'check')); ?></span>
+						<span><?php echo esc_html((string) $item['label']); ?></span>
+					</span>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the About page Service Coverage Areas as pills.
+ *
+ * @param string $meta_key Section key.
+ * @param int    $post_id  Post ID.
+ */
+function massitpro_render_about_service_coverage_section($meta_key, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$items   = massitpro_filter_rows((array) ($group['items'] ?? []), ['title']);
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $items)) {
+		return;
+	}
+	?>
+	<section class="about-service-coverage section-padding section-spacing">
+		<div class="site-shell">
+			<div class="section-header section-header--center" data-reveal>
+				<div class="section-header__copy">
+					<?php if ($eyebrow) : ?>
+						<p class="section-label"><?php echo esc_html($eyebrow); ?></p>
+					<?php endif; ?>
+					<?php if ($heading) : ?>
+						<h2><?php echo esc_html($heading); ?></h2>
+					<?php endif; ?>
+					<?php if ($body) : ?>
+						<div class="section-copy"><?php echo wp_kses_post($body); ?></div>
+					<?php endif; ?>
+				</div>
+			</div>
+			<?php if ($items) : ?>
+				<div class="hp-location-pills" data-reveal>
+					<?php foreach ($items as $item) :
+						$name     = trim((string) ($item['title'] ?? ''));
+						$link_url = trim((string) ($item['link_url'] ?? ''));
+						if (! $name) {
+							continue;
+						}
+					?>
+						<?php if ($link_url) : ?>
+							<a class="hp-location-pill" href="<?php echo esc_url($link_url); ?>">
+						<?php else : ?>
+							<span class="hp-location-pill">
+						<?php endif; ?>
+							<span class="hp-location-pill__icon" aria-hidden="true"><?php echo massitpro_svg_icon('map-pin'); ?></span>
+							<span class="hp-location-pill__name"><?php echo esc_html($name); ?></span>
+						<?php if ($link_url) : ?>
+							</a>
+						<?php else : ?>
+							</span>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the About page CTA block with centered layout and no card container.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_about_cta_block($post_id) {
+	$group   = (array) massitpro_get_section_meta('cta_block', massitpro_get_render_post_id($post_id), []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$buttons = massitpro_get_buttons($group['buttons'] ?? []);
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $buttons)) {
+		return;
+	}
+	?>
+	<section class="about-cta section-padding section-spacing surface-sand">
+		<div class="site-shell">
+			<div class="about-cta__inner" data-reveal>
+				<?php if ($eyebrow) : ?>
+					<p class="section-label"><?php echo esc_html($eyebrow); ?></p>
+				<?php endif; ?>
+				<?php if ($heading) : ?>
+					<h2><?php echo esc_html($heading); ?></h2>
+				<?php endif; ?>
+				<?php if ($body) : ?>
+					<div class="section-copy"><?php echo wp_kses_post($body); ?></div>
+				<?php endif; ?>
+				<?php massitpro_render_button_row($buttons, 'button-row'); ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
  * Render the featured testimonial split block on the testimonials page.
  *
  * @param int $post_id Post ID.
@@ -2822,14 +3123,14 @@ function massitpro_render_homepage_blog_section( $post_id = 0 ) {
  */
 function massitpro_render_about_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_intro_section('intro_section', $post_id);
+	massitpro_render_about_mission_section('mission_section', $post_id);
 	massitpro_render_stats_band_section('stats_section', $post_id, ['surface_class' => 'surface-sand']);
 	massitpro_render_icon_cards_section('value_cards_section', $post_id);
-	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_team_highlights_section('team_highlights_section', $post_id);
-	massitpro_render_certifications_section('certifications_section', $post_id);
-	massitpro_render_spotlight_section('focus_section', $post_id);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_about_process_section('process_section', $post_id);
+	massitpro_render_about_team_section('team_section', $post_id);
+	massitpro_render_about_certifications_section('certifications_section', $post_id);
+	massitpro_render_about_service_coverage_section('service_coverage_section', $post_id);
+	massitpro_render_about_cta_block($post_id);
 }
 
 /**

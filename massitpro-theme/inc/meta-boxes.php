@@ -134,15 +134,15 @@ function massitpro_get_native_section_registry() {
 		'about' => [
 			'title'    => __('Mass IT Pro About Page Fields', 'massitpro'),
 			'sections' => [
-				'hero'                    => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'intro_section'           => ['label' => __('Mission Intro', 'massitpro'), 'type' => 'intro'],
-				'stats_section'           => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
-				'value_cards_section'     => ['label' => __('Values', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
-				'process_section'         => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
-				'team_highlights_section' => ['label' => __('Team Highlights', 'massitpro'), 'type' => 'cards', 'rows' => 3, 'fields' => ['icon', 'title', 'body'], 'has_eyebrow' => true, 'has_image' => true],
-				'certifications_section'  => ['label' => __('Certifications', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['title'], 'has_eyebrow' => true],
-				'focus_section'           => ['label' => __('Massachusetts Focus', 'massitpro'), 'type' => 'spotlight'],
-				'cta_block'               => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+				'hero'                     => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'mission_section'          => ['label' => __('Mission', 'massitpro'), 'type' => 'about_mission'],
+				'stats_section'            => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
+				'value_cards_section'      => ['label' => __('Values', 'massitpro'), 'type' => 'cards', 'rows' => 3, 'fields' => ['icon', 'title', 'body']],
+				'process_section'          => ['label' => __('Process Steps', 'massitpro'), 'type' => 'about_process', 'rows' => 4],
+				'team_section'             => ['label' => __('Team', 'massitpro'), 'type' => 'about_team'],
+				'certifications_section'   => ['label' => __('Certifications', 'massitpro'), 'type' => 'about_certifications'],
+				'service_coverage_section' => ['label' => __('Service Coverage Areas', 'massitpro'), 'type' => 'cards', 'rows' => 11, 'fields' => ['title', 'link_url'], 'has_eyebrow' => true],
+				'cta_block'                => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
 		'testimonials' => [
@@ -529,6 +529,18 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 			return;
 		case 'spotlight':
 			massitpro_render_native_spotlight_editor($section_key, $value);
+			return;
+		case 'about_mission':
+			massitpro_render_native_about_mission_editor($section_key, $value);
+			return;
+		case 'about_process':
+			massitpro_render_native_about_process_editor($section_key, $definition, $value);
+			return;
+		case 'about_team':
+			massitpro_render_native_about_team_editor($section_key, $value);
+			return;
+		case 'about_certifications':
+			massitpro_render_native_about_certifications_editor($section_key, $value);
 			return;
 		case 'cta':
 			massitpro_render_native_cta_editor($section_key, $value);
@@ -1162,6 +1174,19 @@ function massitpro_sanitize_native_section($definition, $input) {
 			];
 		case 'related_links':
 			return massitpro_sanitize_native_related_links_section($input);
+		case 'about_mission':
+			return [
+				'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+				'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
+				'body'    => wp_kses_post((string) ($input['body'] ?? '')),
+				'image'   => absint($input['image'] ?? 0),
+			];
+		case 'about_process':
+			return massitpro_sanitize_native_about_process_section($input);
+		case 'about_team':
+			return massitpro_sanitize_native_about_team_section($input);
+		case 'about_certifications':
+			return massitpro_sanitize_native_about_certifications_section($input);
 	}
 
 	return [];
@@ -1456,6 +1481,176 @@ function massitpro_sanitize_native_related_links_section($input) {
 		if (! massitpro_is_empty_value($item)) {
 			$section['items'][] = $item;
 		}
+	}
+
+	return $section;
+}
+
+/**
+ * Render the About Mission editor.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_about_mission_editor($section, $value) {
+	massitpro_render_native_text_input($section, 'eyebrow', __('Mission Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Mission Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Mission Body', 'massitpro'), (string) ($value['body'] ?? ''), 5);
+	massitpro_render_native_image_field($section, 'image', __('Mission Image', 'massitpro'), (int) ($value['image'] ?? 0));
+}
+
+/**
+ * Render the About Process editor with image per step.
+ *
+ * @param string              $section    Section key.
+ * @param array<string,mixed> $definition Section definition.
+ * @param array<string,mixed> $value      Current value.
+ */
+function massitpro_render_native_about_process_editor($section, $definition, $value) {
+	$rows = (int) ($definition['rows'] ?? 4);
+
+	massitpro_render_native_text_input($section, 'eyebrow', __('Process Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Process Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Process Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+
+	for ($index = 0; $index < $rows; $index++) {
+		$row = (array) ($value['steps'][$index] ?? []);
+		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Step %d', 'massitpro'), $index + 1)) . '</h4>';
+		massitpro_render_native_text_input($section, 'steps][' . $index . '][step_label', __('Step Label', 'massitpro'), (string) ($row['step_label'] ?? ''));
+		massitpro_render_native_text_input($section, 'steps][' . $index . '][title', __('Title', 'massitpro'), (string) ($row['title'] ?? ''));
+		massitpro_render_native_textarea($section, 'steps][' . $index . '][body', __('Body', 'massitpro'), (string) ($row['body'] ?? ''), 3);
+		massitpro_render_native_image_field($section, 'steps][' . $index . '][image', __('Step Image', 'massitpro'), (int) ($row['image'] ?? 0));
+		echo '</div>';
+	}
+}
+
+/**
+ * Render the About Team editor.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_about_team_editor($section, $value) {
+	massitpro_render_native_image_field($section, 'image', __('Team Image (left column)', 'massitpro'), (int) ($value['image'] ?? 0));
+	massitpro_render_native_text_input($section, 'eyebrow', __('Team Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Team Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Team Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+
+	for ($index = 0; $index < 3; $index++) {
+		$row = (array) ($value['items'][$index] ?? []);
+		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Team Card %d', 'massitpro'), $index + 1)) . '</h4>';
+		massitpro_render_native_select($section, 'items][' . $index . '][icon', __('Icon', 'massitpro'), (string) ($row['icon'] ?? 'check'), massitpro_get_native_icon_choices());
+		massitpro_render_native_text_input($section, 'items][' . $index . '][title', __('Heading', 'massitpro'), (string) ($row['title'] ?? ''));
+		massitpro_render_native_textarea($section, 'items][' . $index . '][body', __('Description', 'massitpro'), (string) ($row['body'] ?? ''), 3);
+		echo '</div>';
+	}
+}
+
+/**
+ * Render the About Certifications editor.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_about_certifications_editor($section, $value) {
+	massitpro_render_native_text_input($section, 'eyebrow', __('Certifications Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Certifications Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Certifications Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+
+	for ($index = 0; $index < 8; $index++) {
+		$row = (array) ($value['items'][$index] ?? []);
+		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Certification %d', 'massitpro'), $index + 1)) . '</h4>';
+		massitpro_render_native_select($section, 'items][' . $index . '][icon', __('Icon', 'massitpro'), (string) ($row['icon'] ?? 'check'), massitpro_get_native_icon_choices());
+		massitpro_render_native_text_input($section, 'items][' . $index . '][label', __('Label', 'massitpro'), (string) ($row['label'] ?? ''));
+		echo '</div>';
+	}
+}
+
+/**
+ * Sanitize the About Process section with image per step.
+ *
+ * @param array<string,mixed> $input Raw input.
+ * @return array<string,mixed>
+ */
+function massitpro_sanitize_native_about_process_section($input) {
+	$section = [
+		'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+		'heading'  => sanitize_text_field((string) ($input['heading'] ?? '')),
+		'body'     => wp_kses_post((string) ($input['body'] ?? '')),
+		'steps'    => [],
+	];
+
+	foreach ((array) ($input['steps'] ?? []) as $row) {
+		$item = [
+			'step_label' => sanitize_text_field((string) ($row['step_label'] ?? '')),
+			'title'      => sanitize_text_field((string) ($row['title'] ?? '')),
+			'body'       => sanitize_textarea_field((string) ($row['body'] ?? '')),
+			'image'      => absint($row['image'] ?? 0),
+		];
+
+		if (! massitpro_is_empty_value([$item['step_label'], $item['title'], $item['body']])) {
+			$section['steps'][] = $item;
+		}
+	}
+
+	return $section;
+}
+
+/**
+ * Sanitize the About Team section.
+ *
+ * @param array<string,mixed> $input Raw input.
+ * @return array<string,mixed>
+ */
+function massitpro_sanitize_native_about_team_section($input) {
+	$section = [
+		'image'   => absint($input['image'] ?? 0),
+		'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+		'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
+		'body'    => wp_kses_post((string) ($input['body'] ?? '')),
+		'items'   => [],
+	];
+
+	foreach ((array) ($input['items'] ?? []) as $row) {
+		$item = [
+			'icon'  => sanitize_key((string) ($row['icon'] ?? 'check')),
+			'title' => sanitize_text_field((string) ($row['title'] ?? '')),
+			'body'  => sanitize_textarea_field((string) ($row['body'] ?? '')),
+		];
+
+		if (! massitpro_is_empty_value([$item['title'], $item['body']])) {
+			$section['items'][] = $item;
+		}
+	}
+
+	return $section;
+}
+
+/**
+ * Sanitize the About Certifications section.
+ *
+ * @param array<string,mixed> $input Raw input.
+ * @return array<string,mixed>
+ */
+function massitpro_sanitize_native_about_certifications_section($input) {
+	$section = [
+		'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+		'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
+		'body'    => wp_kses_post((string) ($input['body'] ?? '')),
+		'items'   => [],
+	];
+
+	foreach ((array) ($input['items'] ?? []) as $row) {
+		$label = sanitize_text_field((string) ($row['label'] ?? ''));
+
+		if (! $label) {
+			continue;
+		}
+
+		$section['items'][] = [
+			'icon'  => sanitize_key((string) ($row['icon'] ?? 'check')),
+			'label' => $label,
+		];
 	}
 
 	return $section;
