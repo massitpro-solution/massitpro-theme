@@ -157,11 +157,18 @@ function massitpro_get_native_section_registry() {
 		'contact' => [
 			'title'    => __('Mass IT Pro Contact Page Fields', 'massitpro'),
 			'sections' => [
-				'hero'                => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'trust_cards_section' => ['label' => __('Trust Points', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
-				'process_section'     => ['label' => __('What Happens Next', 'massitpro'), 'type' => 'process', 'rows' => 4],
-				'coverage_section'    => ['label' => __('Coverage Area', 'massitpro'), 'type' => 'spotlight'],
-				'cta_block'           => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+				'hero'                     => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'contact_form_section'     => ['label' => __('Contact Form & Info Cards', 'massitpro'), 'type' => 'contact_form'],
+				'contact_process_section'  => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4, 'has_eyebrow' => true],
+				'contact_industries_section' => [
+					'label'       => __('Industries', 'massitpro'),
+					'type'        => 'cards',
+					'rows'        => 6,
+					'fields'      => ['title', 'body', 'link_url'],
+					'has_eyebrow' => true,
+				],
+				'contact_location_section' => ['label' => __('Location', 'massitpro'), 'type' => 'contact_location'],
+				'cta_block'                => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
 		'faq' => [
@@ -542,6 +549,12 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 		case 'about_certifications':
 			massitpro_render_native_about_certifications_editor($section_key, $value);
 			return;
+		case 'contact_form':
+			massitpro_render_native_contact_form_editor($section_key, $value);
+			return;
+		case 'contact_location':
+			massitpro_render_native_contact_location_editor($section_key, $value);
+			return;
 		case 'cta':
 			massitpro_render_native_cta_editor($section_key, $value);
 			return;
@@ -848,6 +861,10 @@ function massitpro_render_native_cards_editor($section, $definition, $value) {
  */
 function massitpro_render_native_process_editor($section, $definition, $value) {
 	$rows = (int) ($definition['rows'] ?? 6);
+
+	if (! empty($definition['has_eyebrow'])) {
+		massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	}
 
 	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
 	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
@@ -1187,6 +1204,10 @@ function massitpro_sanitize_native_section($definition, $input) {
 			return massitpro_sanitize_native_about_team_section($input);
 		case 'about_certifications':
 			return massitpro_sanitize_native_about_certifications_section($input);
+		case 'contact_form':
+			return massitpro_sanitize_native_contact_form_section($input);
+		case 'contact_location':
+			return massitpro_sanitize_native_contact_location_section($input);
 	}
 
 	return [];
@@ -1404,9 +1425,10 @@ function massitpro_sanitize_native_cards_section($definition, $input) {
  */
 function massitpro_sanitize_native_process_section($input) {
 	$section = [
-		'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
-		'body'    => wp_kses_post((string) ($input['body'] ?? '')),
-		'steps'   => [],
+		'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+		'heading'  => sanitize_text_field((string) ($input['heading'] ?? '')),
+		'body'     => wp_kses_post((string) ($input['body'] ?? '')),
+		'steps'    => [],
 	];
 
 	foreach ((array) ($input['steps'] ?? []) as $row) {
@@ -1650,6 +1672,151 @@ function massitpro_sanitize_native_about_certifications_section($input) {
 		$section['items'][] = [
 			'icon'  => sanitize_key((string) ($row['icon'] ?? 'check')),
 			'label' => $label,
+		];
+	}
+
+	return $section;
+}
+
+/**
+ * Render the Contact Form & Info Cards editor.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_contact_form_editor($section, $value) {
+	massitpro_render_native_text_input($section, 'eyebrow', __('Section Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+
+	echo '<hr><h4>' . esc_html__('Form Settings', 'massitpro') . '</h4>';
+
+	massitpro_render_native_select($section, 'form_mode', __('Form Mode', 'massitpro'), (string) ($value['form_mode'] ?? 'native'), [
+		'native'    => __('Native Theme Form', 'massitpro'),
+		'shortcode' => __('Shortcode / Embed', 'massitpro'),
+	]);
+
+	massitpro_render_native_text_input($section, 'form_shortcode', __('Form Shortcode', 'massitpro'), (string) ($value['form_shortcode'] ?? ''));
+
+	echo '<p class="description">' . esc_html__('If form mode is Shortcode, paste a shortcode above. Otherwise the native form renders.', 'massitpro') . '</p>';
+
+	massitpro_render_native_text_input($section, 'form_heading', __('Form Heading', 'massitpro'), (string) ($value['form_heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'form_body', __('Form Intro Text', 'massitpro'), (string) ($value['form_body'] ?? ''), 3);
+	massitpro_render_native_text_input($section, 'submit_label', __('Submit Button Label', 'massitpro'), (string) ($value['submit_label'] ?? ''));
+	massitpro_render_native_text_input($section, 'recipient_email', __('Recipient Email', 'massitpro'), (string) ($value['recipient_email'] ?? ''));
+	massitpro_render_native_text_input($section, 'success_message', __('Success Message', 'massitpro'), (string) ($value['success_message'] ?? ''));
+	massitpro_render_native_text_input($section, 'error_message', __('Error Message', 'massitpro'), (string) ($value['error_message'] ?? ''));
+	massitpro_render_native_text_input($section, 'privacy_url', __('Privacy Policy URL', 'massitpro'), (string) ($value['privacy_url'] ?? ''));
+
+	echo '<hr><h4>' . esc_html__('Contact Info Cards (Right Column)', 'massitpro') . '</h4>';
+	echo '<p class="description">' . esc_html__('Up to 5 contact info cards. Body appears above the heading in each card.', 'massitpro') . '</p>';
+
+	for ($index = 0; $index < 5; $index++) {
+		$row = (array) (($value['cards'][$index] ?? []));
+		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Card %d', 'massitpro'), $index + 1)) . '</h4>';
+		massitpro_render_native_select($section, 'cards][' . $index . '][icon', __('Icon', 'massitpro'), (string) ($row['icon'] ?? 'check'), massitpro_get_native_icon_choices());
+		massitpro_render_native_textarea($section, 'cards][' . $index . '][body', __('Body', 'massitpro'), (string) ($row['body'] ?? ''), 2);
+		massitpro_render_native_text_input($section, 'cards][' . $index . '][heading', __('Heading', 'massitpro'), (string) ($row['heading'] ?? ''));
+		massitpro_render_native_text_input($section, 'cards][' . $index . '][link_url', __('Link URL (optional)', 'massitpro'), (string) ($row['link_url'] ?? ''));
+		echo '</div>';
+	}
+}
+
+/**
+ * Sanitize Contact Form & Info Cards section.
+ *
+ * @param array<string,mixed> $input Raw input.
+ * @return array<string,mixed>
+ */
+function massitpro_sanitize_native_contact_form_section($input) {
+	$section = [
+		'eyebrow'         => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+		'heading'         => sanitize_text_field((string) ($input['heading'] ?? '')),
+		'body'            => wp_kses_post((string) ($input['body'] ?? '')),
+		'form_mode'       => in_array((string) ($input['form_mode'] ?? ''), ['native', 'shortcode'], true) ? (string) $input['form_mode'] : 'native',
+		'form_shortcode'  => sanitize_text_field((string) ($input['form_shortcode'] ?? '')),
+		'form_heading'    => sanitize_text_field((string) ($input['form_heading'] ?? '')),
+		'form_body'       => wp_kses_post((string) ($input['form_body'] ?? '')),
+		'submit_label'    => sanitize_text_field((string) ($input['submit_label'] ?? '')),
+		'recipient_email' => sanitize_email((string) ($input['recipient_email'] ?? '')),
+		'success_message' => sanitize_text_field((string) ($input['success_message'] ?? '')),
+		'error_message'   => sanitize_text_field((string) ($input['error_message'] ?? '')),
+		'privacy_url'     => esc_url_raw((string) ($input['privacy_url'] ?? '')),
+		'cards'           => [],
+	];
+
+	foreach ((array) ($input['cards'] ?? []) as $row) {
+		$body    = sanitize_textarea_field((string) ($row['body'] ?? ''));
+		$heading = sanitize_text_field((string) ($row['heading'] ?? ''));
+
+		if (! $body && ! $heading) {
+			continue;
+		}
+
+		$section['cards'][] = [
+			'icon'     => sanitize_key((string) ($row['icon'] ?? 'check')),
+			'body'     => $body,
+			'heading'  => $heading,
+			'link_url' => esc_url_raw((string) ($row['link_url'] ?? '')),
+		];
+	}
+
+	return $section;
+}
+
+/**
+ * Render the Contact Location editor.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_contact_location_editor($section, $value) {
+	massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+	massitpro_render_native_image_field($section, 'image', __('Section Image', 'massitpro'), (int) ($value['image'] ?? 0));
+	massitpro_render_native_text_input($section, 'button_label', __('Button Label', 'massitpro'), (string) ($value['button_label'] ?? ''));
+	massitpro_render_native_text_input($section, 'button_url', __('Button URL', 'massitpro'), (string) ($value['button_url'] ?? ''));
+
+	echo '<hr><h4>' . esc_html__('Location Links (optional)', 'massitpro') . '</h4>';
+
+	for ($index = 0; $index < 6; $index++) {
+		$row = (array) (($value['links'][$index] ?? []));
+		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Location %d', 'massitpro'), $index + 1)) . '</h4>';
+		massitpro_render_native_text_input($section, 'links][' . $index . '][label', __('Label', 'massitpro'), (string) ($row['label'] ?? ''));
+		massitpro_render_native_text_input($section, 'links][' . $index . '][url', __('URL', 'massitpro'), (string) ($row['url'] ?? ''));
+		echo '</div>';
+	}
+}
+
+/**
+ * Sanitize Contact Location section.
+ *
+ * @param array<string,mixed> $input Raw input.
+ * @return array<string,mixed>
+ */
+function massitpro_sanitize_native_contact_location_section($input) {
+	$section = [
+		'eyebrow'      => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+		'heading'       => sanitize_text_field((string) ($input['heading'] ?? '')),
+		'body'          => wp_kses_post((string) ($input['body'] ?? '')),
+		'image'         => absint($input['image'] ?? 0),
+		'button_label'  => sanitize_text_field((string) ($input['button_label'] ?? '')),
+		'button_url'    => esc_url_raw((string) ($input['button_url'] ?? '')),
+		'links'         => [],
+	];
+
+	foreach ((array) ($input['links'] ?? []) as $row) {
+		$label = sanitize_text_field((string) ($row['label'] ?? ''));
+		$url   = esc_url_raw((string) ($row['url'] ?? ''));
+
+		if (! $label) {
+			continue;
+		}
+
+		$section['links'][] = [
+			'label' => $label,
+			'url'   => $url,
 		];
 	}
 

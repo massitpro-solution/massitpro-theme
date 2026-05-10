@@ -522,17 +522,18 @@ function massitpro_render_process_section($field_name, $post_id, $args = []) {
 		]
 	);
 	$group   = (array) massitpro_get_section_meta($field_name, massitpro_get_render_post_id($post_id), []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
 	$heading = trim((string) ($group['heading'] ?? ''));
 	$body    = (string) ($group['body'] ?? '');
 	$steps   = massitpro_filter_rows((array) ($group['steps'] ?? []), ['step_label', 'title', 'body']);
 
-	if (! massitpro_has_any_content($heading, $body, $steps)) {
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $steps)) {
 		return;
 	}
 	?>
 	<section class="section-padding section-spacing <?php echo esc_attr(trim((string) $args['surface_class'] . ' ' . (string) $args['section_class'])); ?>">
 		<div class="site-shell">
-			<?php massitpro_render_section_heading(['title' => $heading, 'copy' => $body]); ?>
+			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body]); ?>
 			<?php if ($steps) : ?>
 				<div class="process-grid">
 					<?php foreach ($steps as $index => $step) : ?>
@@ -3850,64 +3851,393 @@ function massitpro_render_faq_page_body($post_id = 0) {
 }
 
 /**
+ * Render the Contact page form & info cards section.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_contact_form_section($post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta('contact_form_section', $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$cards   = (array) ($group['cards'] ?? []);
+
+	$form_mode      = (string) ($group['form_mode'] ?? 'native');
+	$form_shortcode = trim((string) ($group['form_shortcode'] ?? ''));
+	$form_heading   = trim((string) ($group['form_heading'] ?? ''));
+	$form_body      = (string) ($group['form_body'] ?? '');
+	$submit_label   = trim((string) ($group['submit_label'] ?? ''));
+	$privacy_url    = trim((string) ($group['privacy_url'] ?? ''));
+
+	$non_empty_cards = [];
+	foreach ($cards as $card) {
+		$card = (array) $card;
+		if (! empty($card['body']) || ! empty($card['heading'])) {
+			$non_empty_cards[] = $card;
+		}
+	}
+	$non_empty_cards = array_slice($non_empty_cards, 0, 5);
+
+	$has_form = ('shortcode' === $form_mode && $form_shortcode) || 'native' === $form_mode;
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $non_empty_cards) && ! $has_form) {
+		return;
+	}
+	?>
+	<section class="contact-info-section section-padding section-spacing">
+		<div class="site-shell">
+			<?php if ($eyebrow || $heading || $body) : ?>
+				<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
+			<?php endif; ?>
+			<div class="contact-info-section__grid">
+				<div class="contact-form-panel content-card" data-reveal>
+					<?php if ($form_heading) : ?>
+						<h3 class="contact-form-panel__heading"><?php echo esc_html($form_heading); ?></h3>
+					<?php endif; ?>
+					<?php if ($form_body) : ?>
+						<div class="contact-form-panel__intro"><?php echo wp_kses_post($form_body); ?></div>
+					<?php endif; ?>
+					<?php if ('shortcode' === $form_mode && $form_shortcode) : ?>
+						<div class="contact-form-panel__embed"><?php echo do_shortcode($form_shortcode); ?></div>
+					<?php else : ?>
+						<?php massitpro_render_native_contact_form($post_id, $submit_label, $privacy_url); ?>
+					<?php endif; ?>
+				</div>
+				<?php if ($non_empty_cards) : ?>
+					<div class="contact-methods" data-reveal>
+						<?php foreach ($non_empty_cards as $index => $card) : ?>
+							<?php
+								$icon     = (string) ($card['icon'] ?? 'check');
+								$c_body   = trim((string) ($card['body'] ?? ''));
+								$c_head   = trim((string) ($card['heading'] ?? ''));
+								$link_url = trim((string) ($card['link_url'] ?? ''));
+							?>
+							<div class="contact-method-card content-card" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.05, 2, '.', '')); ?>s;">
+								<div class="contact-method-card__icon">
+									<div class="soft-icon" aria-hidden="true"><?php echo massitpro_svg_icon($icon); ?></div>
+								</div>
+								<div class="contact-method-card__content">
+									<?php if ($c_body) : ?>
+										<?php if ($link_url) : ?>
+											<a href="<?php echo esc_url($link_url); ?>" class="contact-method-card__body"><?php echo esc_html($c_body); ?></a>
+										<?php else : ?>
+											<p class="contact-method-card__body"><?php echo esc_html($c_body); ?></p>
+										<?php endif; ?>
+									<?php endif; ?>
+									<?php if ($c_head) : ?>
+										<h3 class="contact-method-card__heading"><?php echo esc_html($c_head); ?></h3>
+									<?php endif; ?>
+								</div>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the native theme contact form.
+ *
+ * @param int    $post_id      Post ID.
+ * @param string $submit_label Submit button label.
+ * @param string $privacy_url  Privacy policy URL.
+ */
+function massitpro_render_native_contact_form($post_id, $submit_label = '', $privacy_url = '') {
+	$submit_label = $submit_label ?: __('Send Message', 'massitpro');
+	?>
+	<form class="massitpro-contact-form" method="post" novalidate>
+		<?php wp_nonce_field('massitpro_contact_submit', '_massitpro_contact_nonce'); ?>
+		<input type="hidden" name="action" value="massitpro_contact_submit">
+		<input type="hidden" name="massitpro_contact_page_id" value="<?php echo esc_attr((string) $post_id); ?>">
+		<div class="massitpro-contact-hp" aria-hidden="true" tabindex="-1">
+			<input type="text" name="massitpro_hp_field" value="" autocomplete="off" tabindex="-1">
+		</div>
+		<div class="massitpro-contact-form__row massitpro-contact-form__row--2col">
+			<div class="massitpro-contact-field-group">
+				<label for="mcf_firstname"><?php esc_html_e('First Name', 'massitpro'); ?> <span class="required">*</span></label>
+				<input type="text" id="mcf_firstname" name="massitpro_contact[firstname]" class="massitpro-contact-field" required>
+			</div>
+			<div class="massitpro-contact-field-group">
+				<label for="mcf_lastname"><?php esc_html_e('Last Name', 'massitpro'); ?> <span class="required">*</span></label>
+				<input type="text" id="mcf_lastname" name="massitpro_contact[lastname]" class="massitpro-contact-field" required>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row massitpro-contact-form__row--2col">
+			<div class="massitpro-contact-field-group">
+				<label for="mcf_email"><?php esc_html_e('Email', 'massitpro'); ?> <span class="required">*</span></label>
+				<input type="email" id="mcf_email" name="massitpro_contact[email]" class="massitpro-contact-field" required>
+			</div>
+			<div class="massitpro-contact-field-group">
+				<label for="mcf_phone"><?php esc_html_e('Phone', 'massitpro'); ?> <span class="required">*</span></label>
+				<input type="tel" id="mcf_phone" name="massitpro_contact[phone]" class="massitpro-contact-field" required>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row">
+			<div class="massitpro-contact-field-group">
+				<label for="mcf_zip"><?php esc_html_e('ZIP Code', 'massitpro'); ?> <span class="required">*</span></label>
+				<input type="text" id="mcf_zip" name="massitpro_contact[zip]" class="massitpro-contact-field" required>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row">
+			<div class="massitpro-contact-field-group massitpro-contact-service-type">
+				<p class="massitpro-contact-field-group__label"><?php esc_html_e('Service Type', 'massitpro'); ?> <span class="required">*</span></p>
+				<div class="massitpro-contact-pills">
+					<label class="massitpro-contact-pill">
+						<input type="radio" name="massitpro_contact[servicetype]" value="Home">
+						<span><?php esc_html_e('Home', 'massitpro'); ?></span>
+					</label>
+					<label class="massitpro-contact-pill">
+						<input type="radio" name="massitpro_contact[servicetype]" value="Business">
+						<span><?php esc_html_e('Business', 'massitpro'); ?></span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row massitpro-contact-business-fields" style="display:none;">
+			<div class="massitpro-contact-form__row massitpro-contact-form__row--2col">
+				<div class="massitpro-contact-field-group">
+					<label for="mcf_company"><?php esc_html_e('Company Name', 'massitpro'); ?> <span class="required">*</span></label>
+					<input type="text" id="mcf_company" name="massitpro_contact[company]" class="massitpro-contact-field">
+				</div>
+				<div class="massitpro-contact-field-group">
+					<label for="mcf_employees"><?php esc_html_e('Number of Employees', 'massitpro'); ?> <span class="required">*</span></label>
+					<select id="mcf_employees" name="massitpro_contact[employees]" class="massitpro-contact-field">
+						<option value=""><?php esc_html_e('Select...', 'massitpro'); ?></option>
+						<option value="1-10">1-10</option>
+						<option value="11-50">11-50</option>
+						<option value="51-200">51-200</option>
+						<option value="201-500">201-500</option>
+						<option value="500+">500+</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row massitpro-contact-business-services" style="display:none;">
+			<div class="massitpro-contact-field-group">
+				<p class="massitpro-contact-field-group__label"><?php esc_html_e('Business Services', 'massitpro'); ?> <span class="required">*</span></p>
+				<div class="massitpro-contact-pills">
+					<?php
+					$biz_services = [
+						'Managed IT Services',
+						'Cybersecurity',
+						'IT Support & Help Desk',
+						'Cloud Solutions',
+						'Network Solutions',
+						'Backup & Recovery',
+						'Compliance',
+						'Web Design',
+						'Remote Support',
+					];
+					foreach ($biz_services as $svc) : ?>
+						<label class="massitpro-contact-pill">
+							<input type="checkbox" name="massitpro_contact[service_business][]" value="<?php echo esc_attr($svc); ?>">
+							<span><?php echo esc_html($svc); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row massitpro-contact-home-services" style="display:none;">
+			<div class="massitpro-contact-field-group">
+				<p class="massitpro-contact-field-group__label"><?php esc_html_e('Home Services', 'massitpro'); ?> <span class="required">*</span></p>
+				<div class="massitpro-contact-pills">
+					<?php
+					$home_services = [
+						'PC & Mac Repair',
+						'Virus Removal',
+						'OS Upgrades',
+						'Smart Home',
+						'WiFi & Network',
+						'Data Recovery',
+						'Remote Support',
+					];
+					foreach ($home_services as $svc) : ?>
+						<label class="massitpro-contact-pill">
+							<input type="checkbox" name="massitpro_contact[service_home][]" value="<?php echo esc_attr($svc); ?>">
+							<span><?php echo esc_html($svc); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row">
+			<div class="massitpro-contact-field-group">
+				<label for="mcf_message"><?php esc_html_e('Message', 'massitpro'); ?> <span class="required">*</span></label>
+				<textarea id="mcf_message" name="massitpro_contact[message]" class="massitpro-contact-field" rows="4" required></textarea>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row">
+			<div class="massitpro-contact-field-group massitpro-contact-field-group--accept">
+				<label class="massitpro-contact-accept-label">
+					<input type="checkbox" name="massitpro_contact[agreetoterms]" value="1" required>
+					<span>
+						<?php
+						if ($privacy_url) {
+							printf(
+								/* translators: %s: privacy policy link */
+								esc_html__('I agree to the %s and consent to being contacted.', 'massitpro'),
+								'<a href="' . esc_url($privacy_url) . '" target="_blank" rel="noopener noreferrer" class="massitpro-contact-pp-link">' . esc_html__('Privacy Policy', 'massitpro') . '</a>'
+							);
+						} else {
+							esc_html_e('I agree to the Privacy Policy and consent to being contacted.', 'massitpro');
+						}
+						?>
+					</span>
+				</label>
+			</div>
+		</div>
+		<div class="massitpro-contact-form__row">
+			<button type="submit" class="theme-button theme-button--action theme-button--lg massitpro-contact-form__submit">
+				<span><?php echo esc_html($submit_label); ?></span>
+			</button>
+		</div>
+		<div class="massitpro-contact-form__status" role="alert" aria-live="polite"></div>
+	</form>
+	<?php
+}
+
+/**
+ * Render the Contact page industries section using flip-card carousel.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_contact_industries_section($post_id) {
+	massitpro_render_industries_flipcard_section('contact_industries_section', $post_id, [
+		'carousel_key' => 'contact-industries',
+	]);
+}
+
+/**
+ * Render the Contact page location section.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_contact_location_section($post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta('contact_location_section', $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$image   = massitpro_resolve_image_value($group['image'] ?? null);
+	$btn_label = trim((string) ($group['button_label'] ?? ''));
+	$btn_url   = trim((string) ($group['button_url'] ?? ''));
+	$links     = (array) ($group['links'] ?? []);
+
+	$non_empty_links = [];
+	foreach ($links as $link) {
+		$link = (array) $link;
+		if (! empty($link['label'])) {
+			$non_empty_links[] = $link;
+		}
+	}
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $image, $non_empty_links)) {
+		return;
+	}
+	?>
+	<section class="contact-location section-padding section-spacing surface-sand">
+		<div class="site-shell">
+			<div class="split-feature">
+				<div class="split-feature__copy contact-location__copy" data-reveal>
+					<?php if ($eyebrow) : ?>
+						<p class="section-label"><?php echo esc_html($eyebrow); ?></p>
+					<?php endif; ?>
+					<?php if ($heading) : ?>
+						<h2><?php echo esc_html($heading); ?></h2>
+					<?php endif; ?>
+					<?php if ($body) : ?>
+						<div class="section-copy"><?php echo wp_kses_post($body); ?></div>
+					<?php endif; ?>
+					<?php if ($non_empty_links) : ?>
+						<div class="contact-location__links">
+							<?php foreach ($non_empty_links as $link) :
+								$link_label = trim((string) ($link['label'] ?? ''));
+								$link_url   = trim((string) ($link['url'] ?? ''));
+							?>
+								<?php if ($link_url) : ?>
+									<a href="<?php echo esc_url($link_url); ?>" class="contact-location__link">
+										<span class="contact-location__link-icon"><?php echo massitpro_svg_icon('map-pin'); ?></span>
+										<span><?php echo esc_html($link_label); ?></span>
+									</a>
+								<?php else : ?>
+									<span class="contact-location__link">
+										<span class="contact-location__link-icon"><?php echo massitpro_svg_icon('map-pin'); ?></span>
+										<span><?php echo esc_html($link_label); ?></span>
+									</span>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+					<?php if ($btn_label && $btn_url) : ?>
+						<div class="button-row" style="margin-top:28px;">
+							<?php massitpro_render_button(['label' => $btn_label, 'url' => $btn_url, 'variant' => 'primary']); ?>
+						</div>
+					<?php endif; ?>
+				</div>
+				<div class="split-feature__media" data-reveal>
+					<?php if ($image) : ?>
+						<?php massitpro_render_media(['image' => $image, 'aspect' => 'square']); ?>
+					<?php else : ?>
+						<div class="location-image-placeholder" aria-hidden="true"></div>
+					<?php endif; ?>
+				</div>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render the Contact page CTA block with centered layout.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_contact_cta_block($post_id) {
+	$group   = (array) massitpro_get_section_meta('cta_block', massitpro_get_render_post_id($post_id), []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$buttons = massitpro_get_buttons($group['buttons'] ?? []);
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $buttons)) {
+		return;
+	}
+	?>
+	<section class="contact-cta section-padding section-spacing surface-sand">
+		<div class="site-shell">
+			<div class="contact-cta__inner" data-reveal>
+				<?php if ($eyebrow) : ?>
+					<p class="section-label"><?php echo esc_html($eyebrow); ?></p>
+				<?php endif; ?>
+				<?php if ($heading) : ?>
+					<h2><?php echo esc_html($heading); ?></h2>
+				<?php endif; ?>
+				<?php if ($body) : ?>
+					<div class="section-copy"><?php echo wp_kses_post($body); ?></div>
+				<?php endif; ?>
+				<?php massitpro_render_button_row($buttons, 'button-row'); ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
  * Render the contact page body.
  *
  * @param int $post_id Post ID.
  */
 function massitpro_render_contact_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	$content = massitpro_get_post_content_html($post_id);
-	$image   = massitpro_get_post_display_image($post_id);
-	$cards   = [
-		['icon' => 'phone', 'label' => __('Phone', 'massitpro'), 'value' => massitpro_theme_option('phone'), 'href' => massitpro_theme_option('phone') ? massitpro_tel_href(massitpro_theme_option('phone')) : ''],
-		['icon' => 'mail', 'label' => __('Email', 'massitpro'), 'value' => massitpro_theme_option('email'), 'href' => massitpro_theme_option('email') ? 'mailto:' . massitpro_theme_option('email') : ''],
-		['icon' => 'clock', 'label' => __('Hours', 'massitpro'), 'value' => massitpro_theme_option('business_hours'), 'href' => ''],
-		['icon' => 'map-pin', 'label' => __('Service Area', 'massitpro'), 'value' => massitpro_theme_option('service_area'), 'href' => ''],
-	];
-
-	if (! $content && ! $image && ! array_filter(wp_list_pluck($cards, 'value'))) {
-		return;
-	}
-	?>
-	<section class="section-padding section-spacing">
-		<div class="site-shell">
-			<div class="contact-grid">
-				<?php if ($content || $image) : ?>
-					<div class="content-card contact-main-card" data-reveal>
-						<?php if ($image) : ?>
-							<div class="contact-main-card__media"><?php massitpro_render_media(['image' => $image, 'aspect' => 'video']); ?></div>
-						<?php endif; ?>
-						<?php if ($content) : ?>
-							<div class="entry-content"><?php echo wp_kses_post($content); ?></div>
-						<?php endif; ?>
-					</div>
-				<?php endif; ?>
-				<div class="contact-info-stack">
-					<?php foreach ($cards as $card) : ?>
-						<?php if (! $card['value']) : ?>
-							<?php continue; ?>
-						<?php endif; ?>
-						<div class="content-card contact-info-card" data-reveal>
-							<div class="soft-icon" aria-hidden="true"><?php echo massitpro_svg_icon($card['icon']); ?></div>
-							<div>
-								<p class="detail-label"><?php echo esc_html($card['label']); ?></p>
-								<?php if ($card['href']) : ?>
-									<a href="<?php echo esc_url($card['href']); ?>"><?php echo esc_html($card['value']); ?></a>
-								<?php else : ?>
-									<p class="contact-info-card__text"><?php echo esc_html($card['value']); ?></p>
-								<?php endif; ?>
-							</div>
-						</div>
-					<?php endforeach; ?>
-				</div>
-			</div>
-		</div>
-	</section>
-	<?php
-	massitpro_render_icon_cards_section('trust_cards_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_process_section('process_section', $post_id);
-	massitpro_render_spotlight_section('coverage_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_contact_form_section($post_id);
+	massitpro_render_process_section('contact_process_section', $post_id);
+	massitpro_render_contact_industries_section($post_id);
+	massitpro_render_contact_location_section($post_id);
+	massitpro_render_contact_cta_block($post_id);
 }
 
 /**

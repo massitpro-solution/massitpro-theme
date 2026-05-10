@@ -583,3 +583,161 @@ remove_action('admin_print_styles', 'print_emoji_styles');
 remove_action('wp_head', 'wp_oembed_add_discovery_links');
 remove_action('wp_head', 'rsd_link');
 remove_action('wp_head', 'wlwmanifest_link');
+
+/**
+ * Handle the native contact form submission via AJAX.
+ */
+function massitpro_handle_contact_form_ajax() {
+	if (! isset($_POST['_massitpro_contact_nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_massitpro_contact_nonce'])), 'massitpro_contact_submit')) {
+		wp_send_json_error(['message' => __('Security check failed. Please reload and try again.', 'massitpro')]);
+	}
+
+	if (! empty($_POST['massitpro_hp_field'])) {
+		wp_send_json_error(['message' => __('Submission rejected.', 'massitpro')]);
+	}
+
+	$data    = isset($_POST['massitpro_contact']) ? (array) wp_unslash($_POST['massitpro_contact']) : [];
+	$page_id = absint($_POST['massitpro_contact_page_id'] ?? 0);
+	$group   = $page_id ? (array) massitpro_get_section_meta('contact_form_section', $page_id, []) : [];
+
+	$firstname   = sanitize_text_field((string) ($data['firstname'] ?? ''));
+	$lastname    = sanitize_text_field((string) ($data['lastname'] ?? ''));
+	$email       = sanitize_email((string) ($data['email'] ?? ''));
+	$phone       = sanitize_text_field((string) ($data['phone'] ?? ''));
+	$zip         = sanitize_text_field((string) ($data['zip'] ?? ''));
+	$servicetype = sanitize_text_field((string) ($data['servicetype'] ?? ''));
+	$company     = sanitize_text_field((string) ($data['company'] ?? ''));
+	$employees   = sanitize_text_field((string) ($data['employees'] ?? ''));
+	$message     = sanitize_textarea_field((string) ($data['message'] ?? ''));
+	$agree       = ! empty($data['agreetoterms']);
+
+	$error_msg = trim((string) ($group['error_message'] ?? '')) ?: __('Please correct the errors below and try again.', 'massitpro');
+	$errors    = [];
+
+	if (! $firstname) {
+		$errors['firstname'] = __('First name is required.', 'massitpro');
+	}
+	if (! $lastname) {
+		$errors['lastname'] = __('Last name is required.', 'massitpro');
+	}
+	if (! $email || ! is_email($email)) {
+		$errors['email'] = __('A valid email address is required.', 'massitpro');
+	}
+	if (! $phone) {
+		$errors['phone'] = __('Phone number is required.', 'massitpro');
+	}
+	if (! $zip) {
+		$errors['zip'] = __('ZIP code is required.', 'massitpro');
+	}
+	if (! $servicetype || ! in_array($servicetype, ['Home', 'Business'], true)) {
+		$errors['servicetype'] = __('Please choose Home or Business.', 'massitpro');
+	}
+	if (! $message) {
+		$errors['message'] = __('Message is required.', 'massitpro');
+	}
+	if (! $agree) {
+		$errors['agreetoterms'] = __('You must agree to the privacy policy.', 'massitpro');
+	}
+
+	if ('Business' === $servicetype) {
+		if (! $company) {
+			$errors['company'] = __('Company name is required for business inquiries.', 'massitpro');
+		}
+		if (! $employees) {
+			$errors['employees'] = __('Employee count is required for business inquiries.', 'massitpro');
+		}
+		$biz_checked = array_map('sanitize_text_field', (array) ($data['service_business'] ?? []));
+		if (! $biz_checked) {
+			$errors['service_business'] = __('Select at least one business service.', 'massitpro');
+		}
+	} elseif ('Home' === $servicetype) {
+		$home_checked = array_map('sanitize_text_field', (array) ($data['service_home'] ?? []));
+		if (! $home_checked) {
+			$errors['service_home'] = __('Select at least one home service.', 'massitpro');
+		}
+	}
+
+	if ($errors) {
+		wp_send_json_error(['message' => $error_msg, 'field_errors' => $errors]);
+	}
+
+	$recipient = trim((string) ($group['recipient_email'] ?? ''));
+	if (! $recipient || ! is_email($recipient)) {
+		$recipient = 'support@massitpro.com';
+	}
+
+	$services_list = '';
+	if ('Business' === $servicetype && ! empty($biz_checked)) {
+		$services_list = implode(', ', $biz_checked);
+	} elseif ('Home' === $servicetype && ! empty($home_checked)) {
+		$services_list = implode(', ', $home_checked);
+	}
+
+	$request_label = 'Business' === $servicetype ? 'Business' : 'Home';
+	$subject       = sprintf('New %s IT Request - Mass IT Pro Solution', $request_label);
+
+	$page_url   = isset($_POST['_wp_http_referer']) ? esc_url_raw(wp_unslash($_POST['_wp_http_referer'])) : '';
+	$submitted  = wp_date('F j, Y \a\t g:i A T');
+
+	$body_lines = [];
+	$body_lines[] = sprintf('Name: %s %s', $firstname, $lastname);
+	$body_lines[] = sprintf('Email: %s', $email);
+	$body_lines[] = sprintf('Phone: %s', $phone);
+	$body_lines[] = sprintf('ZIP: %s', $zip);
+	$body_lines[] = sprintf('Service Type: %s', $servicetype);
+	if ('Business' === $servicetype) {
+		$body_lines[] = sprintf('Company: %s', $company);
+		$body_lines[] = sprintf('Employees: %s', $employees);
+	}
+	if ($services_list) {
+		$body_lines[] = sprintf('Services: %s', $services_list);
+	}
+	$body_lines[] = '';
+	$body_lines[] = 'Message:';
+	$body_lines[] = $message;
+	$body_lines[] = '';
+	$body_lines[] = '---';
+	if ($page_url) {
+		$body_lines[] = sprintf('Page URL: %s', $page_url);
+	}
+	$body_lines[] = sprintf('Submitted: %s', $submitted);
+
+	$headers = [
+		'Content-Type: text/plain; charset=UTF-8',
+		'From: Mass IT Pro Website <no-reply@massitpro.com>',
+	];
+	if ($email) {
+		$headers[] = 'Reply-To: ' . $firstname . ' ' . $lastname . ' <' . $email . '>';
+	}
+
+	$sent = wp_mail($recipient, $subject, implode("\n", $body_lines), $headers);
+
+	if ($sent) {
+		$success_msg = trim((string) ($group['success_message'] ?? '')) ?: __('Thank you! Your message has been sent.', 'massitpro');
+		wp_send_json_success(['message' => $success_msg]);
+	}
+
+	wp_send_json_error(['message' => __('There was a problem sending your message. Please try again.', 'massitpro')]);
+}
+add_action('wp_ajax_massitpro_contact_submit', 'massitpro_handle_contact_form_ajax');
+add_action('wp_ajax_nopriv_massitpro_contact_submit', 'massitpro_handle_contact_form_ajax');
+
+/**
+ * Localize contact form data for front-end JS.
+ */
+function massitpro_contact_form_script_data() {
+	if (! is_singular('page')) {
+		return;
+	}
+
+	$context = massitpro_get_page_context_for_post(get_the_ID());
+
+	if ('contact' !== $context) {
+		return;
+	}
+
+	wp_localize_script('massitpro-app', 'massitproContact', [
+		'ajaxUrl' => admin_url('admin-ajax.php'),
+	]);
+}
+add_action('wp_enqueue_scripts', 'massitpro_contact_form_script_data', 20);
