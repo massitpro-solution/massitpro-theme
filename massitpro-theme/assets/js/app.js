@@ -204,4 +204,230 @@
 		});
 	}
 
+	var contactForm = document.querySelector('.massitpro-contact-form');
+	if (contactForm) {
+		var serviceRadios = contactForm.querySelectorAll('input[name="massitpro_contact[servicetype]"]');
+		var businessFields = contactForm.querySelector('.massitpro-contact-business-fields');
+		var businessServices = contactForm.querySelector('.massitpro-contact-business-services');
+		var homeServices = contactForm.querySelector('.massitpro-contact-home-services');
+
+		function mcfGetServiceType() {
+			for (var i = 0; i < serviceRadios.length; i++) {
+				if (serviceRadios[i].checked) return serviceRadios[i].value;
+			}
+			return '';
+		}
+
+		function mcfRefreshVisibility() {
+			var val = mcfGetServiceType();
+			if (businessFields) businessFields.style.display = val === 'Business' ? '' : 'none';
+			if (businessServices) businessServices.style.display = val === 'Business' ? '' : 'none';
+			if (homeServices) homeServices.style.display = val === 'Home' ? '' : 'none';
+
+			if (val !== 'Business' && businessFields) {
+				businessFields.querySelectorAll('input[type="checkbox"]').forEach(function (c) { c.checked = false; });
+			}
+			if (val !== 'Home' && homeServices) {
+				homeServices.querySelectorAll('input[type="checkbox"]').forEach(function (c) { c.checked = false; });
+			}
+		}
+
+		mcfRefreshVisibility();
+		serviceRadios.forEach(function (r) {
+			r.addEventListener('change', function () {
+				mcfRefreshVisibility();
+				mcfClearGroupError(r.closest('.massitpro-contact-field-group'));
+			});
+		});
+
+		function mcfClearGroupError(group) {
+			if (!group) return;
+			group.classList.remove('massitpro-contact-error');
+			var err = group.querySelector('.massitpro-contact-error-msg');
+			if (err) err.parentNode.removeChild(err);
+		}
+
+		function mcfSetGroupError(group, msg) {
+			if (!group) return;
+			mcfClearGroupError(group);
+			group.classList.add('massitpro-contact-error');
+			var div = document.createElement('div');
+			div.className = 'massitpro-contact-error-msg';
+			div.textContent = msg;
+			group.appendChild(div);
+		}
+
+		function mcfFindGroup(name) {
+			var el = contactForm.querySelector('[name="massitpro_contact[' + name + ']"]');
+			if (!el) el = contactForm.querySelector('[name="massitpro_contact[' + name + '][]"]');
+			if (el) return el.closest('.massitpro-contact-field-group');
+			return null;
+		}
+
+		function mcfIsVisible(el) {
+			if (!el) return false;
+			return el.offsetWidth > 0 || el.offsetHeight > 0;
+		}
+
+		function mcfValidate() {
+			var ok = true;
+			var firstBad = null;
+			contactForm.querySelectorAll('.massitpro-contact-field-group').forEach(function (g) { mcfClearGroupError(g); });
+
+			var required = ['firstname', 'lastname', 'email', 'phone', 'zip', 'message'];
+			for (var i = 0; i < required.length; i++) {
+				var grp = mcfFindGroup(required[i]);
+				if (!grp || !mcfIsVisible(grp)) continue;
+				var input = grp.querySelector('.massitpro-contact-field');
+				if (input && !input.value.trim()) {
+					ok = false;
+					mcfSetGroupError(grp, 'This field is required.');
+					if (!firstBad) firstBad = grp;
+				}
+			}
+
+			var stGroup = mcfFindGroup('servicetype');
+			if (stGroup && mcfIsVisible(stGroup) && !mcfGetServiceType()) {
+				ok = false;
+				mcfSetGroupError(stGroup, 'Please choose Home or Business.');
+				if (!firstBad) firstBad = stGroup;
+			}
+
+			var mode = mcfGetServiceType();
+			if (mode === 'Business') {
+				var compGroup = mcfFindGroup('company');
+				if (compGroup && mcfIsVisible(compGroup)) {
+					var compInput = compGroup.querySelector('.massitpro-contact-field');
+					if (compInput && !compInput.value.trim()) {
+						ok = false;
+						mcfSetGroupError(compGroup, 'Company name is required.');
+						if (!firstBad) firstBad = compGroup;
+					}
+				}
+				var empGroup = mcfFindGroup('employees');
+				if (empGroup && mcfIsVisible(empGroup)) {
+					var empInput = empGroup.querySelector('.massitpro-contact-field');
+					if (empInput && !empInput.value) {
+						ok = false;
+						mcfSetGroupError(empGroup, 'Employee count is required.');
+						if (!firstBad) firstBad = empGroup;
+					}
+				}
+				var bizSvcGroup = contactForm.querySelector('.massitpro-contact-business-services .massitpro-contact-field-group');
+				if (bizSvcGroup && mcfIsVisible(bizSvcGroup)) {
+					var anyBiz = contactForm.querySelectorAll('.massitpro-contact-business-services input[type="checkbox"]:checked');
+					if (!anyBiz.length) {
+						ok = false;
+						mcfSetGroupError(bizSvcGroup, 'Select at least one service.');
+						if (!firstBad) firstBad = bizSvcGroup;
+					}
+				}
+			} else if (mode === 'Home') {
+				var homeSvcGroup = contactForm.querySelector('.massitpro-contact-home-services .massitpro-contact-field-group');
+				if (homeSvcGroup && mcfIsVisible(homeSvcGroup)) {
+					var anyHome = contactForm.querySelectorAll('.massitpro-contact-home-services input[type="checkbox"]:checked');
+					if (!anyHome.length) {
+						ok = false;
+						mcfSetGroupError(homeSvcGroup, 'Select at least one service.');
+						if (!firstBad) firstBad = homeSvcGroup;
+					}
+				}
+			}
+
+			var agreeGroup = contactForm.querySelector('.massitpro-contact-field-group--accept');
+			if (agreeGroup) {
+				var agreeInput = agreeGroup.querySelector('input[type="checkbox"]');
+				if (agreeInput && !agreeInput.checked) {
+					ok = false;
+					mcfSetGroupError(agreeGroup, 'You must agree before submitting.');
+					if (!firstBad) firstBad = agreeGroup;
+				}
+			}
+
+			if (firstBad && firstBad.scrollIntoView) {
+				firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			}
+
+			return ok;
+		}
+
+		contactForm.addEventListener('input', function (e) {
+			var grp = e.target.closest('.massitpro-contact-field-group');
+			if (grp) mcfClearGroupError(grp);
+		});
+
+		contactForm.addEventListener('change', function (e) {
+			var grp = e.target.closest('.massitpro-contact-field-group');
+			if (grp) mcfClearGroupError(grp);
+		});
+
+		contactForm.addEventListener('submit', function (e) {
+			e.preventDefault();
+
+			if (!mcfValidate()) return;
+
+			var statusEl = contactForm.querySelector('.massitpro-contact-form__status');
+			var submitBtn = contactForm.querySelector('.massitpro-contact-form__submit');
+			var ajaxUrl = (typeof massitproContact !== 'undefined' && massitproContact.ajaxUrl) ? massitproContact.ajaxUrl : '';
+
+			if (!ajaxUrl) {
+				if (statusEl) {
+					statusEl.className = 'massitpro-contact-form__status massitpro-contact-form__status--error';
+					statusEl.textContent = 'Form configuration error. Please contact us directly.';
+				}
+				return;
+			}
+
+			var originalLabel = '';
+			if (submitBtn) {
+				originalLabel = submitBtn.querySelector('span').textContent || 'Send Message';
+				submitBtn.disabled = true;
+				submitBtn.querySelector('span').textContent = 'Sending...';
+			}
+
+			var formData = new FormData(contactForm);
+
+			fetch(ajaxUrl, {
+				method: 'POST',
+				body: formData,
+				credentials: 'same-origin'
+			})
+			.then(function (res) { return res.json(); })
+			.then(function (json) {
+				if (statusEl) {
+					if (json.success) {
+						statusEl.className = 'massitpro-contact-form__status massitpro-contact-form__status--success';
+						statusEl.textContent = json.data && json.data.message ? json.data.message : 'Thank you!';
+						contactForm.reset();
+						mcfRefreshVisibility();
+					} else {
+						statusEl.className = 'massitpro-contact-form__status massitpro-contact-form__status--error';
+						statusEl.textContent = json.data && json.data.message ? json.data.message : 'An error occurred.';
+
+						if (json.data && json.data.field_errors) {
+							var fieldErrors = json.data.field_errors;
+							for (var fieldName in fieldErrors) {
+								if (!fieldErrors.hasOwnProperty(fieldName)) continue;
+								var grp = mcfFindGroup(fieldName);
+								if (grp) mcfSetGroupError(grp, fieldErrors[fieldName]);
+							}
+						}
+					}
+				}
+			})
+			.catch(function () {
+				if (statusEl) {
+					statusEl.className = 'massitpro-contact-form__status massitpro-contact-form__status--error';
+					statusEl.textContent = 'Network error. Please try again.';
+				}
+			})
+			.finally(function () {
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.querySelector('span').textContent = originalLabel;
+				}
+			});
+		});
+	}
+
 })();
