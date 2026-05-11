@@ -331,20 +331,23 @@ function massitpro_get_testimonial_data($post) {
 		];
 	}
 
-	$terms    = get_the_terms($post->ID, 'testimonial_industry');
-	$industry = '';
+	$terms         = get_the_terms($post->ID, 'testimonial_industry');
+	$industry      = '';
+	$industry_slug = '';
 
 	if (! is_wp_error($terms) && ! empty($terms)) {
-		$industry = (string) $terms[0]->name;
+		$industry      = (string) $terms[0]->name;
+		$industry_slug = (string) $terms[0]->slug;
 	}
 
 	return [
-		'quote'    => trim(wp_strip_all_tags((string) $post->post_content)),
-		'name'     => get_the_title($post),
-		'role'     => (string) get_post_meta($post->ID, '_testimonial_role', true),
-		'company'  => (string) get_post_meta($post->ID, '_testimonial_company', true),
-		'industry' => $industry,
-		'image'    => has_post_thumbnail($post->ID) ? get_post_thumbnail_id($post->ID) : null,
+		'quote'         => trim(wp_strip_all_tags((string) $post->post_content)),
+		'name'          => get_the_title($post),
+		'role'          => (string) get_post_meta($post->ID, '_testimonial_role', true),
+		'company'       => (string) get_post_meta($post->ID, '_testimonial_company', true),
+		'industry'      => $industry,
+		'industry_slug' => $industry_slug,
+		'image'         => has_post_thumbnail($post->ID) ? get_post_thumbnail_id($post->ID) : null,
 	];
 }
 

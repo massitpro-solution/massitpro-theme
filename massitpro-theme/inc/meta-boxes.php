@@ -148,12 +148,12 @@ function massitpro_get_native_section_registry() {
 		'testimonials' => [
 			'title'    => __('Mass IT Pro Testimonials Page Fields', 'massitpro'),
 			'sections' => [
-				'hero'                         => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'testimonials_section'         => ['label' => __('All Reviews Heading', 'massitpro'), 'type' => 'section_heading'],
-				'stats_section'                => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
-				'community_spotlight_section'  => ['label' => __('Community Spotlight', 'massitpro'), 'type' => 'spotlight'],
-				'testimonials_location_section' => ['label' => __('Location Coverage', 'massitpro'), 'type' => 'faq_location'],
-				'cta_block'                    => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+				'hero'                              => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'testimonials_featured_review_section' => ['label' => __('Featured Review Image', 'massitpro'), 'type' => 'featured_review_image'],
+				'testimonials_section'              => ['label' => __('All Reviews Heading', 'massitpro'), 'type' => 'section_heading'],
+				'stats_section'                     => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
+				'testimonials_location_section'     => ['label' => __('Location Coverage', 'massitpro'), 'type' => 'related_links'],
+				'cta_block'                         => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
 		'contact' => [
@@ -209,7 +209,7 @@ function massitpro_get_native_section_registry() {
 
 				'faq_location_section' => [
 					'label' => __('Location', 'massitpro'),
-					'type'  => 'faq_location',
+					'type'  => 'related_links',
 				],
 
 				'cta_block' => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
@@ -543,6 +543,9 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 			return;
 		case 'featured_testimonial':
 			massitpro_render_native_featured_testimonial_editor($section_key, $value);
+			return;
+		case 'featured_review_image':
+			massitpro_render_native_image_field($section_key, 'image', __('Featured Review Image', 'massitpro'), absint($value['image'] ?? 0));
 			return;
 		case 'related_links':
 			massitpro_render_native_related_links_editor($section_key, $definition, $value);
@@ -1209,6 +1212,10 @@ function massitpro_sanitize_native_section($definition, $input) {
 					'url'    => esc_url_raw((string) (($input['link']['url'] ?? ''))),
 					'target' => '',
 				],
+			];
+		case 'featured_review_image':
+			return [
+				'image' => absint($input['image'] ?? 0),
 			];
 		case 'related_links':
 			return massitpro_sanitize_native_related_links_section($input);

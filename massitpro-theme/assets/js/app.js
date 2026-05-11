@@ -179,31 +179,6 @@
 		syncSlides();
 	}
 
-	const filterButtons = document.querySelectorAll('.filter-btn');
-	if (filterButtons.length) {
-		filterButtons.forEach(function (button) {
-			button.addEventListener('click', function () {
-				const filter = button.getAttribute('data-filter') || 'all';
-
-				filterButtons.forEach(function (entry) {
-					entry.classList.toggle('is-active', entry === button);
-				});
-
-				document.querySelectorAll('.testimonial-card').forEach(function (card) {
-					const industry = card.getAttribute('data-industry') || '';
-
-					if ('all' === filter || industry === filter) {
-						card.hidden = false;
-						card.style.display = '';
-					} else {
-						card.hidden = true;
-						card.style.display = 'none';
-					}
-				});
-			});
-		});
-	}
-
 	var contactForm = document.querySelector('.massitpro-contact-form');
 	if (contactForm) {
 		var serviceRadios = contactForm.querySelectorAll('input[name="massitpro_contact[servicetype]"]');
@@ -430,62 +405,120 @@
 		});
 	}
 
-	var faqSection = document.querySelector('[data-faq-section]');
+	var faqSection = document.querySelector('[data-mitp-faq-section]');
 	if (faqSection) {
-		var topicNav = faqSection.querySelector('[data-faq-topic-nav]');
-		var faqGroups = faqSection.querySelectorAll('[data-faq-category]');
+		var faqTopicNav = faqSection.querySelector('[data-mitp-faq-topic-nav]');
+		var faqGroups = faqSection.querySelectorAll('[data-mitp-faq-category]');
 
-		if (topicNav && faqGroups.length) {
-			topicNav.addEventListener('click', function (e) {
-				var btn = e.target.closest('[data-faq-topic]');
+		if (faqTopicNav && faqGroups.length) {
+			faqTopicNav.addEventListener('click', function (e) {
+				var btn = e.target.closest('[data-mitp-faq-filter-button]');
 				if (!btn) return;
 
-				var topic = btn.getAttribute('data-faq-topic');
+				var topic = btn.getAttribute('data-mitp-faq-filter-button');
 
-				topicNav.querySelectorAll('.faq-topic-nav__btn').forEach(function (b) {
+				faqTopicNav.querySelectorAll('.faq-topic-nav__btn').forEach(function (b) {
 					b.classList.toggle('is-active', b === btn);
 				});
 
 				faqGroups.forEach(function (group) {
-					if (topic === 'all' || group.getAttribute('data-faq-category') === topic) {
-						group.removeAttribute('data-faq-hidden');
+					if (topic === 'all' || group.getAttribute('data-mitp-faq-category') === topic) {
+						group.removeAttribute('data-mitp-faq-hidden');
 					} else {
-						group.setAttribute('data-faq-hidden', '');
+						group.setAttribute('data-mitp-faq-hidden', '');
 					}
 				});
 			});
 		}
 	}
 
-	var testimonialsSection = document.querySelector('[data-testimonials-filter]');
+	var testimonialsSection = document.querySelector('[data-mitp-testimonials-section]');
 	if (testimonialsSection) {
-		var filterButtons = testimonialsSection.querySelectorAll('[data-testimonials-filter-button]');
-		var testimonialsCards = testimonialsSection.querySelectorAll('[data-testimonials-card]');
+		var mitpFilterBtns = testimonialsSection.querySelectorAll('[data-mitp-testimonials-filter-button]');
+		var mitpCards = testimonialsSection.querySelectorAll('[data-mitp-testimonials-card]');
+		var mitpPagination = testimonialsSection.querySelector('[data-mitp-testimonials-pagination]');
+		var mitpPerPage = 9;
+		var mitpCurrentPage = 1;
+		var mitpActiveFilter = 'all';
 
-		if (filterButtons.length && testimonialsCards.length) {
+		function mitpGetVisibleCards() {
+			var visible = [];
+			mitpCards.forEach(function (card) {
+				var slug = card.getAttribute('data-mitp-testimonials-industry') || '';
+				if (mitpActiveFilter === 'all' || slug === mitpActiveFilter) {
+					visible.push(card);
+				}
+			});
+			return visible;
+		}
+
+		function mitpPaginate() {
+			var visible = mitpGetVisibleCards();
+			var totalPages = Math.max(1, Math.ceil(visible.length / mitpPerPage));
+			if (mitpCurrentPage > totalPages) mitpCurrentPage = totalPages;
+
+			mitpCards.forEach(function (card) {
+				card.setAttribute('data-mitp-testimonials-hidden', '');
+			});
+
+			var start = (mitpCurrentPage - 1) * mitpPerPage;
+			var end = start + mitpPerPage;
+			visible.forEach(function (card, i) {
+				if (i >= start && i < end) {
+					card.removeAttribute('data-mitp-testimonials-hidden');
+				}
+			});
+
+			if (mitpPagination) {
+				var html = '';
+				if (totalPages > 1) {
+					html += '<button class="pagination-btn' + (mitpCurrentPage === 1 ? ' is-disabled' : '') + '" data-mitp-testimonials-page="prev" ' + (mitpCurrentPage === 1 ? 'disabled' : '') + '>&larr; Prev</button>';
+					for (var p = 1; p <= totalPages; p++) {
+						html += '<button class="pagination-btn' + (p === mitpCurrentPage ? ' is-active' : '') + '" data-mitp-testimonials-page="' + p + '">' + p + '</button>';
+					}
+					html += '<button class="pagination-btn' + (mitpCurrentPage === totalPages ? ' is-disabled' : '') + '" data-mitp-testimonials-page="next" ' + (mitpCurrentPage === totalPages ? 'disabled' : '') + '>&rarr; Next</button>';
+				}
+				mitpPagination.innerHTML = html;
+			}
+		}
+
+		if (mitpFilterBtns.length && mitpCards.length) {
 			testimonialsSection.addEventListener('click', function (e) {
-				var btn = e.target.closest('[data-testimonials-filter-button]');
+				var btn = e.target.closest('[data-mitp-testimonials-filter-button]');
 				if (!btn) return;
 
-				var filter = btn.getAttribute('data-testimonials-filter-button');
+				mitpActiveFilter = btn.getAttribute('data-mitp-testimonials-filter-button');
+				mitpCurrentPage = 1;
 
-				filterButtons.forEach(function (b) {
+				mitpFilterBtns.forEach(function (b) {
 					b.classList.toggle('is-active', b === btn);
 				});
 
-				testimonialsCards.forEach(function (card) {
-					var industry = card.getAttribute('data-industry') || '';
-					if (filter === 'all' || industry === filter) {
-						card.removeAttribute('data-testimonials-hidden');
-					} else {
-						card.setAttribute('data-testimonials-hidden', '');
-					}
-				});
+				mitpPaginate();
+			});
+		}
+
+		if (mitpPagination) {
+			mitpPagination.addEventListener('click', function (e) {
+				var btn = e.target.closest('[data-mitp-testimonials-page]');
+				if (!btn || btn.disabled) return;
+
+				var val = btn.getAttribute('data-mitp-testimonials-page');
+				if (val === 'prev') {
+					mitpCurrentPage = Math.max(1, mitpCurrentPage - 1);
+				} else if (val === 'next') {
+					mitpCurrentPage++;
+				} else {
+					mitpCurrentPage = parseInt(val, 10);
+				}
+				mitpPaginate();
+
+				testimonialsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			});
 		}
 
 		testimonialsSection.addEventListener('click', function (e) {
-			var btn = e.target.closest('[data-testimonial-read-more]');
+			var btn = e.target.closest('[data-mitp-testimonials-read-more]');
 			if (!btn) return;
 
 			var quote = btn.previousElementSibling;
@@ -494,6 +527,8 @@
 				btn.textContent = quote.classList.contains('is-expanded') ? 'Show less' : 'Read more';
 			}
 		});
+
+		mitpPaginate();
 	}
 
 })();
