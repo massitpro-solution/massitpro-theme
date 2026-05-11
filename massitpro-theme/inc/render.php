@@ -2105,6 +2105,7 @@ function massitpro_render_cpt_testimonials_section($post_id = 0, $opts = []) {
 			'surface_class' => '',
 			'section_class' => '',
 			'cards_class'   => 'cards-grid cards-grid--3',
+			'page_context'  => '',
 		]
 	);
 	$post_id  = massitpro_get_render_post_id($post_id);
@@ -2112,21 +2113,48 @@ function massitpro_render_cpt_testimonials_section($post_id = 0, $opts = []) {
 	$eyebrow  = trim((string) ($group['eyebrow'] ?? ''));
 	$heading  = trim((string) ($group['heading'] ?? ''));
 	$body     = (string) ($group['body'] ?? '');
-	$posts    = massitpro_query_random_posts('testimonial', 6);
+
+	$is_testimonials_page = 'testimonials' === $opts['page_context'];
+
+	if ($is_testimonials_page) {
+		$posts = massitpro_query_posts([
+			'post_type'      => 'testimonial',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+		]);
+	} else {
+		$posts = massitpro_query_random_posts('testimonial', 6);
+	}
 
 	if (! $posts) {
 		return;
 	}
 
-	$items = [];
+	$items      = [];
+	$industries = [];
 
 	foreach ($posts as $testimonial_post) {
-		$items[] = massitpro_get_testimonial_data($testimonial_post);
+		$data = massitpro_get_testimonial_data($testimonial_post);
+		$items[] = $data;
+		$ind = trim((string) ($data['industry'] ?? ''));
+		if ($ind && ! in_array($ind, $industries, true)) {
+			$industries[] = $ind;
+		}
 	}
 	?>
-	<section class="section-padding section-spacing <?php echo esc_attr(trim((string) $opts['surface_class'] . ' ' . (string) $opts['section_class'])); ?>">
+	<section class="section-padding section-spacing <?php echo esc_attr(trim((string) $opts['surface_class'] . ' ' . (string) $opts['section_class'])); ?>" <?php echo $is_testimonials_page ? 'data-testimonials-filter' : ''; ?>>
 		<div class="site-shell">
 			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body]); ?>
+			<?php if ($is_testimonials_page && $industries) : ?>
+				<div class="testimonials-filter-row">
+					<button class="testimonials-filter-btn is-active" data-testimonials-filter-button="all" type="button"><?php esc_html_e('All', 'massitpro'); ?></button>
+					<?php foreach ($industries as $ind) : ?>
+						<button class="testimonials-filter-btn" data-testimonials-filter-button="<?php echo esc_attr($ind); ?>" type="button"><?php echo esc_html($ind); ?></button>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 			<div class="<?php echo esc_attr((string) $opts['cards_class']); ?>">
 				<?php foreach ($items as $index => $item) : ?>
 					<?php
@@ -2135,18 +2163,24 @@ function massitpro_render_cpt_testimonials_section($post_id = 0, $opts = []) {
 					$role     = trim((string) ($item['role'] ?? ''));
 					$company  = trim((string) ($item['company'] ?? ''));
 					$industry = trim((string) ($item['industry'] ?? ''));
+					$needs_expand = $is_testimonials_page && mb_strlen($quote) > 200;
 					?>
-					<article class="content-card testimonial-card" data-industry="<?php echo esc_attr($industry); ?>" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.05, 2, '.', '')); ?>s;">
+					<article class="content-card testimonial-card" data-testimonials-card data-industry="<?php echo esc_attr($industry); ?>" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.05, 2, '.', '')); ?>s;">
 						<div class="testimonial-stars testimonial-stars--left" aria-hidden="true">
 							<?php for ($star = 0; $star < 5; $star++) : ?>
 								<?php echo massitpro_svg_icon('star'); ?>
 							<?php endfor; ?>
 						</div>
 						<?php if ($quote) : ?>
-							<blockquote><?php echo esc_html($quote); ?></blockquote>
+							<?php if ($needs_expand) : ?>
+								<blockquote class="testimonial-quote--truncated" data-testimonial-quote><?php echo esc_html($quote); ?></blockquote>
+								<button class="testimonial-read-more" data-testimonial-read-more type="button"><?php esc_html_e('Read more', 'massitpro'); ?></button>
+							<?php else : ?>
+								<blockquote><?php echo esc_html($quote); ?></blockquote>
+							<?php endif; ?>
 						<?php endif; ?>
 						<?php if ($name || $role || $company || $industry) : ?>
-							<div class="testimonial-meta testimonial-meta--left">
+							<div class="testimonial-meta testimonial-meta--left testimonial-meta--divided">
 								<?php if ($name) : ?>
 									<span class="testimonial-meta__name"><?php echo esc_html($name); ?></span>
 								<?php endif; ?>
@@ -2202,8 +2236,9 @@ function massitpro_render_cpt_testimonials_featured($post_id = 0) {
 	?>
 	<section class="section-padding section-spacing">
 		<div class="site-shell">
-			<div class="content-card split-feature<?php echo $image ? '' : ' split-feature--single'; ?>" data-reveal>
-				<div class="split-feature__copy entry-content">
+			<div class="content-card testimonials-featured<?php echo $image ? ' testimonials-featured--has-image' : ''; ?>" data-reveal>
+				<div class="testimonials-featured__copy">
+					<span class="testimonials-featured__quote-icon" aria-hidden="true"><?php echo massitpro_svg_icon('quote'); ?></span>
 					<blockquote><?php echo esc_html($quote); ?></blockquote>
 					<div class="testimonial-stars testimonial-stars--left" aria-hidden="true">
 						<?php for ($star = 0; $star < 5; $star++) : ?>
@@ -2214,14 +2249,14 @@ function massitpro_render_cpt_testimonials_featured($post_id = 0) {
 						<p class="testimonial-meta__name"><?php echo esc_html($name); ?></p>
 					<?php endif; ?>
 					<?php if ($role || $company) : ?>
-						<p><?php echo esc_html(trim($role . ($role && $company ? ', ' : '') . $company)); ?></p>
+						<p class="testimonials-featured__role"><?php echo esc_html(trim($role . ($role && $company ? ', ' : '') . $company)); ?></p>
 					<?php endif; ?>
 					<?php if ($industry) : ?>
 						<span class="chip chip--teal"><?php echo esc_html($industry); ?></span>
 					<?php endif; ?>
 				</div>
 				<?php if ($image) : ?>
-					<div class="split-feature__media">
+					<div class="testimonials-featured__media">
 						<?php massitpro_render_media(['image' => $image, 'aspect' => 'video']); ?>
 					</div>
 				<?php endif; ?>
@@ -3859,6 +3894,59 @@ function massitpro_render_project_feature_row($post, $index = 0) {
 }
 
 /**
+ * Render the Testimonials page location coverage section.
+ *
+ * @param int $post_id Post ID.
+ */
+function massitpro_render_testimonials_location_section($post_id = 0) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta('testimonials_location_section', $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$items   = [];
+
+	foreach ((array) ($group['items'] ?? []) as $row) {
+		$title    = trim((string) ($row['title'] ?? ''));
+		$link_url = trim((string) ($row['link_url'] ?? ''));
+
+		if (! $title) {
+			continue;
+		}
+
+		$items[] = [
+			'title'    => $title,
+			'link_url' => $link_url,
+		];
+	}
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $items)) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
+			<?php if ($items) : ?>
+				<div class="hp-location-pills" data-reveal>
+					<?php foreach ($items as $loc) : ?>
+						<?php if ($loc['link_url']) : ?>
+							<a class="hp-location-pill" href="<?php echo esc_url($loc['link_url']); ?>">
+						<?php else : ?>
+							<span class="hp-location-pill">
+						<?php endif; ?>
+							<span class="hp-location-pill__icon" aria-hidden="true"><?php echo massitpro_svg_icon('map-pin'); ?></span>
+							<span class="hp-location-pill__name"><?php echo esc_html($loc['title']); ?></span>
+						<?php echo $loc['link_url'] ? '</a>' : '</span>'; ?>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
  * Render the testimonials page body.
  *
  * @param int $post_id Post ID.
@@ -3866,10 +3954,11 @@ function massitpro_render_project_feature_row($post, $index = 0) {
 function massitpro_render_testimonials_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
 	massitpro_render_cpt_testimonials_featured($post_id);
-	massitpro_render_cpt_testimonials_section($post_id);
+	massitpro_render_cpt_testimonials_section($post_id, ['page_context' => 'testimonials']);
 	massitpro_render_stats_band_section('stats_section', $post_id, ['surface_class' => 'surface-sand']);
 	massitpro_render_community_spotlight_section('community_spotlight_section', $post_id);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_testimonials_location_section($post_id);
+	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center testimonials-cta']);
 }
 
 /**

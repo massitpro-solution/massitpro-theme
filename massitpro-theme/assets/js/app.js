@@ -457,4 +457,43 @@
 		}
 	}
 
+	var testimonialsSection = document.querySelector('[data-testimonials-filter]');
+	if (testimonialsSection) {
+		var filterButtons = testimonialsSection.querySelectorAll('[data-testimonials-filter-button]');
+		var testimonialsCards = testimonialsSection.querySelectorAll('[data-testimonials-card]');
+
+		if (filterButtons.length && testimonialsCards.length) {
+			testimonialsSection.addEventListener('click', function (e) {
+				var btn = e.target.closest('[data-testimonials-filter-button]');
+				if (!btn) return;
+
+				var filter = btn.getAttribute('data-testimonials-filter-button');
+
+				filterButtons.forEach(function (b) {
+					b.classList.toggle('is-active', b === btn);
+				});
+
+				testimonialsCards.forEach(function (card) {
+					var industry = card.getAttribute('data-industry') || '';
+					if (filter === 'all' || industry === filter) {
+						card.removeAttribute('data-testimonials-hidden');
+					} else {
+						card.setAttribute('data-testimonials-hidden', '');
+					}
+				});
+			});
+		}
+
+		testimonialsSection.addEventListener('click', function (e) {
+			var btn = e.target.closest('[data-testimonial-read-more]');
+			if (!btn) return;
+
+			var quote = btn.previousElementSibling;
+			if (quote && quote.classList.contains('testimonial-quote--truncated')) {
+				quote.classList.toggle('is-expanded');
+				btn.textContent = quote.classList.contains('is-expanded') ? 'Show less' : 'Read more';
+			}
+		});
+	}
+
 })();
