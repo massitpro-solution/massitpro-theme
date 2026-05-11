@@ -430,4 +430,31 @@
 		});
 	}
 
+	var faqSection = document.querySelector('[data-faq-section]');
+	if (faqSection) {
+		var topicNav = faqSection.querySelector('[data-faq-topic-nav]');
+		var faqGroups = faqSection.querySelectorAll('[data-faq-category]');
+
+		if (topicNav && faqGroups.length) {
+			topicNav.addEventListener('click', function (e) {
+				var btn = e.target.closest('[data-faq-topic]');
+				if (!btn) return;
+
+				var topic = btn.getAttribute('data-faq-topic');
+
+				topicNav.querySelectorAll('.faq-topic-nav__btn').forEach(function (b) {
+					b.classList.toggle('is-active', b === btn);
+				});
+
+				faqGroups.forEach(function (group) {
+					if (topic === 'all' || group.getAttribute('data-faq-category') === topic) {
+						group.removeAttribute('data-faq-hidden');
+					} else {
+						group.setAttribute('data-faq-hidden', '');
+					}
+				});
+			});
+		}
+	}
+
 })();

@@ -193,10 +193,21 @@ function massitpro_get_native_section_registry() {
 				],
 
 				'still_have_questions_section' => [
-					'label'  => __('Still Have Questions', 'massitpro'),
-					'type'   => 'cards',
-					'rows'   => 2,
-					'fields' => ['title', 'body', 'link_label', 'link_url'],
+					'label'       => __('Still Have Questions', 'massitpro'),
+					'type'        => 'cards',
+					'rows'        => 2,
+					'fields'      => ['title', 'body', 'link_label', 'link_url'],
+					'has_eyebrow' => true,
+				],
+
+				'faq_related_resources_section' => [
+					'label' => __('Related Resources', 'massitpro'),
+					'type'  => 'blog',
+				],
+
+				'faq_location_section' => [
+					'label' => __('Location', 'massitpro'),
+					'type'  => 'faq_location',
 				],
 
 				'cta_block' => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
@@ -554,6 +565,9 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 			return;
 		case 'contact_location':
 			massitpro_render_native_contact_location_editor($section_key, $value);
+			return;
+		case 'faq_location':
+			massitpro_render_native_faq_location_editor($section_key, $value);
 			return;
 		case 'cta':
 			massitpro_render_native_cta_editor($section_key, $value);
@@ -1208,6 +1222,8 @@ function massitpro_sanitize_native_section($definition, $input) {
 			return massitpro_sanitize_native_contact_form_section($input);
 		case 'contact_location':
 			return massitpro_sanitize_native_contact_location_section($input);
+		case 'faq_location':
+			return massitpro_sanitize_native_faq_location_section($input);
 	}
 
 	return [];
@@ -1817,6 +1833,59 @@ function massitpro_sanitize_native_contact_location_section($input) {
 		$section['links'][] = [
 			'label' => $label,
 			'url'   => $url,
+		];
+	}
+
+	return $section;
+}
+
+/**
+ * Render FAQ Location section editor.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_faq_location_editor($section, $value) {
+	massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+
+	echo '<hr><h4>' . esc_html__('Location Items', 'massitpro') . '</h4>';
+
+	for ($index = 0; $index < 12; $index++) {
+		$row = (array) (($value['items'][$index] ?? []));
+		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Location %d', 'massitpro'), $index + 1)) . '</h4>';
+		massitpro_render_native_text_input($section, 'items][' . $index . '][title', __('Title', 'massitpro'), (string) ($row['title'] ?? ''));
+		massitpro_render_native_text_input($section, 'items][' . $index . '][link_url', __('Link URL', 'massitpro'), (string) ($row['link_url'] ?? ''));
+		echo '</div>';
+	}
+}
+
+/**
+ * Sanitize FAQ Location section.
+ *
+ * @param array<string,mixed> $input Raw input.
+ * @return array<string,mixed>
+ */
+function massitpro_sanitize_native_faq_location_section($input) {
+	$section = [
+		'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+		'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
+		'body'    => wp_kses_post((string) ($input['body'] ?? '')),
+		'items'   => [],
+	];
+
+	foreach ((array) ($input['items'] ?? []) as $row) {
+		$title    = sanitize_text_field((string) ($row['title'] ?? ''));
+		$link_url = esc_url_raw((string) ($row['link_url'] ?? ''));
+
+		if (! $title) {
+			continue;
+		}
+
+		$section['items'][] = [
+			'title'    => $title,
+			'link_url' => $link_url,
 		];
 	}
 
