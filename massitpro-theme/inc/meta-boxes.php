@@ -149,8 +149,10 @@ function massitpro_get_native_section_registry() {
 			'title'    => __('Mass IT Pro Testimonials Page Fields', 'massitpro'),
 			'sections' => [
 				'hero'                         => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'testimonials_section'         => ['label' => __('All Reviews Heading', 'massitpro'), 'type' => 'section_heading'],
 				'stats_section'                => ['label' => __('Stats', 'massitpro'), 'type' => 'stats', 'rows' => 4],
 				'community_spotlight_section'  => ['label' => __('Community Spotlight', 'massitpro'), 'type' => 'spotlight'],
+				'testimonials_location_section' => ['label' => __('Location Coverage', 'massitpro'), 'type' => 'faq_location'],
 				'cta_block'                    => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
@@ -559,6 +561,11 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 			return;
 		case 'about_certifications':
 			massitpro_render_native_about_certifications_editor($section_key, $value);
+			return;
+		case 'section_heading':
+			massitpro_render_native_text_input($section_key, 'eyebrow', __('Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+			massitpro_render_native_text_input($section_key, 'heading', __('Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+			massitpro_render_native_textarea($section_key, 'body', __('Body', 'massitpro'), (string) ($value['body'] ?? ''), 3);
 			return;
 		case 'contact_form':
 			massitpro_render_native_contact_form_editor($section_key, $value);
@@ -1211,6 +1218,12 @@ function massitpro_sanitize_native_section($definition, $input) {
 				'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
 				'body'    => wp_kses_post((string) ($input['body'] ?? '')),
 				'image'   => absint($input['image'] ?? 0),
+			];
+		case 'section_heading':
+			return [
+				'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+				'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
+				'body'    => wp_kses_post((string) ($input['body'] ?? '')),
 			];
 		case 'about_process':
 			return massitpro_sanitize_native_about_process_section($input);
