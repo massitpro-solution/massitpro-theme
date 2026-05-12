@@ -195,11 +195,11 @@ function massitpro_get_native_section_registry() {
 				],
 
 				'still_have_questions_section' => [
-					'label'       => __('Still Have Questions', 'massitpro'),
-					'type'        => 'cards',
-					'rows'        => 2,
-					'fields'      => ['title', 'body', 'link_label', 'link_url'],
-					'has_eyebrow' => true,
+					'label'              => __('Still Have Questions', 'massitpro'),
+					'type'               => 'cards',
+					'rows'               => 2,
+					'fields'             => ['title', 'body', 'link_label', 'link_url'],
+					'hide_section_intro' => true,
 				],
 
 				'faq_related_resources_section' => [
@@ -783,12 +783,14 @@ function massitpro_render_native_cards_editor($section, $definition, $value) {
 	$rows   = (int) ($definition['rows'] ?? 4);
 	$fields = (array) ($definition['fields'] ?? []);
 
-	if (! empty($definition['has_eyebrow'])) {
-		massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
-	}
+	if (empty($definition['hide_section_intro'])) {
+		if (! empty($definition['has_eyebrow'])) {
+			massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+		}
 
-	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
-	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+		massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+		massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+	}
 
 	if (! empty($definition['has_image'])) {
 		massitpro_render_native_image_field($section, 'image', __('Section Image', 'massitpro'), (int) ($value['image'] ?? 0));

@@ -4259,15 +4259,21 @@ a.contact-location__link:hover {
 	display: none;
 }
 
-/* ── FAQ Still Have Questions — stacked ── */
+/* ── FAQ Still Have Questions — 2-col desktop, stacked mobile ── */
 .faq-shq-shell {
-	max-width: 800px;
+	max-width: 960px;
 	margin-inline: auto;
 }
 
 .faq-shq-stack {
 	display: grid;
 	gap: 24px;
+}
+
+@media (min-width: 768px) {
+	.faq-shq-stack {
+		grid-template-columns: 1fr 1fr;
+	}
 }
 
 .faq-shq-card {
@@ -4283,22 +4289,6 @@ a.contact-location__link:hover {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-}
-
-/* ── FAQ CTA — centered, no card container ── */
-.cta-shell--center .cta-shell {
-	display: block;
-	text-align: center;
-	max-width: 640px;
-	margin-inline: auto;
-}
-
-.cta-shell--center .cta-shell__copy {
-	text-align: center;
-}
-
-.cta-shell--center .button-row {
-	justify-content: center;
 }
 
 /* ── Testimonials Featured Card ── */
@@ -4449,9 +4439,18 @@ a.contact-location__link:hover {
 	text-decoration: underline;
 }
 
-/* ── Testimonials CTA ── */
+/* ── Testimonials All Reviews heading spacing ── */
+.testimonials-all-reviews-section .section-header h2 {
+	margin-bottom: 12px;
+}
+
+/* ── Testimonials CTA — flat, no card container ── */
 .testimonials-cta-section .cta-shell {
 	max-width: 1000px;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
 }
 
 /* ── Testimonials Card hidden by filter/pagination ── */
@@ -4511,13 +4510,11 @@ a.contact-location__link:hover {
 	font-size: 0.8125rem;
 }
 
-/* ── FAQ CTA ── */
+/* ── FAQ CTA — flat, no card container ── */
 .faq-cta-section .cta-shell {
 	max-width: 1000px;
-}
-
-/* ── FAQ Related Resources — 2 col ── */
-.faq-related-resources-section .cards-grid--2 {
-	max-width: 820px;
-	margin-inline: auto;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
 }
