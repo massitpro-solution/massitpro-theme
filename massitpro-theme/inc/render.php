@@ -2520,8 +2520,15 @@ function massitpro_render_faq_accordion($meta_key, $post_id) {
 		$category_slugs[$cat] = sanitize_title($cat);
 	}
 	?>
+	<?php
+	$faq_heading = trim((string) ($group['heading'] ?? ''));
+	$faq_body    = trim((string) ($group['body'] ?? ''));
+	?>
 	<section class="surface-sand section-padding section-spacing" data-mitp-faq-section>
 		<div class="site-shell faq-accordion-shell">
+			<?php if ($faq_heading || $faq_body) : ?>
+				<?php massitpro_render_section_heading(['title' => $faq_heading, 'copy' => $faq_body, 'align' => 'center']); ?>
+			<?php endif; ?>
 			<nav class="faq-topic-nav" data-mitp-faq-topic-nav aria-label="<?php esc_attr_e('FAQ Topics', 'massitpro'); ?>">
 				<button class="faq-topic-nav__btn is-active" data-mitp-faq-filter-button="all" type="button"><?php esc_html_e('All', 'massitpro'); ?></button>
 				<?php foreach ($category_slugs as $cat_label => $cat_slug) : ?>
@@ -2552,8 +2559,6 @@ function massitpro_render_faq_accordion($meta_key, $post_id) {
 function massitpro_render_faq_still_have_questions($meta_key, $post_id) {
 	$post_id = massitpro_get_render_post_id($post_id);
 	$group   = (array) massitpro_get_section_meta($meta_key, $post_id, []);
-	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
-	$heading = trim((string) ($group['heading'] ?? ''));
 	$cards   = [];
 
 	foreach ((array) ($group['items'] ?? []) as $row) {
@@ -2584,12 +2589,8 @@ function massitpro_render_faq_still_have_questions($meta_key, $post_id) {
 	?>
 	<section class="section-padding section-spacing">
 		<div class="site-shell faq-shq-shell">
-			<?php if ($eyebrow || $heading) : ?>
-				<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'align' => 'center']); ?>
-			<?php endif; ?>
 			<div class="faq-shq-stack">
 				<?php foreach ($cards as $card_index => $card) : ?>
-					<?php $variant = 0 === $card_index ? 'action' : 'outline'; ?>
 					<article class="content-card faq-shq-card" data-reveal style="transition-delay: <?php echo esc_attr(number_format($card_index * 0.05, 2, '.', '')); ?>s;">
 						<?php if ($card['title']) : ?>
 							<h3><?php echo esc_html($card['title']); ?></h3>
@@ -2602,7 +2603,7 @@ function massitpro_render_faq_still_have_questions($meta_key, $post_id) {
 								<?php massitpro_render_button([
 									'label'   => $card['link_label'],
 									'url'     => $card['link_url'],
-									'variant' => $variant,
+									'variant' => 'action',
 									'size'    => 'lg',
 								]); ?>
 							</div>
@@ -2626,16 +2627,16 @@ function massitpro_render_faq_related_resources($post_id = 0) {
 	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
 	$heading = trim((string) ($group['heading'] ?? ''));
 	$body    = (string) ($group['body'] ?? '');
-	$count   = max(1, min(2, absint($group['posts_count'] ?? 2)));
+	$count   = max(1, min(6, absint($group['posts_count'] ?? 3)));
 	$selected = array_values(array_filter(array_map('absint', (array) ($group['posts'] ?? []))));
 
 	if ($selected) {
 		$posts = massitpro_query_posts([
 			'post_type'      => 'post',
 			'post_status'    => 'publish',
-			'post__in'       => array_slice($selected, 0, 2),
+			'post__in'       => array_slice($selected, 0, 3),
 			'orderby'        => 'post__in',
-			'posts_per_page' => 2,
+			'posts_per_page' => 3,
 		]);
 	} else {
 		$posts = massitpro_query_posts([
@@ -2663,7 +2664,7 @@ function massitpro_render_faq_related_resources($post_id = 0) {
 				'copy'  => $body,
 				'align' => 'center',
 			]); ?>
-			<div class="cards-grid cards-grid--2">
+			<div class="cards-grid cards-grid--3">
 				<?php foreach ($posts as $index => $related_post) : ?>
 					<?php massitpro_render_post_card($related_post, $index); ?>
 				<?php endforeach; ?>
@@ -3952,8 +3953,8 @@ function massitpro_render_faq_page_body($post_id = 0) {
 	massitpro_render_faq_quick_answers('quick_answers_section', $post_id);
 	massitpro_render_faq_accordion('faq_accordion_section', $post_id);
 	massitpro_render_faq_still_have_questions('still_have_questions_section', $post_id);
-	massitpro_render_faq_related_resources($post_id);
 	massitpro_render_faq_location_section($post_id);
+	massitpro_render_faq_related_resources($post_id);
 	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center faq-cta-section']);
 }
 
