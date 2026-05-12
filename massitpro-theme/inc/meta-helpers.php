@@ -403,12 +403,16 @@ function massitpro_get_project_data($post) {
 		}
 	}
 
+	$gallery_raw = trim((string) get_post_meta($post->ID, '_project_gallery', true));
+	$gallery     = $gallery_raw ? array_filter(array_map('absint', explode(',', $gallery_raw))) : [];
+
 	return [
 		'title'          => get_the_title($post),
 		'subtitle'       => (string) get_post_meta($post->ID, '_project_subtitle', true),
 		'category'       => $category,
 		'desc'           => $excerpt,
 		'image'          => has_post_thumbnail($post->ID) ? get_post_thumbnail_id($post->ID) : null,
+		'gallery'        => $gallery,
 		'link'           => get_permalink($post),
 		'client_name'    => (string) get_post_meta($post->ID, '_project_client_name', true),
 		'industry_label' => (string) get_post_meta($post->ID, '_project_industry_label', true),

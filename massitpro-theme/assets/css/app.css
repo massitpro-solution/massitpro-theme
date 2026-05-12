@@ -3441,6 +3441,8 @@ a.hp-location-pill:hover .hp-location-pill__icon {
 
 .project-feature-row__results {
 	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--color-border, #e5e7eb);
 }
 
 .project-feature-row__results strong {
@@ -4562,72 +4564,55 @@ a.contact-location__link:hover {
 	margin-bottom: 32px;
 }
 
-.projects-card-grid {
-	display: grid;
-	gap: 32px;
-	grid-template-columns: 1fr;
-}
-
-@media (min-width: 768px) {
-	.projects-card-grid {
-		grid-template-columns: 1fr 1fr;
-	}
-}
-
-.project-card {
-	overflow: hidden;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-}
-
-.project-card__media {
-	width: 100%;
-}
-
-.project-card__media .media-frame {
-	aspect-ratio: 1 / 1;
-}
-
-.project-card__media .media-frame img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
-.project-card__body {
-	padding: 24px 28px 28px;
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.project-card__body h3 {
-	margin: 0;
-}
-
-.project-card__body h3 a {
-	color: inherit;
-	text-decoration: none;
-}
-
-.project-card__body h3 a:hover {
-	color: var(--color-teal);
-}
-
-.project-card__client {
-	font-size: 0.875rem;
-	color: var(--color-muted);
-	margin: 0;
-}
-
-.project-card__body > p:last-child {
-	font-size: 0.9375rem;
-	margin: 0;
-}
-
 [data-mitp-projects-card][data-mitp-projects-hidden] {
 	display: none;
+}
+
+/* ── Project Slideshow (gallery arrows) ── */
+.project-slideshow {
+	position: relative;
+}
+
+.project-slideshow__slide {
+	display: none;
+}
+
+.project-slideshow__slide.is-active {
+	display: block;
+}
+
+.project-slideshow__arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	border: 0;
+	background: rgba(255, 255, 255, 0.85);
+	color: var(--color-foreground, #1a1a1a);
+	font-size: 1.25rem;
+	line-height: 1;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.project-slideshow__arrow:hover {
+	background: #fff;
+	transform: translateY(-50%) scale(1.1);
+}
+
+.project-slideshow__arrow--prev {
+	left: 12px;
+}
+
+.project-slideshow__arrow--next {
+	right: 12px;
 }
 
 /* ── Projects Process Timeline ── */

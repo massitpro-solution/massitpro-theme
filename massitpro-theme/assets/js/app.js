@@ -616,6 +616,33 @@
 		}
 
 		projPaginate();
+
+		projSection.addEventListener('click', function (e) {
+			var prev = e.target.closest('[data-mitp-slide-prev]');
+			var next = e.target.closest('[data-mitp-slide-next]');
+			if (!prev && !next) return;
+
+			var slideshow = (prev || next).closest('[data-mitp-slideshow]');
+			if (!slideshow) return;
+
+			var slides = slideshow.querySelectorAll('.project-slideshow__slide');
+			var current = -1;
+			slides.forEach(function (s, i) {
+				if (s.classList.contains('is-active')) current = i;
+			});
+
+			if (current < 0) return;
+
+			var target;
+			if (prev) {
+				target = current > 0 ? current - 1 : slides.length - 1;
+			} else {
+				target = current < slides.length - 1 ? current + 1 : 0;
+			}
+
+			slides[current].classList.remove('is-active');
+			slides[target].classList.add('is-active');
+		});
 	}
 
 })();
