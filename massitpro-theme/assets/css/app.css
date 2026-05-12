@@ -4562,6 +4562,14 @@ a.contact-location__link:hover {
 
 .projects-topic-nav {
 	margin-bottom: 32px;
+	flex-direction: row;
+	flex-wrap: wrap;
+	position: static;
+}
+
+.projects-topic-nav .faq-topic-nav__btn {
+	border-radius: 999px;
+	justify-content: center;
 }
 
 [data-mitp-projects-card][data-mitp-projects-hidden] {
