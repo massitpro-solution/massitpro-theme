@@ -206,6 +206,17 @@ function massitpro_register_cpt_meta() {
 			'sanitize_callback' => 'sanitize_textarea_field',
 		]
 	);
+
+	register_post_meta(
+		'project',
+		'_project_gallery',
+		[
+			'show_in_rest'      => true,
+			'single'            => true,
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+		]
+	);
 }
 add_action('init', 'massitpro_register_cpt_meta');
 
@@ -269,7 +280,26 @@ function massitpro_render_project_meta_box_callback($post) {
 		<label for="massitpro_project_results"><?php esc_html_e('Results (one per line)', 'massitpro'); ?></label><br>
 		<textarea id="massitpro_project_results" name="_project_results" class="widefat" rows="4"><?php echo esc_textarea($results); ?></textarea>
 	</p>
-	<p class="description"><?php esc_html_e('Use featured image for the project image. Use the title for the project name.', 'massitpro'); ?></p>
+	<p>
+		<label><?php esc_html_e('Gallery Images', 'massitpro'); ?></label><br>
+		<?php
+		$gallery_ids = array_filter(array_map('absint', explode(',', (string) get_post_meta($post->ID, '_project_gallery', true))));
+		?>
+		<div class="massitpro-gallery-field" data-gallery-field>
+			<input type="hidden" name="_project_gallery" value="<?php echo esc_attr(implode(',', $gallery_ids)); ?>" class="massitpro-gallery-field__input">
+			<div class="massitpro-gallery-field__preview" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;">
+				<?php foreach ($gallery_ids as $gid) :
+					$thumb = wp_get_attachment_image_url($gid, 'thumbnail');
+					if ($thumb) : ?>
+						<img src="<?php echo esc_url($thumb); ?>" alt="" style="width:60px;height:60px;object-fit:cover;border-radius:4px;">
+					<?php endif;
+				endforeach; ?>
+			</div>
+			<button type="button" class="button massitpro-gallery-button"><?php esc_html_e('Add / Edit Gallery', 'massitpro'); ?></button>
+			<button type="button" class="button massitpro-gallery-clear" style="margin-left:4px;"><?php esc_html_e('Clear', 'massitpro'); ?></button>
+		</div>
+	</p>
+	<p class="description"><?php esc_html_e('Use featured image as the primary image. Gallery images appear as additional slides with arrows.', 'massitpro'); ?></p>
 	<?php
 }
 
@@ -342,6 +372,11 @@ function massitpro_save_cpt_meta($post_id) {
 			if (isset($_POST[$field])) {
 				update_post_meta($post_id, $field, sanitize_textarea_field(wp_unslash($_POST[$field])));
 			}
+		}
+
+		if (isset($_POST['_project_gallery'])) {
+			$ids = implode(',', array_filter(array_map('absint', explode(',', wp_unslash($_POST['_project_gallery'])))));
+			update_post_meta($post_id, '_project_gallery', sanitize_text_field($ids));
 		}
 	}
 }

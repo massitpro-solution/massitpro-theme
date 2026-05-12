@@ -3849,6 +3849,7 @@ function massitpro_render_projects_filter_grid($post_id) {
 	]);
 
 	$has_terms = ! is_wp_error($terms) && ! empty($terms);
+	$row_index = 0;
 	?>
 	<section class="section-padding section-spacing projects-grid-section" data-mitp-projects-section>
 		<div class="site-shell projects-grid-shell">
@@ -3863,17 +3864,21 @@ function massitpro_render_projects_filter_grid($post_id) {
 					<?php endforeach; ?>
 				</nav>
 			<?php endif; ?>
-			<div class="projects-card-grid">
-				<?php foreach ($items as $index => $item) :
+			<div class="project-feature-rows">
+				<?php foreach ($items as $item) :
 					$data      = massitpro_get_project_data($item);
 					$title     = trim((string) $data['title']);
-					$desc      = trim((string) $data['desc']);
 					$image     = massitpro_resolve_image_value($data['image'] ?? null);
+					$gallery   = (array) ($data['gallery'] ?? []);
 					$client    = trim((string) $data['client_name']);
 					$industry  = trim((string) $data['industry_label']);
+					$challenge = trim((string) $data['challenge']);
+					$solution  = trim((string) $data['solution']);
+					$results   = (array) $data['results'];
 					$category  = trim((string) $data['category']);
 					$link      = trim((string) $data['link']);
 					$label     = $industry ?: $category ?: trim((string) $data['subtitle']);
+					$reversed  = $row_index % 2 !== 0;
 
 					$p_terms = get_the_terms($item->ID, 'project_category');
 					$cat_slug = '';
@@ -3881,36 +3886,80 @@ function massitpro_render_projects_filter_grid($post_id) {
 						$cat_slug = $p_terms[0]->slug;
 					}
 
-					if (! $title && ! $image) {
+					if (! $title && ! $image && ! $challenge && ! $solution) {
 						continue;
 					}
+
+					$all_images = [];
+					if ($image) {
+						$all_images[] = $image;
+					}
+					foreach ($gallery as $gid) {
+						if ($gid && $gid !== $image) {
+							$all_images[] = $gid;
+						}
+					}
+					$has_slideshow = count($all_images) > 1;
 				?>
-					<article class="content-card project-card" data-mitp-projects-card data-mitp-projects-category="<?php echo esc_attr($cat_slug); ?>" data-reveal>
-						<?php if ($image) : ?>
-							<div class="project-card__media">
-								<?php if ($link) : ?>
-									<a href="<?php echo esc_url($link); ?>"><?php massitpro_render_media(['image' => $image, 'aspect' => 'square']); ?></a>
-								<?php else : ?>
-									<?php massitpro_render_media(['image' => $image, 'aspect' => 'square']); ?>
+					<article class="project-feature-row<?php echo $reversed ? ' project-feature-row--reversed' : ''; ?>" data-mitp-projects-card data-mitp-projects-category="<?php echo esc_attr($cat_slug); ?>" data-reveal>
+						<?php if ($all_images) : ?>
+							<div class="project-feature-row__media<?php echo $has_slideshow ? ' project-slideshow' : ''; ?>"<?php echo $has_slideshow ? ' data-mitp-slideshow' : ''; ?>>
+								<?php foreach ($all_images as $slide_i => $slide_id) : ?>
+									<div class="project-slideshow__slide<?php echo 0 === $slide_i ? ' is-active' : ''; ?>">
+										<?php massitpro_render_media(['image' => $slide_id, 'aspect' => 'video']); ?>
+									</div>
+								<?php endforeach; ?>
+								<?php if ($has_slideshow) : ?>
+									<button class="project-slideshow__arrow project-slideshow__arrow--prev" data-mitp-slide-prev type="button" aria-label="<?php esc_attr_e('Previous image', 'massitpro'); ?>">&#8249;</button>
+									<button class="project-slideshow__arrow project-slideshow__arrow--next" data-mitp-slide-next type="button" aria-label="<?php esc_attr_e('Next image', 'massitpro'); ?>">&#8250;</button>
 								<?php endif; ?>
 							</div>
 						<?php endif; ?>
-						<div class="project-card__body">
-							<?php if ($label) : ?>
-								<span class="chip chip--teal"><?php echo esc_html($label); ?></span>
-							<?php endif; ?>
+						<div class="project-feature-row__content">
+							<div class="meta-row">
+								<?php if ($label) : ?>
+									<span class="chip chip--teal"><?php echo esc_html($label); ?></span>
+								<?php endif; ?>
+								<?php if ($client) : ?>
+									<span class="meta-date"><?php echo esc_html($client); ?></span>
+								<?php endif; ?>
+							</div>
 							<?php if ($title) : ?>
-								<h3><?php if ($link) : ?><a href="<?php echo esc_url($link); ?>"><?php echo esc_html($title); ?></a><?php else : ?><?php echo esc_html($title); ?><?php endif; ?></h3>
+								<h3>
+									<?php if ($link) : ?>
+										<a href="<?php echo esc_url($link); ?>"><?php echo esc_html($title); ?></a>
+									<?php else : ?>
+										<?php echo esc_html($title); ?>
+									<?php endif; ?>
+								</h3>
 							<?php endif; ?>
-							<?php if ($client) : ?>
-								<p class="project-card__client"><?php echo esc_html($client); ?></p>
+							<?php if ($challenge) : ?>
+								<div class="project-feature-row__detail">
+									<strong><?php esc_html_e('CHALLENGE', 'massitpro'); ?></strong>
+									<p><?php echo esc_html($challenge); ?></p>
+								</div>
 							<?php endif; ?>
-							<?php if ($desc) : ?>
-								<p><?php echo esc_html($desc); ?></p>
+							<?php if ($solution) : ?>
+								<div class="project-feature-row__detail">
+									<strong><?php esc_html_e('SOLUTION', 'massitpro'); ?></strong>
+									<p><?php echo esc_html($solution); ?></p>
+								</div>
+							<?php endif; ?>
+							<?php if ($results) : ?>
+								<div class="project-feature-row__results">
+									<strong><?php esc_html_e('RESULTS', 'massitpro'); ?></strong>
+									<ul>
+										<?php foreach ($results as $result) : ?>
+											<li><?php echo esc_html($result); ?></li>
+										<?php endforeach; ?>
+									</ul>
+								</div>
 							<?php endif; ?>
 						</div>
 					</article>
-				<?php endforeach; ?>
+				<?php
+					$row_index++;
+				endforeach; ?>
 			</div>
 			<nav class="testimonials-pagination" data-mitp-projects-pagination aria-label="<?php esc_attr_e('Projects pagination', 'massitpro'); ?>"></nav>
 		</div>
