@@ -531,4 +531,91 @@
 		mitpPaginate();
 	}
 
+	var projSection = document.querySelector('[data-mitp-projects-section]');
+	if (projSection) {
+		var projFilterBtns = projSection.querySelectorAll('[data-mitp-projects-filter-button]');
+		var projCards = projSection.querySelectorAll('[data-mitp-projects-card]');
+		var projPagination = projSection.querySelector('[data-mitp-projects-pagination]');
+		var projPerPage = 6;
+		var projCurrentPage = 1;
+		var projActiveFilter = 'all';
+
+		function projGetVisible() {
+			var visible = [];
+			projCards.forEach(function (card) {
+				var cat = card.getAttribute('data-mitp-projects-category') || '';
+				if (projActiveFilter === 'all' || cat === projActiveFilter) {
+					visible.push(card);
+				}
+			});
+			return visible;
+		}
+
+		function projPaginate() {
+			var visible = projGetVisible();
+			var totalPages = Math.max(1, Math.ceil(visible.length / projPerPage));
+			if (projCurrentPage > totalPages) projCurrentPage = totalPages;
+
+			projCards.forEach(function (card) {
+				card.setAttribute('data-mitp-projects-hidden', '');
+			});
+
+			var start = (projCurrentPage - 1) * projPerPage;
+			var end = start + projPerPage;
+			visible.forEach(function (card, i) {
+				if (i >= start && i < end) {
+					card.removeAttribute('data-mitp-projects-hidden');
+				}
+			});
+
+			if (projPagination) {
+				var html = '';
+				if (totalPages > 1) {
+					html += '<button class="pagination-btn' + (projCurrentPage === 1 ? ' is-disabled' : '') + '" data-mitp-projects-page="prev" ' + (projCurrentPage === 1 ? 'disabled' : '') + '>&larr; Prev</button>';
+					for (var p = 1; p <= totalPages; p++) {
+						html += '<button class="pagination-btn' + (p === projCurrentPage ? ' is-active' : '') + '" data-mitp-projects-page="' + p + '">' + p + '</button>';
+					}
+					html += '<button class="pagination-btn' + (projCurrentPage === totalPages ? ' is-disabled' : '') + '" data-mitp-projects-page="next" ' + (projCurrentPage === totalPages ? 'disabled' : '') + '>&rarr; Next</button>';
+				}
+				projPagination.innerHTML = html;
+			}
+		}
+
+		if (projFilterBtns.length && projCards.length) {
+			projSection.addEventListener('click', function (e) {
+				var btn = e.target.closest('[data-mitp-projects-filter-button]');
+				if (!btn) return;
+
+				projActiveFilter = btn.getAttribute('data-mitp-projects-filter-button');
+				projCurrentPage = 1;
+
+				projFilterBtns.forEach(function (b) {
+					b.classList.toggle('is-active', b === btn);
+				});
+
+				projPaginate();
+			});
+		}
+
+		if (projPagination) {
+			projPagination.addEventListener('click', function (e) {
+				var btn = e.target.closest('[data-mitp-projects-page]');
+				if (!btn || btn.disabled) return;
+
+				var val = btn.getAttribute('data-mitp-projects-page');
+				if (val === 'prev') {
+					projCurrentPage = Math.max(1, projCurrentPage - 1);
+				} else if (val === 'next') {
+					projCurrentPage++;
+				} else {
+					projCurrentPage = parseInt(val, 10);
+				}
+				projPaginate();
+				projSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			});
+		}
+
+		projPaginate();
+	}
+
 })();
