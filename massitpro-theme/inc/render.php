@@ -557,6 +557,50 @@ function massitpro_render_process_section($field_name, $post_id, $args = []) {
 }
 
 /**
+ * Render animated process timeline steps for the Projects page.
+ *
+ * @param string $field_name Section meta key.
+ * @param int    $post_id    Post ID.
+ */
+function massitpro_render_projects_process_steps($field_name, $post_id) {
+	$group   = (array) massitpro_get_section_meta($field_name, massitpro_get_render_post_id($post_id), []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$steps   = massitpro_filter_rows((array) ($group['steps'] ?? []), ['step_label', 'title', 'body']);
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $steps)) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing surface-sand projects-process-section">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
+			<?php if ($steps) : ?>
+				<div class="process-timeline">
+					<?php foreach ($steps as $index => $step) : ?>
+						<div class="process-timeline__step" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.12, 2, '.', '')); ?>s;">
+							<div class="process-timeline__marker">
+								<span class="process-timeline__number"><?php echo esc_html((string) ($step['step_label'] ?: ($index + 1))); ?></span>
+							</div>
+							<div class="process-timeline__content">
+								<?php if (! empty($step['title'])) : ?>
+									<h3><?php echo esc_html((string) $step['title']); ?></h3>
+								<?php endif; ?>
+								<?php if (! empty($step['body'])) : ?>
+									<p><?php echo esc_html((string) $step['body']); ?></p>
+								<?php endif; ?>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
  * Render a simple icon-card section.
  *
  * @param string              $field_name Section field name.
@@ -3768,9 +3812,12 @@ function massitpro_render_projects_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
 
 	massitpro_render_projects_filter_grid($post_id);
-	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_link_cards_section('industries_section', $post_id);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_projects_process_steps('process_section', $post_id);
+	massitpro_render_industries_flipcard_section('industries_section', $post_id, [
+		'surface_class' => 'surface-stone-alt',
+		'carousel_key'  => 'proj-industries',
+	]);
+	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center projects-cta-section']);
 }
 
 /**
@@ -3779,6 +3826,12 @@ function massitpro_render_projects_page_body($post_id = 0) {
  * @param int $post_id Projects page ID.
  */
 function massitpro_render_projects_filter_grid($post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta('projects_grid_section', $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+
 	$items = massitpro_query_posts([
 		'post_type'      => 'project',
 		'post_status'    => 'publish',
@@ -3797,21 +3850,69 @@ function massitpro_render_projects_filter_grid($post_id) {
 
 	$has_terms = ! is_wp_error($terms) && ! empty($terms);
 	?>
-	<section class="section-padding section-spacing">
-		<div class="site-shell">
-			<?php if ($has_terms) : ?>
-				<div class="project-filters" data-reveal>
-					<span class="chip chip--teal project-filter-chip project-filter-chip--active"><?php esc_html_e('All', 'massitpro'); ?></span>
-					<?php foreach ($terms as $term) : ?>
-						<span class="chip project-filter-chip" data-category="<?php echo esc_attr($term->slug); ?>"><?php echo esc_html($term->name); ?></span>
-					<?php endforeach; ?>
-				</div>
+	<section class="section-padding section-spacing projects-grid-section" data-mitp-projects-section>
+		<div class="site-shell projects-grid-shell">
+			<?php if ($heading || $body) : ?>
+				<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
 			<?php endif; ?>
-			<div class="project-feature-rows">
-				<?php foreach ($items as $index => $item) : ?>
-					<?php massitpro_render_project_feature_row($item, $index); ?>
+			<?php if ($has_terms) : ?>
+				<nav class="faq-topic-nav projects-topic-nav" data-mitp-projects-topic-nav>
+					<button class="faq-topic-nav__btn is-active" data-mitp-projects-filter-button="all" type="button"><?php esc_html_e('All', 'massitpro'); ?></button>
+					<?php foreach ($terms as $term) : ?>
+						<button class="faq-topic-nav__btn" data-mitp-projects-filter-button="<?php echo esc_attr($term->slug); ?>" type="button"><?php echo esc_html($term->name); ?></button>
+					<?php endforeach; ?>
+				</nav>
+			<?php endif; ?>
+			<div class="projects-card-grid">
+				<?php foreach ($items as $index => $item) :
+					$data      = massitpro_get_project_data($item);
+					$title     = trim((string) $data['title']);
+					$desc      = trim((string) $data['desc']);
+					$image     = massitpro_resolve_image_value($data['image'] ?? null);
+					$client    = trim((string) $data['client_name']);
+					$industry  = trim((string) $data['industry_label']);
+					$category  = trim((string) $data['category']);
+					$link      = trim((string) $data['link']);
+					$label     = $industry ?: $category ?: trim((string) $data['subtitle']);
+
+					$p_terms = get_the_terms($item->ID, 'project_category');
+					$cat_slug = '';
+					if (! is_wp_error($p_terms) && ! empty($p_terms)) {
+						$cat_slug = $p_terms[0]->slug;
+					}
+
+					if (! $title && ! $image) {
+						continue;
+					}
+				?>
+					<article class="content-card project-card" data-mitp-projects-card data-mitp-projects-category="<?php echo esc_attr($cat_slug); ?>" data-reveal>
+						<?php if ($image) : ?>
+							<div class="project-card__media">
+								<?php if ($link) : ?>
+									<a href="<?php echo esc_url($link); ?>"><?php massitpro_render_media(['image' => $image, 'aspect' => 'square']); ?></a>
+								<?php else : ?>
+									<?php massitpro_render_media(['image' => $image, 'aspect' => 'square']); ?>
+								<?php endif; ?>
+							</div>
+						<?php endif; ?>
+						<div class="project-card__body">
+							<?php if ($label) : ?>
+								<span class="chip chip--teal"><?php echo esc_html($label); ?></span>
+							<?php endif; ?>
+							<?php if ($title) : ?>
+								<h3><?php if ($link) : ?><a href="<?php echo esc_url($link); ?>"><?php echo esc_html($title); ?></a><?php else : ?><?php echo esc_html($title); ?><?php endif; ?></h3>
+							<?php endif; ?>
+							<?php if ($client) : ?>
+								<p class="project-card__client"><?php echo esc_html($client); ?></p>
+							<?php endif; ?>
+							<?php if ($desc) : ?>
+								<p><?php echo esc_html($desc); ?></p>
+							<?php endif; ?>
+						</div>
+					</article>
 				<?php endforeach; ?>
 			</div>
+			<nav class="testimonials-pagination" data-mitp-projects-pagination aria-label="<?php esc_attr_e('Projects pagination', 'massitpro'); ?>"></nav>
 		</div>
 	</section>
 	<?php

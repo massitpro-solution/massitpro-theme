@@ -4189,16 +4189,24 @@ a.contact-location__link:hover {
 
 /* ── FAQ Accordion with Topic Nav ── */
 .faq-accordion-shell {
-	max-width: 960px;
+	max-width: 1100px;
 	margin-inline: auto;
+}
+
+.faq-accordion-shell > .section-header {
+	margin-bottom: 32px;
 }
 
 @media (min-width: 768px) {
 	.faq-accordion-shell {
 		display: grid;
-		grid-template-columns: 200px 1fr;
+		grid-template-columns: 240px 1fr;
 		gap: 48px;
 		align-items: start;
+	}
+
+	.faq-accordion-shell > .section-header {
+		grid-column: 1 / -1;
 	}
 }
 
@@ -4277,7 +4285,25 @@ a.contact-location__link:hover {
 }
 
 .faq-shq-card {
-	padding: 32px 40px;
+	padding: 40px 48px;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+}
+
+.faq-shq-card h3 {
+	margin-bottom: 0;
+}
+
+.faq-shq-card p {
+	margin: 0;
+}
+
+.faq-shq-card .button-row {
+	justify-content: center;
+	margin-top: 8px;
 }
 
 /* ── FAQ Related Resources — image fill ── */
@@ -4446,11 +4472,13 @@ a.contact-location__link:hover {
 
 /* ── Testimonials CTA — flat, no card container ── */
 .testimonials-cta-section .cta-shell {
-	max-width: 1000px;
+	max-width: 800px;
+	margin-inline: auto;
 	background: transparent;
 	border: 0;
 	border-radius: 0;
 	box-shadow: none;
+	padding: 0;
 }
 
 /* ── Testimonials Card hidden by filter/pagination ── */
@@ -4512,9 +4540,195 @@ a.contact-location__link:hover {
 
 /* ── FAQ CTA — flat, no card container ── */
 .faq-cta-section .cta-shell {
-	max-width: 1000px;
+	max-width: 800px;
+	margin-inline: auto;
 	background: transparent;
 	border: 0;
 	border-radius: 0;
 	box-shadow: none;
+	padding: 0;
+}
+
+/* ══════════════════════════════════════════════
+   Projects Page
+   ══════════════════════════════════════════════ */
+
+/* ── Projects Grid Section ── */
+.projects-grid-shell > .section-header {
+	margin-bottom: 32px;
+}
+
+.projects-topic-nav {
+	margin-bottom: 32px;
+}
+
+.projects-card-grid {
+	display: grid;
+	gap: 32px;
+	grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+	.projects-card-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.project-card {
+	overflow: hidden;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.project-card__media {
+	width: 100%;
+}
+
+.project-card__media .media-frame {
+	aspect-ratio: 1 / 1;
+}
+
+.project-card__media .media-frame img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.project-card__body {
+	padding: 24px 28px 28px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.project-card__body h3 {
+	margin: 0;
+}
+
+.project-card__body h3 a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.project-card__body h3 a:hover {
+	color: var(--color-teal);
+}
+
+.project-card__client {
+	font-size: 0.875rem;
+	color: var(--color-muted);
+	margin: 0;
+}
+
+.project-card__body > p:last-child {
+	font-size: 0.9375rem;
+	margin: 0;
+}
+
+[data-mitp-projects-card][data-mitp-projects-hidden] {
+	display: none;
+}
+
+/* ── Projects Process Timeline ── */
+.process-timeline {
+	max-width: 720px;
+	margin-inline: auto;
+	position: relative;
+	padding-left: 48px;
+}
+
+.process-timeline::before {
+	content: '';
+	position: absolute;
+	left: 19px;
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	background: linear-gradient(to bottom, var(--color-teal), var(--color-bronze));
+	opacity: 0.3;
+}
+
+.process-timeline__step {
+	position: relative;
+	display: flex;
+	gap: 24px;
+	padding-bottom: 48px;
+}
+
+.process-timeline__step:last-child {
+	padding-bottom: 0;
+}
+
+.process-timeline__marker {
+	position: absolute;
+	left: -48px;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--color-foreground);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	z-index: 1;
+	box-shadow: 0 0 0 4px var(--color-bg-sand, #f5f0e8);
+	transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+}
+
+.process-timeline__step.is-visible .process-timeline__marker {
+	transform: scale(1.1);
+	box-shadow: 0 0 0 6px var(--color-bg-sand, #f5f0e8), 0 0 20px rgba(0, 0, 0, 0.08);
+}
+
+.process-timeline__number {
+	color: #fff;
+	font-family: var(--font-display);
+	font-weight: 700;
+	font-size: 0.875rem;
+}
+
+.process-timeline__content {
+	padding-top: 6px;
+}
+
+.process-timeline__content h3 {
+	margin: 0 0 8px;
+}
+
+.process-timeline__content p {
+	margin: 0;
+	font-size: 0.9375rem;
+	color: var(--color-muted);
+}
+
+@media (min-width: 768px) {
+	.process-timeline {
+		padding-left: 64px;
+	}
+
+	.process-timeline::before {
+		left: 23px;
+	}
+
+	.process-timeline__marker {
+		left: -64px;
+		width: 48px;
+		height: 48px;
+	}
+
+	.process-timeline__number {
+		font-size: 1rem;
+	}
+}
+
+/* ── Projects CTA — flat, no card container ── */
+.projects-cta-section .cta-shell {
+	max-width: 800px;
+	margin-inline: auto;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0;
 }

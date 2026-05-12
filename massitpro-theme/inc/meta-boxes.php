@@ -235,11 +235,12 @@ function massitpro_get_native_section_registry() {
 			'title'    => __('Mass IT Pro Projects Page Fields', 'massitpro'),
 			'sections' => [
 				'hero'              => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'process_section'   => ['label' => __('How We Deliver Results', 'massitpro'), 'type' => 'process', 'rows' => 6],
+				'projects_grid_section' => ['label' => __('Projects Grid Heading', 'massitpro'), 'type' => 'section_heading'],
+				'process_section'   => ['label' => __('How We Deliver Results', 'massitpro'), 'type' => 'process', 'rows' => 6, 'has_eyebrow' => true],
 				'industries_section'=> [
 					'label'       => __('Industries Served', 'massitpro'),
 					'type'        => 'cards',
-					'rows'        => 8,
+					'rows'        => 6,
 					'fields'      => ['icon', 'title', 'body', 'link_url'],
 					'has_eyebrow' => true,
 				],
