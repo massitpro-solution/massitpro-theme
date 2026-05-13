@@ -76,8 +76,8 @@ function massitpro_get_native_section_registry() {
 			'title'    => __('Mass IT Pro Services Hub Fields', 'massitpro'),
 			'sections' => [
 				'hero'                         => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'business_services_section'    => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
-				'residential_services_section' => ['label' => __('Residential Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'hide_section_intro' => true],
+				'business_services_section'    => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 9, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
+				'residential_services_section' => ['label' => __('Residential Services', 'massitpro'), 'type' => 'cards', 'rows' => 7, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'hide_section_intro' => true],
 				'why_trust_section'            => ['label' => __('Why Trust Us', 'massitpro'), 'type' => 'stats', 'rows' => 4],
 				'served_industries_section'    => ['label' => __('Industry Solutions', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'link_url']],
 				'related_links_section'        => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],

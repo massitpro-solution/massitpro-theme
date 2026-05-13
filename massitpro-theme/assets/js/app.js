@@ -238,7 +238,8 @@
 		panels.forEach(function (panel) {
 			var cards = Array.prototype.slice.call(panel.querySelectorAll('[data-card-index]'));
 			cards.forEach(function (card) {
-				card.addEventListener('click', function () {
+				card.addEventListener('click', function (e) {
+					e.preventDefault();
 					activeIndex = parseInt(card.getAttribute('data-card-index'), 10);
 					syncDetail();
 				});
