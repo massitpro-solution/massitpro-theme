@@ -166,6 +166,104 @@
 		});
 	});
 
+	document.querySelectorAll('[data-services-toggle]').forEach(function (section) {
+		var bizData = [];
+		var resData = [];
+		try { bizData = JSON.parse(section.getAttribute('data-services-biz') || '[]'); } catch (e) {}
+		try { resData = JSON.parse(section.getAttribute('data-services-res') || '[]'); } catch (e) {}
+
+		var tabs     = Array.prototype.slice.call(section.querySelectorAll('[data-services-tab]'));
+		var panels   = Array.prototype.slice.call(section.querySelectorAll('[data-services-panel]'));
+		var pill     = section.querySelector('[data-detail-pill]');
+		var dTitle   = section.querySelector('[data-detail-title]');
+		var dBody    = section.querySelector('[data-detail-body]');
+		var dLink    = section.querySelector('[data-detail-link]');
+		var dLinkLbl = section.querySelector('[data-detail-link-label]');
+		var prevBtn  = section.querySelector('[data-services-detail-prev]');
+		var nextBtn  = section.querySelector('[data-services-detail-next]');
+
+		var activeTab   = 'business';
+		var activeIndex = 0;
+
+		function getData() {
+			return activeTab === 'business' ? bizData : resData;
+		}
+
+		function getPillLabel() {
+			return activeTab === 'business' ? 'Business Service' : 'Residential Service';
+		}
+
+		function syncDetail() {
+			var items = getData();
+			var item  = items[activeIndex] || {};
+			if (pill)     pill.textContent = getPillLabel();
+			if (dTitle)   dTitle.textContent = item.title || '';
+			if (dBody)    dBody.textContent = item.body || '';
+			if (dLink) {
+				if (item.link_url) {
+					dLink.href = item.link_url;
+					dLink.hidden = false;
+					if (dLinkLbl) dLinkLbl.textContent = item.link_label || 'Learn More';
+				} else {
+					dLink.hidden = true;
+				}
+			}
+
+			var activePanel = section.querySelector('[data-services-panel="' + activeTab + '"]');
+			if (activePanel) {
+				var cards = Array.prototype.slice.call(activePanel.querySelectorAll('[data-card-index]'));
+				cards.forEach(function (c) {
+					c.classList.toggle('is-active', parseInt(c.getAttribute('data-card-index'), 10) === activeIndex);
+				});
+			}
+		}
+
+		tabs.forEach(function (tab) {
+			tab.addEventListener('click', function () {
+				tabs.forEach(function (t) { t.classList.remove('is-active'); });
+				tab.classList.add('is-active');
+
+				var key = tab.getAttribute('data-services-tab');
+				activeTab = key;
+				activeIndex = 0;
+
+				panels.forEach(function (p) {
+					p.classList.toggle('is-active', p.getAttribute('data-services-panel') === key);
+				});
+
+				syncDetail();
+			});
+		});
+
+		panels.forEach(function (panel) {
+			var cards = Array.prototype.slice.call(panel.querySelectorAll('[data-card-index]'));
+			cards.forEach(function (card) {
+				card.addEventListener('click', function () {
+					activeIndex = parseInt(card.getAttribute('data-card-index'), 10);
+					syncDetail();
+				});
+			});
+		});
+
+		if (prevBtn) {
+			prevBtn.addEventListener('click', function () {
+				var items = getData();
+				if (!items.length) return;
+				activeIndex = (activeIndex - 1 + items.length) % items.length;
+				syncDetail();
+			});
+		}
+
+		if (nextBtn) {
+			nextBtn.addEventListener('click', function () {
+				var items = getData();
+				if (!items.length) return;
+				activeIndex = (activeIndex + 1) % items.length;
+				syncDetail();
+			});
+		}
+	});
+
 	const slider = document.querySelector('[data-testimonial-slider]');
 	if (slider) {
 		const slides = Array.prototype.slice.call(slider.querySelectorAll('[data-testimonial-slide]'));

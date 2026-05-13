@@ -3265,18 +3265,154 @@ function massitpro_render_about_page_body($post_id = 0) {
 }
 
 /**
+ * Render the services-hub toggle section.
+ * Top row: eyebrow, h2, body + Business / Residential toggle.
+ * Bottom row: left = card grid, right = detail panel with arrows.
+ *
+ * @param int                 $post_id Post ID.
+ * @param array<string,mixed> $args    Render arguments.
+ */
+function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
+	$args = wp_parse_args( (array) $args, [
+		'surface_class' => '',
+		'section_class' => '',
+	] );
+	$pid = massitpro_get_render_post_id( $post_id );
+
+	/* --- header from business section (has_eyebrow) --- */
+	$biz_group  = (array) massitpro_get_section_meta( 'business_services_section', $pid, [] );
+	$res_group  = (array) massitpro_get_section_meta( 'residential_services_section', $pid, [] );
+	$eyebrow    = trim( (string) ( $biz_group['eyebrow'] ?? '' ) );
+	$heading    = trim( (string) ( $biz_group['heading'] ?? '' ) );
+	$body       = (string) ( $biz_group['body'] ?? '' );
+	$biz_items  = massitpro_filter_rows( (array) ( $biz_group['items'] ?? [] ), [ 'title' ] );
+	$res_items  = massitpro_filter_rows( (array) ( $res_group['items'] ?? [] ), [ 'title' ] );
+
+	if ( ! massitpro_has_any_content( $heading, $body, $biz_items, $res_items ) ) {
+		return;
+	}
+
+	/* Build JSON data so JS can update the detail panel */
+	$build_json = function ( $items ) {
+		$out = [];
+		foreach ( $items as $item ) {
+			$out[] = [
+				'title'      => trim( (string) ( $item['title'] ?? '' ) ),
+				'body'       => trim( (string) ( $item['body'] ?? '' ) ),
+				'link_label' => trim( (string) ( $item['link_label'] ?? '' ) ),
+				'link_url'   => trim( (string) ( $item['link_url'] ?? '' ) ),
+			];
+		}
+		return $out;
+	};
+	$biz_json = wp_json_encode( $build_json( $biz_items ) );
+	$res_json = wp_json_encode( $build_json( $res_items ) );
+
+	$first_biz = $biz_items ? $biz_items[0] : [];
+	?>
+	<section class="section-padding section-spacing services-toggle-section <?php echo esc_attr( trim( (string) $args['surface_class'] . ' ' . (string) $args['section_class'] ) ); ?>"
+		data-services-toggle
+		data-services-biz="<?php echo esc_attr( (string) $biz_json ); ?>"
+		data-services-res="<?php echo esc_attr( (string) $res_json ); ?>">
+		<div class="site-shell">
+			<!-- ── Top row: header + tabs ── -->
+			<div class="services-toggle__header" data-reveal>
+				<div class="services-toggle__header-copy">
+					<?php if ( $eyebrow ) : ?>
+						<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
+					<?php endif; ?>
+					<?php if ( $heading ) : ?>
+						<h2><?php echo esc_html( $heading ); ?></h2>
+					<?php endif; ?>
+					<?php if ( $body ) : ?>
+						<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
+					<?php endif; ?>
+				</div>
+				<div class="services-toggle__tabs">
+					<button class="services-toggle__tab is-active" data-services-tab="business" type="button">
+						<?php esc_html_e( 'Business', 'massitpro' ); ?>
+					</button>
+					<button class="services-toggle__tab" data-services-tab="residential" type="button">
+						<?php esc_html_e( 'Residential', 'massitpro' ); ?>
+					</button>
+				</div>
+			</div>
+
+			<!-- ── Bottom row: cards + detail ── -->
+			<div class="services-toggle__content">
+				<!-- Left: card grids -->
+				<div class="services-toggle__cards">
+					<?php
+					$panels = [
+						'business'    => $biz_items,
+						'residential' => $res_items,
+					];
+					foreach ( $panels as $key => $items ) :
+						$is_biz = 'business' === $key;
+					?>
+						<div class="services-toggle__panel<?php echo $is_biz ? ' is-active' : ''; ?>" data-services-panel="<?php echo esc_attr( $key ); ?>">
+							<div class="services-toggle__grid">
+								<?php foreach ( $items as $ci => $item ) :
+									$icon     = trim( (string) ( $item['icon'] ?? 'check' ) );
+									$title    = trim( (string) ( $item['title'] ?? '' ) );
+									$link_url = trim( (string) ( $item['link_url'] ?? '' ) );
+									if ( ! $title ) { continue; }
+								?>
+									<button class="services-toggle__card<?php echo ( 0 === $ci && $is_biz ) ? ' is-active' : ''; ?>" data-card-index="<?php echo esc_attr( (string) $ci ); ?>" type="button">
+										<span class="services-toggle__card-icon" aria-hidden="true"><?php echo massitpro_svg_icon( $icon ); ?></span>
+										<span class="services-toggle__card-title"><?php echo esc_html( $title ); ?></span>
+									</button>
+								<?php endforeach; ?>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+
+				<!-- Right: detail panel -->
+				<div class="services-toggle__detail" data-reveal>
+					<div class="services-toggle__detail-inner">
+						<div class="services-toggle__detail-content">
+							<span class="services-toggle__pill" data-detail-pill><?php esc_html_e( 'Business Service', 'massitpro' ); ?></span>
+							<h3 class="services-toggle__detail-title" data-detail-title><?php echo esc_html( trim( (string) ( $first_biz['title'] ?? '' ) ) ); ?></h3>
+							<p class="services-toggle__detail-body" data-detail-body><?php echo esc_html( trim( (string) ( $first_biz['body'] ?? '' ) ) ); ?></p>
+							<?php
+							$first_link = trim( (string) ( $first_biz['link_url'] ?? '' ) );
+							$first_lbl  = trim( (string) ( $first_biz['link_label'] ?? '' ) );
+							?>
+							<a class="section-link section-link--inline services-toggle__detail-link" href="<?php echo esc_url( $first_link ); ?>" data-detail-link<?php echo $first_link ? '' : ' hidden'; ?>>
+								<span data-detail-link-label><?php echo $first_lbl ? esc_html( $first_lbl ) : esc_html__( 'Learn More', 'massitpro' ); ?></span>
+								<span aria-hidden="true"><?php echo massitpro_svg_icon( 'arrow-right' ); ?></span>
+							</a>
+						</div>
+						<div class="services-toggle__detail-nav">
+							<button class="icon-button" data-services-detail-prev type="button" aria-label="<?php esc_attr_e( 'Previous', 'massitpro' ); ?>">
+								<?php echo massitpro_svg_icon( 'arrow-left' ); ?>
+							</button>
+							<button class="icon-button" data-services-detail-next type="button" aria-label="<?php esc_attr_e( 'Next', 'massitpro' ); ?>">
+								<?php echo massitpro_svg_icon( 'arrow-right' ); ?>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
  * Render a services hub page body.
  *
  * @param int $post_id Post ID.
  */
 function massitpro_render_services_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_image_cards_section('business_services_section', $post_id);
-	massitpro_render_icon_cards_section('why_choose_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_image_cards_section('residential_services_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_spotlight_section('web_design_spotlight', $post_id);
+	massitpro_render_services_toggle_section($post_id);
+	massitpro_render_stats_band_section('why_trust_section', $post_id, ['surface_class' => 'surface-stone-alt', 'section_class' => 'hp-why-trust']);
+	massitpro_render_industries_flipcard_section('served_industries_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'hub-industries']);
+	massitpro_render_related_links_split_section('related_links_section', $post_id, ['surface_class' => 'surface-sand-warm']);
 	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center services-hub-cta-section']);
 }
 
 /**

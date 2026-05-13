@@ -2935,6 +2935,204 @@ a.flip-card {
 }
 
 /* ============================================================
+   SERVICES HUB — Toggle section (Business / Residential)
+   ============================================================ */
+
+/* Header row */
+.services-toggle__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 24px;
+	margin-bottom: 40px;
+}
+
+.services-toggle__header-copy {
+	max-width: 620px;
+}
+
+.services-toggle__header-copy h2 {
+	margin-bottom: 12px;
+}
+
+/* Tab buttons */
+.services-toggle__tabs {
+	display: flex;
+	background: var(--color-card);
+	border-radius: var(--radius-2xl);
+	padding: 4px;
+	box-shadow: var(--shadow-subtle);
+}
+
+.services-toggle__tab {
+	padding: 10px 28px;
+	border: none;
+	border-radius: var(--radius-xl);
+	background: transparent;
+	font-family: var(--font-display);
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--color-muted);
+	cursor: pointer;
+	transition: background var(--transition), color var(--transition);
+}
+
+.services-toggle__tab.is-active {
+	background: var(--color-navy);
+	color: #fff;
+}
+
+.services-toggle__tab:not(.is-active):hover {
+	color: var(--color-foreground);
+}
+
+/* Content row — two columns */
+.services-toggle__content {
+	display: grid;
+	gap: 32px;
+}
+
+@media (min-width: 900px) {
+	.services-toggle__content {
+		grid-template-columns: 1fr 1fr;
+		gap: 48px;
+		align-items: start;
+	}
+}
+
+/* Card panels */
+.services-toggle__panel {
+	display: none;
+}
+
+.services-toggle__panel.is-active {
+	display: block;
+}
+
+.services-toggle__grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+
+@media (max-width: 599px) {
+	.services-toggle__grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Individual card buttons */
+.services-toggle__card {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 16px 18px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-xl);
+	background: var(--color-card);
+	text-align: left;
+	cursor: pointer;
+	transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+.services-toggle__card:hover {
+	border-color: var(--color-teal);
+	box-shadow: var(--shadow-subtle);
+	transform: translateY(-2px);
+}
+
+.services-toggle__card.is-active {
+	border-color: var(--color-teal);
+	box-shadow: var(--shadow-premium);
+}
+
+.services-toggle__card-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	min-width: 40px;
+	border-radius: var(--radius-xl);
+	background: var(--color-navy);
+	color: #fff;
+}
+
+.services-toggle__card-icon svg {
+	width: 20px;
+	height: 20px;
+}
+
+.services-toggle__card-title {
+	font-family: var(--font-display);
+	font-size: 0.925rem;
+	font-weight: 600;
+	color: var(--color-foreground);
+	line-height: 1.3;
+}
+
+/* Detail panel (right column) */
+.services-toggle__detail-inner {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+	padding: 32px;
+	background: var(--color-card);
+	border-radius: var(--radius-3xl);
+	box-shadow: var(--shadow-premium);
+}
+
+.services-toggle__pill {
+	display: inline-block;
+	padding: 6px 16px;
+	border-radius: 999px;
+	background: var(--color-navy);
+	color: #fff;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	margin-bottom: 20px;
+}
+
+.services-toggle__detail-title {
+	font-size: 1.5rem;
+	margin: 0 0 12px;
+	color: var(--color-foreground);
+}
+
+.services-toggle__detail-body {
+	font-size: 0.95rem;
+	color: var(--color-muted);
+	line-height: 1.6;
+	margin: 0 0 20px;
+}
+
+.services-toggle__detail-link {
+	margin-bottom: 24px;
+}
+
+.services-toggle__detail-nav {
+	display: flex;
+	gap: 8px;
+	margin-top: auto;
+	padding-top: 16px;
+	border-top: 1px solid var(--color-border);
+}
+
+/* ── Services Hub CTA — flat, no card container ── */
+.services-hub-cta-section .cta-shell {
+	max-width: 800px;
+	margin-inline: auto;
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	backdrop-filter: none;
+}
+
+/* ============================================================
    HOMEPAGE — Page Hero tech animation
    ============================================================ */
 

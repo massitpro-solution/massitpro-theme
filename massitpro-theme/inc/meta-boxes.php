@@ -75,13 +75,14 @@ function massitpro_get_native_section_registry() {
 		'services-hub'    => [
 			'title'    => __('Mass IT Pro Services Hub Fields', 'massitpro'),
 			'sections' => [
-				'hero'                       => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'business_services_section'  => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
-				'why_choose_section'         => ['label' => __('Why Choose Us', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body'], 'has_eyebrow' => true],
-				'residential_services_section' => ['label' => __('Residential Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
-				'web_design_spotlight'       => ['label' => __('Web Design Spotlight', 'massitpro'), 'type' => 'spotlight'],
-				'process_section'            => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
-				'cta_block'                  => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+				'hero'                         => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'business_services_section'    => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
+				'residential_services_section' => ['label' => __('Residential Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'hide_section_intro' => true],
+				'why_trust_section'            => ['label' => __('Why Trust Us', 'massitpro'), 'type' => 'stats', 'rows' => 4],
+				'served_industries_section'    => ['label' => __('Industry Solutions', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'link_url']],
+				'related_links_section'        => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
+				'process_section'              => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
+				'cta_block'                    => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
 		'services-business' => [
