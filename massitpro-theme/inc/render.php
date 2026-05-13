@@ -3350,16 +3350,15 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 						$is_biz = 'business' === $key;
 					?>
 						<div class="services-toggle__panel<?php echo $is_biz ? ' is-active' : ''; ?>" data-services-panel="<?php echo esc_attr( $key ); ?>">
-							<div class="services-toggle__grid">
+							<div class="services-toggle__stack">
 								<?php foreach ( $items as $ci => $item ) :
 									$title    = trim( (string) ( $item['title'] ?? '' ) );
 									$link_url = trim( (string) ( $item['link_url'] ?? '' ) );
 									if ( ! $title ) { continue; }
 									$image_id = $link_url ? massitpro_resolve_linked_page_image_id( $link_url ) : 0;
 									$img_src  = $image_id ? wp_get_attachment_image_url( $image_id, 'massitpro-card' ) : '';
-									$active   = ( 0 === $ci && $is_biz );
 								?>
-									<a class="services-toggle__card<?php echo $active ? ' is-active' : ''; ?>"
+									<a class="services-toggle__card"
 									   href="<?php echo esc_url( $link_url ); ?>"
 									   data-card-index="<?php echo esc_attr( (string) $ci ); ?>">
 										<?php if ( $img_src ) : ?>
