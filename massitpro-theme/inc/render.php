@@ -3266,8 +3266,9 @@ function massitpro_render_about_page_body($post_id = 0) {
 
 /**
  * Render the services-hub toggle section.
- * Top row: eyebrow, h2, body + Business / Residential toggle.
- * Bottom row: left = card grid, right = detail panel with arrows.
+ * Top row (centered): eyebrow, h2, body + Business / Residential toggle.
+ * Bottom row: left = image card grid (featured images from linked pages),
+ *             right = pill, h3, body, learn-more link, arrow nav.
  *
  * @param int                 $post_id Post ID.
  * @param array<string,mixed> $args    Render arguments.
@@ -3315,19 +3316,17 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 		data-services-biz="<?php echo esc_attr( (string) $biz_json ); ?>"
 		data-services-res="<?php echo esc_attr( (string) $res_json ); ?>">
 		<div class="site-shell">
-			<!-- ── Top row: header + tabs ── -->
+			<!-- ── Top row: centered header + tabs ── -->
 			<div class="services-toggle__header" data-reveal>
-				<div class="services-toggle__header-copy">
-					<?php if ( $eyebrow ) : ?>
-						<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
-					<?php endif; ?>
-					<?php if ( $heading ) : ?>
-						<h2><?php echo esc_html( $heading ); ?></h2>
-					<?php endif; ?>
-					<?php if ( $body ) : ?>
-						<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
-					<?php endif; ?>
-				</div>
+				<?php if ( $eyebrow ) : ?>
+					<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
+				<?php endif; ?>
+				<?php if ( $heading ) : ?>
+					<h2><?php echo esc_html( $heading ); ?></h2>
+				<?php endif; ?>
+				<?php if ( $body ) : ?>
+					<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
+				<?php endif; ?>
 				<div class="services-toggle__tabs">
 					<button class="services-toggle__tab is-active" data-services-tab="business" type="button">
 						<?php esc_html_e( 'Business', 'massitpro' ); ?>
@@ -3338,9 +3337,9 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 				</div>
 			</div>
 
-			<!-- ── Bottom row: cards + detail ── -->
+			<!-- ── Bottom row: image cards + detail ── -->
 			<div class="services-toggle__content">
-				<!-- Left: card grids -->
+				<!-- Left: image card grids -->
 				<div class="services-toggle__cards">
 					<?php
 					$panels = [
@@ -3353,15 +3352,23 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 						<div class="services-toggle__panel<?php echo $is_biz ? ' is-active' : ''; ?>" data-services-panel="<?php echo esc_attr( $key ); ?>">
 							<div class="services-toggle__grid">
 								<?php foreach ( $items as $ci => $item ) :
-									$icon     = trim( (string) ( $item['icon'] ?? 'check' ) );
 									$title    = trim( (string) ( $item['title'] ?? '' ) );
 									$link_url = trim( (string) ( $item['link_url'] ?? '' ) );
 									if ( ! $title ) { continue; }
+									$image_id = $link_url ? massitpro_resolve_linked_page_image_id( $link_url ) : 0;
+									$img_src  = $image_id ? wp_get_attachment_image_url( $image_id, 'massitpro-card' ) : '';
+									$active   = ( 0 === $ci && $is_biz );
 								?>
-									<button class="services-toggle__card<?php echo ( 0 === $ci && $is_biz ) ? ' is-active' : ''; ?>" data-card-index="<?php echo esc_attr( (string) $ci ); ?>" type="button">
-										<span class="services-toggle__card-icon" aria-hidden="true"><?php echo massitpro_svg_icon( $icon ); ?></span>
+									<a class="services-toggle__card<?php echo $active ? ' is-active' : ''; ?>"
+									   href="<?php echo esc_url( $link_url ); ?>"
+									   data-card-index="<?php echo esc_attr( (string) $ci ); ?>">
+										<?php if ( $img_src ) : ?>
+											<img class="services-toggle__card-img" src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy">
+										<?php else : ?>
+											<span class="services-toggle__card-placeholder" aria-hidden="true"></span>
+										<?php endif; ?>
 										<span class="services-toggle__card-title"><?php echo esc_html( $title ); ?></span>
-									</button>
+									</a>
 								<?php endforeach; ?>
 							</div>
 						</div>
