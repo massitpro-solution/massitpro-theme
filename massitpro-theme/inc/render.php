@@ -3311,17 +3311,166 @@ function massitpro_render_industries_page_body($post_id = 0) {
 }
 
 /**
+ * Render the locations-hub intro section.
+ * Left: eyebrow, h2, body, 3 icon feature items. Right: image.
+ *
+ * @param string              $field_name Section field name.
+ * @param int                 $post_id    Post ID.
+ * @param array<string,mixed> $args       Render arguments.
+ */
+function massitpro_render_location_hub_intro_section( $field_name, $post_id, $args = [] ) {
+	$args    = wp_parse_args(
+		(array) $args,
+		[
+			'surface_class' => '',
+			'section_class' => '',
+		]
+	);
+	$pid     = massitpro_get_render_post_id( $post_id );
+	$group   = (array) massitpro_get_section_meta( $field_name, $pid, [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$body    = (string) ( $group['body'] ?? '' );
+	$image   = massitpro_resolve_image_value( $group['image'] ?? null ) ?: massitpro_get_post_display_image( $pid );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'title' ] );
+
+	if ( ! $body ) {
+		$body = massitpro_get_post_content_html( $pid );
+	}
+
+	if ( ! massitpro_has_any_content( $heading, $body ) ) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing hub-intro-section <?php echo esc_attr( trim( (string) $args['surface_class'] . ' ' . (string) $args['section_class'] ) ); ?>">
+		<div class="site-shell">
+			<div class="hub-intro">
+				<div class="hub-intro__copy" data-reveal>
+					<?php if ( $eyebrow ) : ?>
+						<p class="section-label"><?php echo esc_html( $eyebrow ); ?></p>
+					<?php endif; ?>
+					<?php if ( $heading ) : ?>
+						<h2><?php echo esc_html( $heading ); ?></h2>
+					<?php endif; ?>
+					<?php if ( $body ) : ?>
+						<div class="section-copy"><?php echo wp_kses_post( $body ); ?></div>
+					<?php endif; ?>
+					<?php if ( $items ) : ?>
+						<div class="hub-intro__features">
+							<?php foreach ( $items as $item ) :
+								$icon  = trim( (string) ( $item['icon'] ?? 'check' ) );
+								$title = trim( (string) ( $item['title'] ?? '' ) );
+								$desc  = trim( (string) ( $item['body'] ?? '' ) );
+								if ( ! $title ) { continue; }
+							?>
+								<div class="hub-intro__feature">
+									<span class="hub-intro__feature-icon" aria-hidden="true"><?php echo massitpro_svg_icon( $icon ); ?></span>
+									<div class="hub-intro__feature-content">
+										<h3><?php echo esc_html( $title ); ?></h3>
+										<?php if ( $desc ) : ?>
+											<p><?php echo esc_html( $desc ); ?></p>
+										<?php endif; ?>
+									</div>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+				</div>
+				<div class="hub-intro__media" data-reveal>
+					<?php if ( $image ) : ?>
+						<?php massitpro_render_media( [ 'image' => $image, 'aspect' => 'square' ] ); ?>
+					<?php else : ?>
+						<div class="location-image-placeholder" aria-hidden="true"></div>
+					<?php endif; ?>
+				</div>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render expanding city cards for the locations hub.
+ * One card expanded by default, others collapsed showing just the city name.
+ *
+ * @param string              $field_name Section field name.
+ * @param int                 $post_id    Post ID.
+ * @param array<string,mixed> $args       Render arguments.
+ */
+function massitpro_render_expanding_cities_section( $field_name, $post_id, $args = [] ) {
+	$args    = wp_parse_args(
+		(array) $args,
+		[
+			'surface_class' => '',
+			'section_class' => '',
+		]
+	);
+	$group   = (array) massitpro_get_section_meta( $field_name, massitpro_get_render_post_id( $post_id ), [] );
+	$eyebrow = trim( (string) ( $group['eyebrow'] ?? '' ) );
+	$heading = trim( (string) ( $group['heading'] ?? '' ) );
+	$body    = (string) ( $group['body'] ?? '' );
+	$items   = massitpro_filter_rows( (array) ( $group['items'] ?? [] ), [ 'title' ] );
+
+	if ( ! massitpro_has_any_content( $eyebrow, $heading, $body, $items ) ) {
+		return;
+	}
+	?>
+	<section class="section-padding section-spacing <?php echo esc_attr( trim( (string) $args['surface_class'] . ' ' . (string) $args['section_class'] ) ); ?>">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading( [ 'label' => $eyebrow, 'title' => $heading, 'copy' => $body ] ); ?>
+			<?php if ( $items ) : ?>
+				<div class="expanding-cities" data-expanding-cities>
+					<?php foreach ( $items as $index => $item ) :
+						$title    = trim( (string) ( $item['title'] ?? '' ) );
+						$body_txt = trim( (string) ( $item['body'] ?? '' ) );
+						$link_url = trim( (string) ( $item['link_url'] ?? '' ) );
+						$img_id   = absint( $item['image'] ?? 0 );
+						$img_src  = $img_id ? wp_get_attachment_image_url( $img_id, 'massitpro-card' ) : '';
+						if ( ! $title ) { continue; }
+						$is_first = 0 === $index;
+					?>
+						<div class="city-card<?php echo $is_first ? ' is-expanded' : ''; ?>" data-city-card data-reveal style="transition-delay: <?php echo esc_attr( number_format( $index * 0.04, 2, '.', '' ) ); ?>s;">
+							<?php if ( $link_url ) : ?>
+								<a class="city-card__link" href="<?php echo esc_url( $link_url ); ?>">
+							<?php endif; ?>
+								<div class="city-card__overlay">
+									<h3 class="city-card__title"><?php echo esc_html( $title ); ?></h3>
+								</div>
+								<?php if ( $img_src ) : ?>
+									<img class="city-card__img" src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $title ); ?>" loading="lazy">
+								<?php else : ?>
+									<div class="city-card__img city-card__placeholder" aria-hidden="true"></div>
+								<?php endif; ?>
+								<div class="city-card__body">
+									<h3><?php echo esc_html( $title ); ?></h3>
+									<?php if ( $body_txt ) : ?>
+										<p><?php echo esc_html( $body_txt ); ?></p>
+									<?php endif; ?>
+								</div>
+							<?php if ( $link_url ) : ?>
+								</a>
+							<?php endif; ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
  * Render a locations hub page body.
  *
  * @param int $post_id Post ID.
  */
 function massitpro_render_locations_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_intro_section('intro_section', $post_id);
-	massitpro_render_image_cards_section('featured_locations_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_icon_cards_section('service_highlights_section', $post_id);
-	massitpro_render_image_cards_section('local_advantage_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_location_hub_intro_section('intro_section', $post_id);
+	massitpro_render_expanding_cities_section('featured_locations_section', $post_id, ['surface_class' => 'surface-sand']);
+	massitpro_render_services_carousel_section('service_highlights_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'hub-services']);
+	massitpro_render_related_links_split_section('related_industry_section', $post_id, ['surface_class' => 'surface-sand-warm']);
+	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center locations-hub-cta-section']);
 }
 
 /**

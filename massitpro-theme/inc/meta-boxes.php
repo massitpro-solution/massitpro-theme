@@ -123,12 +123,12 @@ function massitpro_get_native_section_registry() {
 		'locations-hub' => [
 			'title'    => __('Mass IT Pro Locations Hub Fields', 'massitpro'),
 			'sections' => [
-				'hero'                     => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'intro_section'            => ['label' => __('Intro', 'massitpro'), 'type' => 'intro'],
-				'featured_locations_section' => ['label' => __('Featured Locations', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['title', 'link_url']],
-				'service_highlights_section' => ['label' => __('Service Highlights', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
-				'local_advantage_section'  => ['label' => __('Local Advantage', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
-				'cta_block'                => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
+				'hero'                       => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
+				'intro_section'              => ['label' => __('Intro', 'massitpro'), 'type' => 'location_hub_intro'],
+				'featured_locations_section' => ['label' => __('Featured Locations', 'massitpro'), 'type' => 'cards', 'rows' => 11, 'fields' => ['title', 'body', 'image', 'link_url'], 'has_eyebrow' => true],
+				'service_highlights_section' => ['label' => __('Service Highlights', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
+				'related_industry_section'   => ['label' => __('Related Industry', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
+				'cta_block'                  => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
 		'about' => [
@@ -518,6 +518,9 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 		case 'location_intro':
 			massitpro_render_native_location_intro_editor($section_key, $value);
 			return;
+		case 'location_hub_intro':
+			massitpro_render_native_location_hub_intro_editor($section_key, $value);
+			return;
 		case 'simple_list':
 			massitpro_render_native_simple_list_editor($section_key, $value);
 			return;
@@ -751,6 +754,60 @@ function massitpro_render_native_location_intro_editor($section, $value) {
 	massitpro_render_native_text_input($section, 'button_label', __('CTA Button Label', 'massitpro'), (string) ($value['button_label'] ?? ''));
 	massitpro_render_native_text_input($section, 'button_url', __('CTA Button URL', 'massitpro'), (string) ($value['button_url'] ?? ''));
 	massitpro_render_native_image_field($section, 'image', __('Section Image', 'massitpro'), (int) ($value['image'] ?? 0));
+}
+
+/**
+ * Render the locations-hub intro editor: eyebrow, heading, body, 3 feature items, image.
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_location_hub_intro_editor($section, $value) {
+	massitpro_render_native_text_input($section, 'eyebrow', __('Eyebrow Label', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Section Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Section Body', 'massitpro'), (string) ($value['body'] ?? ''), 5);
+
+	for ($i = 0; $i < 3; $i++) {
+		$item = (array) ($value['items'][$i] ?? []);
+		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Feature Item %d', 'massitpro'), $i + 1)) . '</h4>';
+		massitpro_render_native_select($section, 'items][' . $i . '][icon', __('Icon', 'massitpro'), (string) ($item['icon'] ?? 'check'), massitpro_get_native_icon_choices());
+		massitpro_render_native_text_input($section, 'items][' . $i . '][title', __('Title', 'massitpro'), (string) ($item['title'] ?? ''));
+		massitpro_render_native_textarea($section, 'items][' . $i . '][body', __('Body', 'massitpro'), (string) ($item['body'] ?? ''), 3);
+		echo '</div>';
+	}
+
+	massitpro_render_native_image_field($section, 'image', __('Section Image', 'massitpro'), (int) ($value['image'] ?? 0));
+}
+
+/**
+ * Sanitize location hub intro section.
+ *
+ * @param array<string,mixed> $input Raw input.
+ * @return array<string,mixed>
+ */
+function massitpro_sanitize_native_location_hub_intro_section($input) {
+	$section = [
+		'eyebrow' => sanitize_text_field((string) ($input['eyebrow'] ?? '')),
+		'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),
+		'body'    => wp_kses_post((string) ($input['body'] ?? '')),
+		'image'   => absint($input['image'] ?? 0),
+		'items'   => [],
+	];
+
+	foreach ((array) ($input['items'] ?? []) as $row) {
+		$row  = is_array($row) ? $row : [];
+		$item = [
+			'icon'  => sanitize_key((string) ($row['icon'] ?? 'check')),
+			'title' => sanitize_text_field((string) ($row['title'] ?? '')),
+			'body'  => sanitize_textarea_field((string) ($row['body'] ?? '')),
+		];
+
+		if (! massitpro_is_empty_value($item)) {
+			$section['items'][] = $item;
+		}
+	}
+
+	return $section;
 }
 
 /**
@@ -1157,6 +1214,8 @@ function massitpro_sanitize_native_section($definition, $input) {
 				'button_url'    => esc_url_raw((string) ($input['button_url'] ?? '')),
 				'image'         => absint($input['image'] ?? 0),
 			];
+		case 'location_hub_intro':
+			return massitpro_sanitize_native_location_hub_intro_section($input);
 		case 'simple_list':
 			return [
 				'heading' => sanitize_text_field((string) ($input['heading'] ?? '')),

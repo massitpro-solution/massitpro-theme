@@ -137,6 +137,35 @@
 		});
 	});
 
+	document.querySelectorAll('[data-expanding-cities]').forEach(function (container) {
+		var cards = Array.prototype.slice.call(container.querySelectorAll('[data-city-card]'));
+
+		cards.forEach(function (card) {
+			card.addEventListener('click', function (e) {
+				if (card.classList.contains('is-expanded')) {
+					return;
+				}
+
+				e.preventDefault();
+
+				cards.forEach(function (c) {
+					c.classList.remove('is-expanded');
+				});
+
+				card.classList.add('is-expanded');
+			});
+
+			var link = card.querySelector('.city-card__link');
+			if (link) {
+				link.addEventListener('click', function (e) {
+					if (! card.classList.contains('is-expanded')) {
+						e.preventDefault();
+					}
+				});
+			}
+		});
+	});
+
 	const slider = document.querySelector('[data-testimonial-slider]');
 	if (slider) {
 		const slides = Array.prototype.slice.call(slider.querySelectorAll('[data-testimonial-slide]'));
