@@ -3380,6 +3380,7 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 						<div class="services-toggle__detail-content">
 							<span class="services-toggle__pill" data-detail-pill><?php esc_html_e( 'Business Service', 'massitpro' ); ?></span>
 							<h3 class="services-toggle__detail-title" data-detail-title><?php echo esc_html( trim( (string) ( $first_biz['title'] ?? '' ) ) ); ?></h3>
+							<span class="services-toggle__detail-label"><?php esc_html_e( 'Description', 'massitpro' ); ?></span>
 							<p class="services-toggle__detail-body" data-detail-body><?php echo esc_html( trim( (string) ( $first_biz['body'] ?? '' ) ) ); ?></p>
 							<?php
 							$first_link = trim( (string) ( $first_biz['link_url'] ?? '' ) );
