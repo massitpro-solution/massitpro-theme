@@ -3297,9 +3297,12 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 	$build_json = function ( $items ) {
 		$out = [];
 		foreach ( $items as $item ) {
-			$out[] = [
+			$hl_raw = trim( (string) ( $item['highlights'] ?? '' ) );
+			$hl     = $hl_raw ? array_filter( array_map( 'trim', explode( "\n", $hl_raw ) ) ) : [];
+			$out[]  = [
 				'title'      => trim( (string) ( $item['title'] ?? '' ) ),
 				'body'       => trim( (string) ( $item['body'] ?? '' ) ),
+				'highlights' => array_values( $hl ),
 				'link_label' => trim( (string) ( $item['link_label'] ?? '' ) ),
 				'link_url'   => trim( (string) ( $item['link_url'] ?? '' ) ),
 			];
@@ -3380,7 +3383,21 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 						<div class="services-toggle__detail-content">
 							<span class="services-toggle__pill" data-detail-pill><?php esc_html_e( 'Business Service', 'massitpro' ); ?></span>
 							<h3 class="services-toggle__detail-title" data-detail-title><?php echo esc_html( trim( (string) ( $first_biz['title'] ?? '' ) ) ); ?></h3>
+							<span class="services-toggle__detail-label"><?php esc_html_e( 'Description', 'massitpro' ); ?></span>
 							<p class="services-toggle__detail-body" data-detail-body><?php echo esc_html( trim( (string) ( $first_biz['body'] ?? '' ) ) ); ?></p>
+							<div class="services-toggle__detail-highlights" data-detail-highlights>
+								<?php
+								$first_hl_raw = trim( (string) ( $first_biz['highlights'] ?? '' ) );
+								$first_hl     = $first_hl_raw ? array_filter( array_map( 'trim', explode( "\n", $first_hl_raw ) ) ) : [];
+								if ( $first_hl ) : ?>
+									<span class="services-toggle__detail-label"><?php esc_html_e( 'Key Features', 'massitpro' ); ?></span>
+									<ul class="services-toggle__detail-checklist">
+										<?php foreach ( $first_hl as $hl_item ) : ?>
+											<li><?php echo esc_html( $hl_item ); ?></li>
+										<?php endforeach; ?>
+									</ul>
+								<?php endif; ?>
+							</div>
 							<?php
 							$first_link = trim( (string) ( $first_biz['link_url'] ?? '' ) );
 							$first_lbl  = trim( (string) ( $first_biz['link_label'] ?? '' ) );

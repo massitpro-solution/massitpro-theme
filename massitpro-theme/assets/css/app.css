@@ -2988,7 +2988,7 @@ a.flip-card {
 	color: var(--color-foreground);
 }
 
-/* Content row — two columns */
+/* Content row — 60/40 split */
 .services-toggle__content {
 	display: grid;
 	gap: 32px;
@@ -2996,8 +2996,8 @@ a.flip-card {
 
 @media (min-width: 900px) {
 	.services-toggle__content {
-		grid-template-columns: 1fr 1fr;
-		gap: 48px;
+		grid-template-columns: 3fr 2fr;
+		gap: 40px;
 		align-items: center;
 	}
 }
@@ -3015,9 +3015,9 @@ a.flip-card {
 .services-toggle__stack {
 	position: relative;
 	width: 100%;
-	max-width: 380px;
+	max-width: 560px;
 	aspect-ratio: 4 / 3;
-	margin: 20px auto 0;
+	margin: 30px auto 30px;
 }
 
 /* Image cards — stacked bundle */
@@ -3028,8 +3028,8 @@ a.flip-card {
 	overflow: hidden;
 	border-radius: var(--radius-2xl);
 	text-decoration: none;
-	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
-	transform-origin: center 80%;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+	transform-origin: center 70%;
 	transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
 	            opacity 0.4s ease;
 	opacity: 0;
@@ -3039,27 +3039,36 @@ a.flip-card {
 
 .services-toggle__card[data-stack-pos="0"] {
 	opacity: 1;
-	z-index: 4;
-	transform: rotate(0deg) translate(0, 0);
+	z-index: 5;
+	transform: rotate(-2deg) translate(0, 0);
 	pointer-events: auto;
 	cursor: pointer;
 }
 
 .services-toggle__card[data-stack-pos="1"] {
 	opacity: 1;
-	z-index: 3;
-	transform: rotate(4deg) translate(14px, 8px) scale(0.97);
+	z-index: 4;
+	transform: rotate(5deg) translate(28px, -14px) scale(0.95);
+	box-shadow: 0 6px 28px rgba(0, 0, 0, 0.16);
 }
 
 .services-toggle__card[data-stack-pos="2"] {
 	opacity: 1;
+	z-index: 3;
+	transform: rotate(-6deg) translate(-24px, -8px) scale(0.90);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.services-toggle__card[data-stack-pos="3"] {
+	opacity: 0.6;
 	z-index: 2;
-	transform: rotate(-3deg) translate(-10px, 14px) scale(0.94);
+	transform: rotate(9deg) translate(40px, -22px) scale(0.85);
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .services-toggle__card[data-stack-pos="0"]:hover {
-	transform: translate(0, -4px) scale(1.02);
-	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+	transform: rotate(-2deg) translate(0, -6px) scale(1.02);
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
 }
 
 /* Featured image inside card */
@@ -3094,13 +3103,12 @@ a.flip-card {
 	z-index: 1;
 }
 
-/* Detail panel (right column) */
+/* Detail panel (right column) — project-card style */
 .services-toggle__detail-inner {
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
 	height: 100%;
-	padding: 32px;
+	padding: 36px 40px;
 	background: var(--color-card);
 	border-radius: var(--radius-3xl);
 	box-shadow: var(--shadow-premium);
@@ -3113,24 +3121,63 @@ a.flip-card {
 	border-radius: 999px;
 	background: var(--color-navy);
 	color: #fff;
-	font-size: 0.75rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
 	text-transform: uppercase;
-	margin-bottom: 20px;
+	margin-bottom: 16px;
 }
 
 .services-toggle__detail-title {
-	font-size: 1.5rem;
-	margin: 0 0 12px;
+	font-size: 1.65rem;
+	font-weight: 700;
+	margin: 0 0 20px;
 	color: var(--color-foreground);
+	line-height: 1.25;
+}
+
+.services-toggle__detail-label {
+	display: block;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--color-teal);
+	margin-bottom: 6px;
 }
 
 .services-toggle__detail-body {
 	font-size: 0.95rem;
 	color: var(--color-muted);
-	line-height: 1.6;
+	line-height: 1.7;
 	margin: 0 0 20px;
+}
+
+.services-toggle__detail-highlights {
+	margin-bottom: 20px;
+}
+
+.services-toggle__detail-checklist {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.services-toggle__detail-checklist li {
+	position: relative;
+	padding-left: 22px;
+	margin-bottom: 6px;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	color: var(--color-foreground);
+}
+
+.services-toggle__detail-checklist li::before {
+	content: "\2713";
+	position: absolute;
+	left: 0;
+	color: var(--color-teal);
+	font-weight: 700;
 }
 
 .services-toggle__detail-link {

@@ -76,8 +76,8 @@ function massitpro_get_native_section_registry() {
 			'title'    => __('Mass IT Pro Services Hub Fields', 'massitpro'),
 			'sections' => [
 				'hero'                         => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'business_services_section'    => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 9, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
-				'residential_services_section' => ['label' => __('Residential Services', 'massitpro'), 'type' => 'cards', 'rows' => 7, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url'], 'hide_section_intro' => true],
+				'business_services_section'    => ['label' => __('Business Services', 'massitpro'), 'type' => 'cards', 'rows' => 9, 'fields' => ['icon', 'title', 'body', 'highlights', 'link_label', 'link_url'], 'has_eyebrow' => true],
+				'residential_services_section' => ['label' => __('Residential Services', 'massitpro'), 'type' => 'cards', 'rows' => 7, 'fields' => ['icon', 'title', 'body', 'highlights', 'link_label', 'link_url'], 'hide_section_intro' => true],
 				'why_trust_section'            => ['label' => __('Why Trust Us', 'massitpro'), 'type' => 'stats', 'rows' => 4],
 				'served_industries_section'    => ['label' => __('Industry Solutions', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'link_url']],
 				'related_links_section'        => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
@@ -879,6 +879,10 @@ function massitpro_render_native_cards_editor($section, $definition, $value) {
 			massitpro_render_native_textarea($section, 'items][' . $index . '][body', __('Body', 'massitpro'), (string) ($row['body'] ?? ''), 3);
 		}
 
+		if (in_array('highlights', $fields, true)) {
+			massitpro_render_native_textarea($section, 'items][' . $index . '][highlights', __('Highlights', 'massitpro') . ' — ' . __('one per line', 'massitpro'), (string) ($row['highlights'] ?? ''), 3);
+		}
+
 		if (in_array('description', $fields, true)) {
 			massitpro_render_native_textarea($section, 'items][' . $index . '][description', __('Description', 'massitpro'), (string) ($row['description'] ?? ''), 3);
 		}
@@ -1445,6 +1449,10 @@ function massitpro_sanitize_native_cards_section($definition, $input) {
 
 		if (in_array('body', $fields, true)) {
 			$item['body'] = sanitize_textarea_field((string) ($row['body'] ?? ''));
+		}
+
+		if (in_array('highlights', $fields, true)) {
+			$item['highlights'] = sanitize_textarea_field((string) ($row['highlights'] ?? ''));
 		}
 
 		if (in_array('description', $fields, true)) {

@@ -174,13 +174,14 @@
 
 		var tabs     = Array.prototype.slice.call(section.querySelectorAll('[data-services-tab]'));
 		var panels   = Array.prototype.slice.call(section.querySelectorAll('[data-services-panel]'));
-		var pill     = section.querySelector('[data-detail-pill]');
-		var dTitle   = section.querySelector('[data-detail-title]');
-		var dBody    = section.querySelector('[data-detail-body]');
-		var dLink    = section.querySelector('[data-detail-link]');
-		var dLinkLbl = section.querySelector('[data-detail-link-label]');
-		var prevBtn  = section.querySelector('[data-services-detail-prev]');
-		var nextBtn  = section.querySelector('[data-services-detail-next]');
+		var pill       = section.querySelector('[data-detail-pill]');
+		var dTitle     = section.querySelector('[data-detail-title]');
+		var dBody      = section.querySelector('[data-detail-body]');
+		var dHighlight = section.querySelector('[data-detail-highlights]');
+		var dLink      = section.querySelector('[data-detail-link]');
+		var dLinkLbl   = section.querySelector('[data-detail-link-label]');
+		var prevBtn    = section.querySelector('[data-services-detail-prev]');
+		var nextBtn    = section.querySelector('[data-services-detail-next]');
 
 		var activeTab   = 'business';
 		var activeIndex = 0;
@@ -201,7 +202,7 @@
 			cards.forEach(function (card) {
 				var idx = parseInt(card.getAttribute('data-card-index'), 10);
 				var offset = (idx - activeIndex + total) % total;
-				if (offset <= 2) {
+				if (offset <= 3) {
 					card.setAttribute('data-stack-pos', String(offset));
 				} else {
 					card.removeAttribute('data-stack-pos');
@@ -215,6 +216,20 @@
 			if (pill)     pill.textContent = getPillLabel();
 			if (dTitle)   dTitle.textContent = item.title || '';
 			if (dBody)    dBody.textContent = item.body || '';
+			if (dHighlight) {
+				var hl = item.highlights || [];
+				if (hl.length) {
+					var html = '<span class="services-toggle__detail-label">Key Features</span>';
+					html += '<ul class="services-toggle__detail-checklist">';
+					hl.forEach(function (h) { html += '<li>' + h.replace(/</g, '&lt;') + '</li>'; });
+					html += '</ul>';
+					dHighlight.innerHTML = html;
+					dHighlight.hidden = false;
+				} else {
+					dHighlight.innerHTML = '';
+					dHighlight.hidden = true;
+				}
+			}
 			if (dLink) {
 				if (item.link_url) {
 					dLink.href = item.link_url;
