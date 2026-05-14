@@ -3298,7 +3298,7 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 		$out = [];
 		foreach ( $items as $item ) {
 			$hl_raw = trim( (string) ( $item['highlights'] ?? '' ) );
-			$hl     = $hl_raw ? array_filter( array_map( 'trim', explode( "\n", $hl_raw ) ) ) : [];
+			$hl     = $hl_raw ? array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $hl_raw ) ) ) : [];
 			$out[]  = [
 				'title'      => trim( (string) ( $item['title'] ?? '' ) ),
 				'body'       => trim( (string) ( $item['body'] ?? '' ) ),
@@ -3388,7 +3388,7 @@ function massitpro_render_services_toggle_section( $post_id, $args = [] ) {
 							<div class="services-toggle__detail-highlights" data-detail-highlights>
 								<?php
 								$first_hl_raw = trim( (string) ( $first_biz['highlights'] ?? '' ) );
-								$first_hl     = $first_hl_raw ? array_filter( array_map( 'trim', explode( "\n", $first_hl_raw ) ) ) : [];
+								$first_hl     = $first_hl_raw ? array_filter( array_map( 'trim', preg_split( '/\r\n|\r|\n/', $first_hl_raw ) ) ) : [];
 								if ( $first_hl ) : ?>
 									<span class="services-toggle__detail-label"><?php esc_html_e( 'Key Features', 'massitpro' ); ?></span>
 									<ul class="services-toggle__detail-checklist">
