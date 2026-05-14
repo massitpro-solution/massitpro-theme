@@ -880,7 +880,9 @@ function massitpro_render_native_cards_editor($section, $definition, $value) {
 		}
 
 		if (in_array('highlights', $fields, true)) {
-			massitpro_render_native_textarea($section, 'items][' . $index . '][highlights', __('Highlights', 'massitpro') . ' — ' . __('one per line', 'massitpro'), (string) ($row['highlights'] ?? ''), 3);
+			$hl_val = $row['highlights'] ?? '';
+			if (is_array($hl_val)) { $hl_val = implode("\n", $hl_val); }
+			massitpro_render_native_textarea($section, 'items][' . $index . '][highlights', __('Highlights', 'massitpro') . ' — ' . __('one per line', 'massitpro'), (string) $hl_val, 3);
 		}
 
 		if (in_array('description', $fields, true)) {
@@ -1452,7 +1454,8 @@ function massitpro_sanitize_native_cards_section($definition, $input) {
 		}
 
 		if (in_array('highlights', $fields, true)) {
-			$item['highlights'] = sanitize_textarea_field((string) ($row['highlights'] ?? ''));
+			$hl_raw = sanitize_textarea_field((string) ($row['highlights'] ?? ''));
+			$item['highlights'] = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $hl_raw))));
 		}
 
 		if (in_array('description', $fields, true)) {
