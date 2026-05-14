@@ -2953,7 +2953,7 @@ a.flip-card {
 }
 
 .services-toggle__header .section-copy {
-	max-width: 620px;
+	max-width: none;
 	margin-bottom: 8px;
 }
 
