@@ -193,6 +193,22 @@
 			return activeTab === 'business' ? 'Business Service' : 'Residential Service';
 		}
 
+		function syncStack() {
+			var activePanel = section.querySelector('[data-services-panel="' + activeTab + '"]');
+			if (!activePanel) return;
+			var cards = Array.prototype.slice.call(activePanel.querySelectorAll('[data-card-index]'));
+			var total = cards.length;
+			cards.forEach(function (card) {
+				var idx = parseInt(card.getAttribute('data-card-index'), 10);
+				var offset = (idx - activeIndex + total) % total;
+				if (offset <= 2) {
+					card.setAttribute('data-stack-pos', String(offset));
+				} else {
+					card.removeAttribute('data-stack-pos');
+				}
+			});
+		}
+
 		function syncDetail() {
 			var items = getData();
 			var item  = items[activeIndex] || {};
@@ -208,14 +224,7 @@
 					dLink.hidden = true;
 				}
 			}
-
-			var activePanel = section.querySelector('[data-services-panel="' + activeTab + '"]');
-			if (activePanel) {
-				var cards = Array.prototype.slice.call(activePanel.querySelectorAll('[data-card-index]'));
-				cards.forEach(function (c) {
-					c.classList.toggle('is-active', parseInt(c.getAttribute('data-card-index'), 10) === activeIndex);
-				});
-			}
+			syncStack();
 		}
 
 		tabs.forEach(function (tab) {
@@ -232,17 +241,6 @@
 				});
 
 				syncDetail();
-			});
-		});
-
-		panels.forEach(function (panel) {
-			var cards = Array.prototype.slice.call(panel.querySelectorAll('[data-card-index]'));
-			cards.forEach(function (card) {
-				card.addEventListener('click', function (e) {
-					e.preventDefault();
-					activeIndex = parseInt(card.getAttribute('data-card-index'), 10);
-					syncDetail();
-				});
 			});
 		});
 
@@ -263,6 +261,8 @@
 				syncDetail();
 			});
 		}
+
+		syncStack();
 	});
 
 	const slider = document.querySelector('[data-testimonial-slider]');

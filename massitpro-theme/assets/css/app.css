@@ -2996,9 +2996,9 @@ a.flip-card {
 
 @media (min-width: 900px) {
 	.services-toggle__content {
-		grid-template-columns: 1.6fr 1fr;
-		gap: 40px;
-		align-items: start;
+		grid-template-columns: 1fr 1fr;
+		gap: 48px;
+		align-items: center;
 	}
 }
 
@@ -3011,41 +3011,55 @@ a.flip-card {
 	display: block;
 }
 
-/* Card grid — 3 columns on desktop, 2 on tablet, 1 on phone */
-.services-toggle__grid {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 12px;
-}
-
-@media (max-width: 599px) {
-	.services-toggle__grid {
-		grid-template-columns: 1fr 1fr;
-	}
-}
-
-/* Image cards */
-.services-toggle__card {
+/* Stacked card bundle */
+.services-toggle__stack {
 	position: relative;
+	width: 100%;
+	max-width: 380px;
+	aspect-ratio: 4 / 3;
+	margin: 20px auto 0;
+}
+
+/* Image cards — stacked bundle */
+.services-toggle__card {
+	position: absolute;
+	inset: 0;
 	display: block;
 	overflow: hidden;
-	border-radius: var(--radius-xl);
-	border: 2px solid transparent;
-	aspect-ratio: 4 / 3;
-	cursor: pointer;
+	border-radius: var(--radius-2xl);
 	text-decoration: none;
-	transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+	transform-origin: center 80%;
+	transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+	            opacity 0.4s ease;
+	opacity: 0;
+	pointer-events: none;
+	z-index: 0;
 }
 
-.services-toggle__card:hover {
-	border-color: var(--color-teal);
-	box-shadow: var(--shadow-subtle);
-	transform: translateY(-2px);
+.services-toggle__card[data-stack-pos="0"] {
+	opacity: 1;
+	z-index: 4;
+	transform: rotate(0deg) translate(0, 0);
+	pointer-events: auto;
+	cursor: pointer;
 }
 
-.services-toggle__card.is-active {
-	border-color: var(--color-teal);
-	box-shadow: 0 0 0 2px var(--color-teal);
+.services-toggle__card[data-stack-pos="1"] {
+	opacity: 1;
+	z-index: 3;
+	transform: rotate(4deg) translate(14px, 8px) scale(0.97);
+}
+
+.services-toggle__card[data-stack-pos="2"] {
+	opacity: 1;
+	z-index: 2;
+	transform: rotate(-3deg) translate(-10px, 14px) scale(0.94);
+}
+
+.services-toggle__card[data-stack-pos="0"]:hover {
+	transform: translate(0, -4px) scale(1.02);
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
 }
 
 /* Featured image inside card */
@@ -3070,13 +3084,14 @@ a.flip-card {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	padding: 8px 12px;
+	padding: 10px 14px;
 	background: linear-gradient(0deg, rgba(0, 0, 0, 0.72) 0%, transparent 100%);
 	font-family: var(--font-display);
-	font-size: 0.8rem;
+	font-size: 0.85rem;
 	font-weight: 600;
 	color: #fff;
 	line-height: 1.3;
+	z-index: 1;
 }
 
 /* Detail panel (right column) */
