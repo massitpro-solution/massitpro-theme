@@ -3633,22 +3633,120 @@ function massitpro_render_locations_page_body($post_id = 0) {
 }
 
 /**
+ * Render service-detail capabilities section with creative showcase cards.
+ *
+ * @param string $field_name Section field name.
+ * @param int    $post_id    Post ID.
+ */
+function massitpro_render_service_capabilities_section($field_name, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($field_name, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$items   = massitpro_filter_rows((array) ($group['items'] ?? []), ['title', 'body', 'image']);
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $items)) {
+		return;
+	}
+	?>
+	<section class="service-capabilities section-padding section-spacing surface-sand">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
+			<?php if ($items) : ?>
+				<div class="capabilities-showcase" data-reveal>
+					<?php foreach ($items as $index => $item) : ?>
+						<?php
+						$image    = massitpro_resolve_image_value($item['image'] ?? null);
+						$link_url = trim((string) ($item['link_url'] ?? ''));
+						?>
+						<article class="capability-card" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.08, 2, '.', '')); ?>s;">
+							<?php if ($image) : ?>
+								<div class="capability-card__media">
+									<?php massitpro_render_media(['image' => $image, 'aspect' => 'video']); ?>
+									<div class="capability-card__overlay"></div>
+								</div>
+							<?php endif; ?>
+							<div class="capability-card__body">
+								<?php if (! empty($item['title'])) : ?>
+									<h3><?php echo esc_html((string) $item['title']); ?></h3>
+								<?php endif; ?>
+								<?php if (! empty($item['body'])) : ?>
+									<p><?php echo esc_html((string) $item['body']); ?></p>
+								<?php endif; ?>
+								<?php if ($link_url) : ?>
+									<a class="capability-card__cta" href="<?php echo esc_url($link_url); ?>">
+										<span><?php esc_html_e('Learn More', 'massitpro'); ?></span>
+										<span class="capability-card__arrow" aria-hidden="true"><?php echo massitpro_svg_icon('arrow-right'); ?></span>
+									</a>
+								<?php endif; ?>
+							</div>
+						</article>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
+}
+
+/**
+ * Render service-detail deliverables as certification-style pills.
+ *
+ * @param string $field_name Section field name.
+ * @param int    $post_id    Post ID.
+ */
+function massitpro_render_deliverables_pills_section($field_name, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($field_name, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$items   = (array) ($group['items'] ?? []);
+
+	$valid_items = [];
+	foreach ($items as $item) {
+		$label = trim((string) ($item['label'] ?? ''));
+		if ($label) {
+			$valid_items[] = $item;
+		}
+	}
+
+	if (! $valid_items) {
+		return;
+	}
+	?>
+	<section class="deliverables-pills section-padding section-spacing">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
+			<div class="deliverables-pills__grid" data-reveal>
+				<?php foreach ($valid_items as $index => $item) : ?>
+					<span class="deliverables-pills__pill content-card" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.06, 2, '.', '')); ?>s;">
+						<span class="deliverables-pills__icon" aria-hidden="true"><?php echo massitpro_svg_icon((string) ($item['icon'] ?? 'check')); ?></span>
+						<span><?php echo esc_html((string) $item['label']); ?></span>
+					</span>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</section>
+	<?php
+}
+
+/**
  * Render a service detail page body.
  *
  * @param int $post_id Post ID.
  */
 function massitpro_render_service_detail_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_intro_section('intro_section', $post_id);
-	massitpro_render_text_list_section('deliverables_section', $post_id);
-	massitpro_render_image_cards_section('capabilities_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_text_list_section('ideal_for_section', $post_id);
-	massitpro_render_link_cards_section('related_services_section', $post_id);
+	massitpro_render_service_capabilities_section('capabilities_section', $post_id);
+	massitpro_render_deliverables_pills_section('deliverables_section', $post_id);
+	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand', 'section_class' => 'service-detail-process']);
+	massitpro_render_related_links_split_section('related_services_section', $post_id, ['surface_class' => 'surface-sand-warm']);
 	massitpro_render_cpt_projects_section($post_id);
 	massitpro_render_cpt_testimonials_section($post_id);
 	massitpro_render_faq_cards_section('faq_section', $post_id);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center service-detail-cta']);
 }
 
 /**

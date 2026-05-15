@@ -34,13 +34,11 @@ function massitpro_get_native_section_registry() {
 			'title'    => __('Mass IT Pro Service Detail Fields', 'massitpro'),
 			'sections' => [
 				'hero'                       => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'intro_section'              => ['label' => __('Intro', 'massitpro'), 'type' => 'intro'],
-				'deliverables_section'       => ['label' => __('Deliverables', 'massitpro'), 'type' => 'simple_list'],
-				'capabilities_section'       => ['label' => __('Capabilities', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
+				'capabilities_section'       => ['label' => __('Capabilities', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['image', 'title', 'body', 'link_url'], 'has_eyebrow' => true],
+				'deliverables_section'       => ['label' => __('Deliverables', 'massitpro'), 'type' => 'deliverables_pills'],
 				'process_section'            => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 6],
-				'ideal_for_section'          => ['label' => __('Ideal For', 'massitpro'), 'type' => 'simple_list'],
-				'related_services_section'   => ['label' => __('Related Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
-				'faq_section'                => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
+				'related_services_section'   => ['label' => __('Ideal For', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
+				'faq_section'                => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['question', 'answer']],
 				'cta_block'                  => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
@@ -54,7 +52,7 @@ function massitpro_get_native_section_registry() {
 				'sub_clusters_section'        => ['label' => __('Sub-Clusters', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'image']],
 				'compliance_section'          => ['label' => __('Compliance', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'featured_project_section'    => ['label' => __('Featured Project', 'massitpro'), 'type' => 'featured_project'],
-				'faq_section'                 => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
+				'faq_section'                 => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['question', 'answer']],
 				'related_links_section'       => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
 				'cta_block'                   => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
@@ -67,7 +65,7 @@ function massitpro_get_native_section_registry() {
 				'why_local_section'        => ['label' => __('Why Local', 'massitpro'), 'type' => 'cards', 'rows' => 3, 'fields' => ['icon', 'title', 'body']],
 				'available_services_section' => ['label' => __('Available Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'link_label', 'link_url'], 'has_eyebrow' => true],
 				'served_industries_section'  => ['label' => __('Served Industries', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['title', 'body', 'link_url']],
-				'faq_section'              => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
+				'faq_section'              => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['question', 'answer']],
 				'related_links_section'    => ['label' => __('Related Links', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
 				'cta_block'                => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
@@ -93,7 +91,7 @@ function massitpro_get_native_section_registry() {
 				'services_section' => ['label' => __('Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
 				'benefits_section' => ['label' => __('Benefits', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'process_section'  => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
-				'faq_section'      => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
+				'faq_section'      => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['question', 'answer']],
 				'cta_block'        => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
@@ -105,7 +103,7 @@ function massitpro_get_native_section_registry() {
 				'services_section' => ['label' => __('Services', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body', 'link_label', 'link_url']],
 				'benefits_section' => ['label' => __('Benefits', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['icon', 'title', 'body']],
 				'process_section'  => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
-				'faq_section'      => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 8, 'fields' => ['question', 'answer']],
+				'faq_section'      => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['question', 'answer']],
 				'cta_block'        => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
 			],
 		],
@@ -569,6 +567,9 @@ function massitpro_render_native_section_editor($section_key, $definition, $valu
 			return;
 		case 'about_certifications':
 			massitpro_render_native_about_certifications_editor($section_key, $value);
+			return;
+		case 'deliverables_pills':
+			massitpro_render_native_deliverables_pills_editor($section_key, $value);
 			return;
 		case 'section_heading':
 			massitpro_render_native_text_input($section_key, 'eyebrow', __('Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
@@ -1306,6 +1307,7 @@ function massitpro_sanitize_native_section($definition, $input) {
 		case 'about_team':
 			return massitpro_sanitize_native_about_team_section($input);
 		case 'about_certifications':
+		case 'deliverables_pills':
 			return massitpro_sanitize_native_about_certifications_section($input);
 		case 'contact_form':
 			return massitpro_sanitize_native_contact_form_section($input);
@@ -1692,6 +1694,26 @@ function massitpro_render_native_about_certifications_editor($section, $value) {
 	for ($index = 0; $index < 8; $index++) {
 		$row = (array) ($value['items'][$index] ?? []);
 		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Certification %d', 'massitpro'), $index + 1)) . '</h4>';
+		massitpro_render_native_select($section, 'items][' . $index . '][icon', __('Icon', 'massitpro'), (string) ($row['icon'] ?? 'check'), massitpro_get_native_icon_choices());
+		massitpro_render_native_text_input($section, 'items][' . $index . '][label', __('Label', 'massitpro'), (string) ($row['label'] ?? ''));
+		echo '</div>';
+	}
+}
+
+/**
+ * Render the Deliverables Pills editor (certification-style items for service detail).
+ *
+ * @param string              $section Section key.
+ * @param array<string,mixed> $value   Current value.
+ */
+function massitpro_render_native_deliverables_pills_editor($section, $value) {
+	massitpro_render_native_text_input($section, 'eyebrow', __('Deliverables Eyebrow', 'massitpro'), (string) ($value['eyebrow'] ?? ''));
+	massitpro_render_native_text_input($section, 'heading', __('Deliverables Heading', 'massitpro'), (string) ($value['heading'] ?? ''));
+	massitpro_render_native_textarea($section, 'body', __('Deliverables Body', 'massitpro'), (string) ($value['body'] ?? ''), 4);
+
+	for ($index = 0; $index < 8; $index++) {
+		$row = (array) ($value['items'][$index] ?? []);
+		echo '<div class="massitpro-meta-box__subsection"><h4>' . esc_html(sprintf(__('Deliverable %d', 'massitpro'), $index + 1)) . '</h4>';
 		massitpro_render_native_select($section, 'items][' . $index . '][icon', __('Icon', 'massitpro'), (string) ($row['icon'] ?? 'check'), massitpro_get_native_icon_choices());
 		massitpro_render_native_text_input($section, 'items][' . $index . '][label', __('Label', 'massitpro'), (string) ($row['label'] ?? ''));
 		echo '</div>';
