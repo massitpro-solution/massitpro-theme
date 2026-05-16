@@ -3461,12 +3461,64 @@ function massitpro_render_service_group_page_body($post_id = 0) {
  */
 function massitpro_render_industries_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_intro_section('intro_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_image_cards_section('featured_industries_section', $post_id);
-	massitpro_render_icon_cards_section('value_cards_section', $post_id);
-	massitpro_render_icon_cards_section('compliance_cards_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_featured_project_section('featured_project_section', $post_id, ['surface_class' => 'surface-sand']);
-	massitpro_render_cta_block($post_id);
+	massitpro_render_services_showcase_section('services_section', $post_id);
+	massitpro_render_stats_band_section('why_trust_section', $post_id, ['surface_class' => 'surface-stone-alt', 'section_class' => 'hp-why-trust']);
+	massitpro_render_industries_flipcard_section('served_industries_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'hub-industries']);
+	massitpro_render_related_links_split_section('related_links_section', $post_id, ['surface_class' => 'surface-sand-warm']);
+	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand']);
+	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center services-hub-cta-section']);
+}
+
+/**
+ * Render the services showcase grid section (industry hub).
+ * Dark glass cards on light background with staggered reveal.
+ *
+ * @param string $field_name Section field name.
+ * @param int    $post_id    Post ID.
+ */
+function massitpro_render_services_showcase_section($field_name, $post_id) {
+	$post_id = massitpro_get_render_post_id($post_id);
+	$group   = (array) massitpro_get_section_meta($field_name, $post_id, []);
+	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
+	$heading = trim((string) ($group['heading'] ?? ''));
+	$body    = (string) ($group['body'] ?? '');
+	$items   = massitpro_filter_rows((array) ($group['items'] ?? []), ['title']);
+
+	if (! massitpro_has_any_content($eyebrow, $heading, $body, $items)) {
+		return;
+	}
+	?>
+	<section class="services-showcase section-padding section-spacing surface-sand">
+		<div class="site-shell">
+			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
+			<?php if ($items) : ?>
+				<div class="showcase-grid" data-reveal>
+					<?php foreach ($items as $index => $item) :
+						$icon      = trim((string) ($item['icon'] ?? ''));
+						$link_url  = trim((string) ($item['link_url'] ?? ''));
+						$link_label = trim((string) ($item['link_label'] ?? ''));
+					?>
+						<div class="showcase-card" style="--card-delay: <?php echo (int) $index; ?>">
+							<?php if ($icon) : ?>
+								<div class="showcase-card__icon" aria-hidden="true"><?php echo massitpro_svg_icon($icon); ?></div>
+							<?php endif; ?>
+							<h3 class="showcase-card__title"><?php echo esc_html((string) $item['title']); ?></h3>
+							<?php if (! empty($item['body'])) : ?>
+								<p class="showcase-card__body"><?php echo esc_html((string) $item['body']); ?></p>
+							<?php endif; ?>
+							<?php if ($link_url) : ?>
+								<a class="showcase-card__cta" href="<?php echo esc_url($link_url); ?>">
+									<span><?php echo esc_html($link_label ?: __('Learn More', 'massitpro')); ?></span>
+									<span class="showcase-card__arrow" aria-hidden="true"><?php echo massitpro_svg_icon('arrow-right'); ?></span>
+								</a>
+							<?php endif; ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+	</section>
+	<?php
 }
 
 /**
