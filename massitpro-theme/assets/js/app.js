@@ -322,6 +322,47 @@
 		syncSlides();
 	}
 
+	var capSlider = document.querySelector('[data-capabilities-slider]');
+	if (capSlider) {
+		var capSlides = Array.prototype.slice.call(capSlider.querySelectorAll('[data-capabilities-slide]'));
+		var capDots = Array.prototype.slice.call(capSlider.querySelectorAll('[data-capabilities-dot]'));
+		var capPrev = capSlider.querySelector('[data-capabilities-prev]');
+		var capNext = capSlider.querySelector('[data-capabilities-next]');
+		var capIndex = 0;
+
+		var syncCapSlides = function () {
+			capSlides.forEach(function (slide, i) {
+				slide.classList.toggle('is-active', i === capIndex);
+			});
+			capDots.forEach(function (dot, i) {
+				dot.classList.toggle('is-active', i === capIndex);
+			});
+		};
+
+		if (capPrev) {
+			capPrev.addEventListener('click', function () {
+				capIndex = (capIndex - 1 + capSlides.length) % capSlides.length;
+				syncCapSlides();
+			});
+		}
+
+		if (capNext) {
+			capNext.addEventListener('click', function () {
+				capIndex = (capIndex + 1) % capSlides.length;
+				syncCapSlides();
+			});
+		}
+
+		capDots.forEach(function (dot, i) {
+			dot.addEventListener('click', function () {
+				capIndex = i;
+				syncCapSlides();
+			});
+		});
+
+		syncCapSlides();
+	}
+
 	var contactForm = document.querySelector('.massitpro-contact-form');
 	if (contactForm) {
 		var serviceRadios = contactForm.querySelectorAll('input[name="massitpro_contact[servicetype]"]');

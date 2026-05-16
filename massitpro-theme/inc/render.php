@@ -3633,7 +3633,7 @@ function massitpro_render_locations_page_body($post_id = 0) {
 }
 
 /**
- * Render service-detail capabilities section with creative showcase cards.
+ * Render service-detail capabilities section as a full-width slider.
  *
  * @param string $field_name Section field name.
  * @param int    $post_id    Post ID.
@@ -3650,39 +3650,55 @@ function massitpro_render_service_capabilities_section($field_name, $post_id) {
 		return;
 	}
 	?>
-	<section class="service-capabilities section-padding section-spacing surface-sand">
+	<section class="service-capabilities section-padding section-spacing surface-navy" data-capabilities-slider>
 		<div class="site-shell">
 			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
 			<?php if ($items) : ?>
-				<div class="capabilities-showcase" data-reveal>
+				<div class="capabilities-slider" data-reveal>
 					<?php foreach ($items as $index => $item) : ?>
 						<?php
 						$image    = massitpro_resolve_image_value($item['image'] ?? null);
 						$link_url = trim((string) ($item['link_url'] ?? ''));
 						?>
-						<article class="capability-card" data-reveal style="transition-delay: <?php echo esc_attr(number_format($index * 0.08, 2, '.', '')); ?>s;">
-							<?php if ($image) : ?>
-								<div class="capability-card__media">
-									<?php massitpro_render_media(['image' => $image, 'aspect' => 'video']); ?>
-									<div class="capability-card__overlay"></div>
+						<div class="capabilities-slide<?php echo 0 === $index ? ' is-active' : ''; ?>" data-capabilities-slide>
+							<div class="capabilities-slide__inner">
+								<div class="capabilities-slide__media">
+									<?php if ($image) : ?>
+										<?php massitpro_render_media(['image' => $image, 'aspect' => 'portrait']); ?>
+									<?php else : ?>
+										<div class="location-image-placeholder location-image-placeholder--tall" aria-hidden="true"></div>
+									<?php endif; ?>
 								</div>
-							<?php endif; ?>
-							<div class="capability-card__body">
-								<?php if (! empty($item['title'])) : ?>
-									<h3><?php echo esc_html((string) $item['title']); ?></h3>
-								<?php endif; ?>
-								<?php if (! empty($item['body'])) : ?>
-									<p><?php echo esc_html((string) $item['body']); ?></p>
-								<?php endif; ?>
-								<?php if ($link_url) : ?>
-									<a class="capability-card__cta" href="<?php echo esc_url($link_url); ?>">
-										<span><?php esc_html_e('Learn More', 'massitpro'); ?></span>
-										<span class="capability-card__arrow" aria-hidden="true"><?php echo massitpro_svg_icon('arrow-right'); ?></span>
-									</a>
-								<?php endif; ?>
+								<div class="capabilities-slide__card">
+									<?php if (! empty($item['title'])) : ?>
+										<h3><?php echo esc_html((string) $item['title']); ?></h3>
+									<?php endif; ?>
+									<?php if (! empty($item['body'])) : ?>
+										<p><?php echo esc_html((string) $item['body']); ?></p>
+									<?php endif; ?>
+									<?php if ($link_url) : ?>
+										<a class="capability-card__cta" href="<?php echo esc_url($link_url); ?>">
+											<span><?php esc_html_e('Learn More', 'massitpro'); ?></span>
+											<span class="capability-card__arrow" aria-hidden="true"><?php echo massitpro_svg_icon('arrow-right'); ?></span>
+										</a>
+									<?php endif; ?>
+								</div>
 							</div>
-						</article>
+						</div>
 					<?php endforeach; ?>
+					<button class="capabilities-slider__arrow capabilities-slider__arrow--prev icon-button" type="button" data-capabilities-prev aria-label="<?php esc_attr_e('Previous', 'massitpro'); ?>">
+						<?php echo massitpro_svg_icon('arrow-left'); ?>
+					</button>
+					<button class="capabilities-slider__arrow capabilities-slider__arrow--next icon-button" type="button" data-capabilities-next aria-label="<?php esc_attr_e('Next', 'massitpro'); ?>">
+						<?php echo massitpro_svg_icon('arrow-right'); ?>
+					</button>
+					<div class="capabilities-slider__controls">
+						<div class="testimonial-dots">
+							<?php foreach ($items as $dot_index => $dot_item) : ?>
+								<button class="testimonial-dot<?php echo 0 === $dot_index ? ' is-active' : ''; ?>" type="button" data-capabilities-dot aria-label="<?php echo esc_attr(sprintf(__('Slide %d', 'massitpro'), $dot_index + 1)); ?>"></button>
+							<?php endforeach; ?>
+						</div>
+					</div>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -3743,8 +3759,6 @@ function massitpro_render_service_detail_page_body($post_id = 0) {
 	massitpro_render_deliverables_pills_section('deliverables_section', $post_id);
 	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand', 'section_class' => 'service-detail-process']);
 	massitpro_render_related_links_split_section('related_services_section', $post_id, ['surface_class' => 'surface-sand-warm']);
-	massitpro_render_cpt_projects_section($post_id);
-	massitpro_render_cpt_testimonials_section($post_id);
 	massitpro_render_faq_cards_section('faq_section', $post_id);
 	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center service-detail-cta']);
 }
