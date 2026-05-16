@@ -3650,7 +3650,7 @@ function massitpro_render_service_capabilities_section($field_name, $post_id) {
 		return;
 	}
 	?>
-	<section class="service-capabilities section-padding section-spacing surface-navy" data-capabilities-slider>
+	<section class="service-capabilities section-padding section-spacing surface-sand" data-capabilities-slider>
 		<div class="site-shell">
 			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
 			<?php if ($items) : ?>
@@ -3661,7 +3661,7 @@ function massitpro_render_service_capabilities_section($field_name, $post_id) {
 						$link_url = trim((string) ($item['link_url'] ?? ''));
 						?>
 						<div class="capabilities-slide<?php echo 0 === $index ? ' is-active' : ''; ?>" data-capabilities-slide>
-							<div class="capabilities-slide__inner">
+							<div class="capabilities-slide__stage">
 								<div class="capabilities-slide__media">
 									<?php if ($image) : ?>
 										<?php massitpro_render_media(['image' => $image, 'aspect' => 'portrait']); ?>
@@ -3692,12 +3692,10 @@ function massitpro_render_service_capabilities_section($field_name, $post_id) {
 					<button class="capabilities-slider__arrow capabilities-slider__arrow--next icon-button" type="button" data-capabilities-next aria-label="<?php esc_attr_e('Next', 'massitpro'); ?>">
 						<?php echo massitpro_svg_icon('arrow-right'); ?>
 					</button>
-					<div class="capabilities-slider__controls">
-						<div class="testimonial-dots">
-							<?php foreach ($items as $dot_index => $dot_item) : ?>
-								<button class="testimonial-dot<?php echo 0 === $dot_index ? ' is-active' : ''; ?>" type="button" data-capabilities-dot aria-label="<?php echo esc_attr(sprintf(__('Slide %d', 'massitpro'), $dot_index + 1)); ?>"></button>
-							<?php endforeach; ?>
-						</div>
+					<div class="capabilities-slider__dots">
+						<?php foreach ($items as $dot_index => $dot_item) : ?>
+							<button class="capabilities-dot<?php echo 0 === $dot_index ? ' is-active' : ''; ?>" type="button" data-capabilities-dot aria-label="<?php echo esc_attr(sprintf(__('Slide %d', 'massitpro'), $dot_index + 1)); ?>"></button>
+						<?php endforeach; ?>
 					</div>
 				</div>
 			<?php endif; ?>
