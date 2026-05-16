@@ -5265,12 +5265,13 @@ a.contact-location__link:hover {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SERVICE DETAIL — Capabilities Slider
+   SERVICE DETAIL — Capabilities Slider (image + overlapping card)
    ═══════════════════════════════════════════════════════════════ */
 
 .capabilities-slider {
 	position: relative;
 	margin-top: 48px;
+	padding-bottom: 12px;
 }
 
 .capabilities-slide {
@@ -5283,30 +5284,29 @@ a.contact-location__link:hover {
 }
 
 @keyframes capFadeIn {
-	from { opacity: 0; transform: translateY(12px); }
-	to   { opacity: 1; transform: translateY(0); }
+	from { opacity: 0; transform: translateX(16px); }
+	to   { opacity: 1; transform: translateX(0); }
 }
 
-.capabilities-slide__inner {
+/* ── stage: the overlap container ── */
+.capabilities-slide__stage {
 	position: relative;
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 0;
-	align-items: stretch;
-	max-width: 940px;
+	max-width: 900px;
 	margin: 0 auto;
 }
 
+/* ── image ── */
 .capabilities-slide__media {
 	position: relative;
 	overflow: hidden;
-	border-radius: var(--radius-4xl) var(--radius-4xl) 0 0;
-	min-height: 280px;
+	border-radius: var(--radius-4xl);
+	width: 100%;
+	min-height: 320px;
 }
 
 .capabilities-slide__media .media-block {
 	height: 100%;
-	min-height: 280px;
+	min-height: 320px;
 }
 
 .capabilities-slide__media img,
@@ -5316,16 +5316,20 @@ a.contact-location__link:hover {
 	object-fit: cover;
 }
 
+/* ── dark glass card (stacked on mobile, overlapping on desktop) ── */
 .capabilities-slide__card {
 	position: relative;
-	padding: 32px 28px;
-	background: rgba(255, 255, 255, 0.07);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	border-radius: 0 0 var(--radius-4xl) var(--radius-4xl);
-	backdrop-filter: blur(16px);
+	margin-top: -40px;
+	margin-inline: 16px;
+	padding: 28px 24px;
+	background: linear-gradient(135deg, rgba(8, 58, 79, 0.92) 0%, rgba(4, 40, 56, 0.96) 100%);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 20px;
+	backdrop-filter: blur(20px);
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
+	z-index: 2;
 }
 
 .capabilities-slide__card h3 {
@@ -5339,7 +5343,7 @@ a.contact-location__link:hover {
 .capabilities-slide__card p {
 	margin: 0;
 	font-size: 0.9375rem;
-	color: var(--color-white-soft);
+	color: rgba(255, 255, 255, 0.72);
 	line-height: 1.7;
 }
 
@@ -5370,58 +5374,92 @@ a.contact-location__link:hover {
 	transform: translateX(3px);
 }
 
-/* side arrows */
+/* ── side arrows ── */
 .capabilities-slider__arrow {
 	position: absolute;
 	top: 50%;
-	transform: translateY(-50%);
+	transform: translateY(-100%);
 	z-index: 3;
 	border-radius: 50%;
-	display: none;
 }
 
 .capabilities-slider__arrow--prev {
-	left: -60px;
+	left: 12px;
 }
 
 .capabilities-slider__arrow--next {
-	right: -60px;
+	right: 12px;
 }
 
-/* dots */
-.capabilities-slider__controls {
+/* ── dots ── */
+.capabilities-slider__dots {
 	display: flex;
+	align-items: center;
 	justify-content: center;
+	gap: 8px;
 	margin-top: 32px;
 }
 
-.service-capabilities .testimonial-dot {
-	background: rgba(255, 255, 255, 0.25);
+.capabilities-dot {
+	width: 10px;
+	height: 10px;
+	border: 0;
+	border-radius: 999px;
+	background: rgba(8, 58, 79, 0.18);
+	cursor: pointer;
+	transition: width var(--transition), background-color var(--transition);
+	padding: 0;
 }
 
-.service-capabilities .testimonial-dot.is-active {
-	background: var(--color-teal-light);
+.capabilities-dot.is-active {
+	width: 28px;
+	background: var(--color-teal);
 }
 
-/* ── desktop: image left, card overlaps right ── */
+/* ── desktop: image left ~55%, card overlaps from the right ── */
 @media (min-width: 768px) {
-	.capabilities-slide__inner {
-		grid-template-columns: 1fr 1fr;
+	.capabilities-slide__stage {
+		min-height: 460px;
 	}
 
 	.capabilities-slide__media {
-		border-radius: var(--radius-4xl) 0 0 var(--radius-4xl);
-		min-height: 420px;
+		width: 58%;
+		min-height: 460px;
+		border-radius: var(--radius-4xl);
 	}
 
 	.capabilities-slide__card {
-		border-radius: 0 var(--radius-4xl) var(--radius-4xl) 0;
-		padding: 40px 36px;
-		justify-content: center;
+		position: absolute;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 50%;
+		margin: 0;
+		padding: 36px 32px;
+		border-radius: 24px;
+		box-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.35);
 	}
 
-	.capabilities-slider__arrow {
-		display: inline-flex;
+	.capabilities-slider__arrow--prev {
+		left: -56px;
+	}
+
+	.capabilities-slider__arrow--next {
+		right: -56px;
+	}
+}
+
+@media (min-width: 1100px) {
+	.capabilities-slide__stage {
+		max-width: 960px;
+	}
+
+	.capabilities-slide__card {
+		padding: 40px 36px;
+	}
+
+	.capabilities-slide__card h3 {
+		font-size: 1.5rem;
 	}
 }
 
