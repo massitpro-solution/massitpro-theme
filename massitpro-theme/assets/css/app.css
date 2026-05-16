@@ -5265,115 +5265,98 @@ a.contact-location__link:hover {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SERVICE DETAIL — Capabilities Showcase Cards
+   SERVICE DETAIL — Capabilities Slider
    ═══════════════════════════════════════════════════════════════ */
 
-.capabilities-showcase {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 24px;
+.capabilities-slider {
+	position: relative;
 	margin-top: 48px;
 }
 
-@media (min-width: 640px) {
-	.capabilities-showcase {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
+.capabilities-slide {
+	display: none;
 }
 
-@media (min-width: 1024px) {
-	.capabilities-showcase {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
+.capabilities-slide.is-active {
+	display: block;
+	animation: capFadeIn 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.capability-card {
+@keyframes capFadeIn {
+	from { opacity: 0; transform: translateY(12px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+.capabilities-slide__inner {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+	align-items: stretch;
+	max-width: 940px;
+	margin: 0 auto;
+}
+
+.capabilities-slide__media {
 	position: relative;
 	overflow: hidden;
-	border-radius: var(--radius-4xl);
-	background: var(--color-card);
-	border: 1px solid rgba(8, 58, 79, 0.05);
-	box-shadow: var(--shadow-premium);
-	transition: transform 400ms cubic-bezier(0.2, 0.8, 0.2, 1),
-	            box-shadow 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+	border-radius: var(--radius-4xl) var(--radius-4xl) 0 0;
+	min-height: 280px;
 }
 
-.capability-card:hover {
-	transform: translateY(-8px);
-	box-shadow: 0 20px 60px -12px rgba(8, 58, 79, 0.18), 0 0 0 1px rgba(8, 58, 79, 0.06);
-}
-
-.capability-card__media {
-	position: relative;
-	overflow: hidden;
-	aspect-ratio: 16 / 10;
-}
-
-.capability-card__media .media-block {
+.capabilities-slide__media .media-block {
 	height: 100%;
+	min-height: 280px;
 }
 
-.capability-card__media img,
-.capability-card__media .wp-post-image {
+.capabilities-slide__media img,
+.capabilities-slide__media .wp-post-image {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.capability-card:hover .capability-card__media img,
-.capability-card:hover .capability-card__media .wp-post-image {
-	transform: scale(1.08);
-}
-
-.capability-card__overlay {
-	position: absolute;
-	inset: 0;
-	background: linear-gradient(180deg, transparent 40%, rgba(8, 58, 79, 0.06) 100%);
-	pointer-events: none;
-	transition: opacity 400ms ease;
-}
-
-.capability-card:hover .capability-card__overlay {
-	opacity: 0.5;
-}
-
-.capability-card__body {
-	padding: 24px 28px 28px;
+.capabilities-slide__card {
+	position: relative;
+	padding: 32px 28px;
+	background: rgba(255, 255, 255, 0.07);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 0 0 var(--radius-4xl) var(--radius-4xl);
+	backdrop-filter: blur(16px);
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 14px;
 }
 
-.capability-card__body h3 {
+.capabilities-slide__card h3 {
 	margin: 0;
-	font-size: 1.125rem;
+	font-size: 1.375rem;
 	font-weight: 700;
-	color: var(--color-foreground);
+	color: #ffffff;
 	line-height: 1.3;
 }
 
-.capability-card__body p {
+.capabilities-slide__card p {
 	margin: 0;
 	font-size: 0.9375rem;
-	color: var(--color-body, #4a5568);
-	line-height: 1.6;
+	color: var(--color-white-soft);
+	line-height: 1.7;
 }
 
 .capability-card__cta {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	margin-top: 6px;
+	margin-top: 4px;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: var(--color-teal);
+	color: var(--color-teal-light);
 	text-decoration: none;
 	transition: gap 300ms ease, color 300ms ease;
 }
 
 .capability-card__cta:hover {
-	color: var(--color-navy);
+	color: #ffffff;
 	gap: 10px;
 }
 
@@ -5383,32 +5366,63 @@ a.contact-location__link:hover {
 	transition: transform 300ms ease;
 }
 
-.capability-card:hover .capability-card__arrow svg {
+.capability-card__cta:hover .capability-card__arrow svg {
 	transform: translateX(3px);
 }
 
-/* shimmer border on hover */
-.capability-card::before {
-	content: "";
+/* side arrows */
+.capabilities-slider__arrow {
 	position: absolute;
-	inset: -1px;
-	border-radius: inherit;
-	padding: 1px;
-	background: linear-gradient(135deg, transparent 40%, var(--color-teal) 50%, transparent 60%);
-	background-size: 300% 300%;
-	background-position: 100% 100%;
-	-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-	-webkit-mask-composite: xor;
-	mask-composite: exclude;
-	opacity: 0;
-	transition: opacity 400ms ease, background-position 600ms ease;
-	pointer-events: none;
-	z-index: 1;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 3;
+	border-radius: 50%;
+	display: none;
 }
 
-.capability-card:hover::before {
-	opacity: 1;
-	background-position: 0 0;
+.capabilities-slider__arrow--prev {
+	left: -60px;
+}
+
+.capabilities-slider__arrow--next {
+	right: -60px;
+}
+
+/* dots */
+.capabilities-slider__controls {
+	display: flex;
+	justify-content: center;
+	margin-top: 32px;
+}
+
+.service-capabilities .testimonial-dot {
+	background: rgba(255, 255, 255, 0.25);
+}
+
+.service-capabilities .testimonial-dot.is-active {
+	background: var(--color-teal-light);
+}
+
+/* ── desktop: image left, card overlaps right ── */
+@media (min-width: 768px) {
+	.capabilities-slide__inner {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.capabilities-slide__media {
+		border-radius: var(--radius-4xl) 0 0 var(--radius-4xl);
+		min-height: 420px;
+	}
+
+	.capabilities-slide__card {
+		border-radius: 0 var(--radius-4xl) var(--radius-4xl) 0;
+		padding: 40px 36px;
+		justify-content: center;
+	}
+
+	.capabilities-slider__arrow {
+		display: inline-flex;
+	}
 }
 
 /* ═══════════════════════════════════════════════════════════════

@@ -34,9 +34,9 @@ function massitpro_get_native_section_registry() {
 			'title'    => __('Mass IT Pro Service Detail Fields', 'massitpro'),
 			'sections' => [
 				'hero'                       => ['label' => __('Hero', 'massitpro'), 'type' => 'hero'],
-				'capabilities_section'       => ['label' => __('Capabilities', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['image', 'title', 'body', 'link_url'], 'has_eyebrow' => true],
+				'capabilities_section'       => ['label' => __('Capabilities', 'massitpro'), 'type' => 'cards', 'rows' => 4, 'fields' => ['image', 'title', 'body', 'link_url'], 'has_eyebrow' => true],
 				'deliverables_section'       => ['label' => __('Deliverables', 'massitpro'), 'type' => 'deliverables_pills'],
-				'process_section'            => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 6],
+				'process_section'            => ['label' => __('Process Steps', 'massitpro'), 'type' => 'process', 'rows' => 4],
 				'related_services_section'   => ['label' => __('Ideal For', 'massitpro'), 'type' => 'related_links', 'rows' => 6],
 				'faq_section'                => ['label' => __('FAQs', 'massitpro'), 'type' => 'cards', 'rows' => 6, 'fields' => ['question', 'answer']],
 				'cta_block'                  => ['label' => __('CTA Block', 'massitpro'), 'type' => 'cta'],
