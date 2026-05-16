@@ -829,4 +829,20 @@
 		});
 	}
 
+	/* ============================================================
+	   Bento grid — tap to expand (mobile / touch fallback)
+	   ============================================================ */
+	var bentoCards = document.querySelectorAll('[data-bento-card]');
+	if (bentoCards.length) {
+		var cards = Array.prototype.slice.call(bentoCards);
+		cards.forEach(function (card) {
+			card.addEventListener('click', function (e) {
+				if (e.target.closest('.bento-card__cta')) return;
+				var wasExpanded = card.classList.contains('is-expanded');
+				cards.forEach(function (c) { c.classList.remove('is-expanded'); });
+				if (!wasExpanded) card.classList.add('is-expanded');
+			});
+		});
+	}
+
 })();

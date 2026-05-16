@@ -3461,22 +3461,22 @@ function massitpro_render_service_group_page_body($post_id = 0) {
  */
 function massitpro_render_industries_page_body($post_id = 0) {
 	$post_id = massitpro_get_render_post_id($post_id);
-	massitpro_render_services_showcase_section('services_section', $post_id);
+	massitpro_render_services_bento_section('services_section', $post_id);
 	massitpro_render_stats_band_section('why_trust_section', $post_id, ['surface_class' => 'surface-stone-alt', 'section_class' => 'hp-why-trust']);
-	massitpro_render_industries_flipcard_section('served_industries_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'hub-industries']);
-	massitpro_render_related_links_split_section('related_links_section', $post_id, ['surface_class' => 'surface-sand-warm']);
+	massitpro_render_industries_flipcard_section('locations_section', $post_id, ['surface_class' => 'surface-stone-alt', 'carousel_key' => 'hub-locations']);
+	massitpro_render_related_links_split_section('industries_section', $post_id, ['surface_class' => 'surface-sand-warm']);
 	massitpro_render_process_section('process_section', $post_id, ['surface_class' => 'surface-sand']);
 	massitpro_render_cta_block($post_id, ['section_class' => 'cta-shell--center services-hub-cta-section']);
 }
 
 /**
- * Render the services showcase grid section (industry hub).
- * Dark glass cards on light background with staggered reveal.
+ * Render the services bento grid section (industry hub).
+ * Image-driven cards in a masonry-style bento layout with expand-on-hover.
  *
  * @param string $field_name Section field name.
  * @param int    $post_id    Post ID.
  */
-function massitpro_render_services_showcase_section($field_name, $post_id) {
+function massitpro_render_services_bento_section($field_name, $post_id) {
 	$post_id = massitpro_get_render_post_id($post_id);
 	$group   = (array) massitpro_get_section_meta($field_name, $post_id, []);
 	$eyebrow = trim((string) ($group['eyebrow'] ?? ''));
@@ -3488,30 +3488,38 @@ function massitpro_render_services_showcase_section($field_name, $post_id) {
 		return;
 	}
 	?>
-	<section class="services-showcase section-padding section-spacing surface-sand">
+	<section class="services-bento section-padding section-spacing surface-sand">
 		<div class="site-shell">
 			<?php massitpro_render_section_heading(['label' => $eyebrow, 'title' => $heading, 'copy' => $body, 'align' => 'center']); ?>
 			<?php if ($items) : ?>
-				<div class="showcase-grid" data-reveal>
+				<div class="bento-grid" data-reveal>
 					<?php foreach ($items as $index => $item) :
-						$icon      = trim((string) ($item['icon'] ?? ''));
-						$link_url  = trim((string) ($item['link_url'] ?? ''));
+						$image      = massitpro_resolve_image_value($item['image'] ?? null);
+						$link_url   = trim((string) ($item['link_url'] ?? ''));
 						$link_label = trim((string) ($item['link_label'] ?? ''));
 					?>
-						<div class="showcase-card" style="--card-delay: <?php echo (int) $index; ?>">
-							<?php if ($icon) : ?>
-								<div class="showcase-card__icon" aria-hidden="true"><?php echo massitpro_svg_icon($icon); ?></div>
-							<?php endif; ?>
-							<h3 class="showcase-card__title"><?php echo esc_html((string) $item['title']); ?></h3>
-							<?php if (! empty($item['body'])) : ?>
-								<p class="showcase-card__body"><?php echo esc_html((string) $item['body']); ?></p>
-							<?php endif; ?>
-							<?php if ($link_url) : ?>
-								<a class="showcase-card__cta" href="<?php echo esc_url($link_url); ?>">
-									<span><?php echo esc_html($link_label ?: __('Learn More', 'massitpro')); ?></span>
-									<span class="showcase-card__arrow" aria-hidden="true"><?php echo massitpro_svg_icon('arrow-right'); ?></span>
-								</a>
-							<?php endif; ?>
+						<div class="bento-card" data-bento-card>
+							<div class="bento-card__media">
+								<?php if ($image) : ?>
+									<?php massitpro_render_media(['image' => $image, 'aspect' => 'fill']); ?>
+								<?php else : ?>
+									<div class="bento-card__placeholder" aria-hidden="true"></div>
+								<?php endif; ?>
+							</div>
+							<div class="bento-card__content">
+								<h3 class="bento-card__title"><?php echo esc_html((string) $item['title']); ?></h3>
+								<div class="bento-card__reveal">
+									<?php if (! empty($item['body'])) : ?>
+										<p class="bento-card__body"><?php echo esc_html((string) $item['body']); ?></p>
+									<?php endif; ?>
+									<?php if ($link_url) : ?>
+										<a class="bento-card__cta" href="<?php echo esc_url($link_url); ?>">
+											<span><?php echo esc_html($link_label ?: __('Learn More', 'massitpro')); ?></span>
+											<span class="bento-card__arrow" aria-hidden="true"><?php echo massitpro_svg_icon('arrow-right'); ?></span>
+										</a>
+									<?php endif; ?>
+								</div>
+							</div>
 						</div>
 					<?php endforeach; ?>
 				</div>
